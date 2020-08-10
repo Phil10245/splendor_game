@@ -1,0 +1,48 @@
+set up game:
+cardcreator:- 4 colours (red, blue, green, black)
+            - 3 difficulty levels:
+                  - easy, up to 5 needed / 4 / 3+2 / 1+1+1+1 /
+                    - medium: up to 8? needed / 6 / 6+2
+                    - hard: up to 10? needed / 7+3 / 8
+            - class cards: params: difficulty
+                          methods: rand_color, rand_ressources (depends on difficulty)
+card_obj could be stored in a list: [(head_color, value (0-5), ressource1, ressource2, ressource3, ressource4) * 12]
+> 12 open cards on the table. 1st 4 easy level, 5-8 medium, last 4 hard
+> when one is removed, it gets replaced by a new instance of card_obj of the same level.
+
+> how to render cards?
+
+3 bonus cards: own class. w random demands: 3+3+3 / 4+4, pointvalue: 3
+> stored in an array: [(value, ressource1, ressource2, ressource3, ressource4) * 3]
+> one removed, not replaced
+
+ressource_stack: - 4colours + (gold (joker)) -> golden to be added later
+                - 2 player: 5 each
+                - 3 player: 6 each
+                - 4 player: 7 each
+                > stored in list: (num_res1, num_res2, num_res3, num_res4)
+                > deduct taken by player, add player_paid_for_card
+                > cant be <0
+- if there are 4 or more: 2 * 1colour
+- normal: 1*3colours
+>>> to implement in game logic
+
+class player: id (1,2,3,4), name?, score, owned_cards as lst, owned_ressources as lst, owned_boni as lst, points
+> methods: pickRessources
+           pickCard
+           IF NOT VALID ACTION: choose another
+
+
+game logic:
+15points reached: end if round is completed
+owned_cards match bonus_card demands: add them to player's owned_boni and the points to points
+print after each turn: game_stats: nb of turns, points each player, cards available, ressources available...
+
+one turn:
+player can pick three different ressource or two of one (if conditions met)
+THEN add on owned_ressources, deduct from ressource_stack
+OR player can buy a card IF owned_ressources >= ressources_needed
+THEN add card to owned_cards, remove it from card_lst, add new card to card_lst, check bonus cards,
+add card_points to player's points
+
+when it all works: add graphics
