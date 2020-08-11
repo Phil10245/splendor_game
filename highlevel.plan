@@ -40,9 +40,12 @@ print after each turn: game_stats: nb of turns, points each player, cards availa
 
 one turn:
 player can pick three different ressource or two of one (if conditions met)
-THEN add on owned_ressources, deduct from ressource_stack
+add on owned_ressources, deduct from ressource_stack
+: implemented in pick_res functions
 OR player can buy a card IF owned_ressources >= ressources_needed
-THEN add card to owned_cards, remove it from card_lst, add new card to card_lst, check bonus cards,
+, add card to owned_cards, remove it from card_lst, add new card to card_lst,
+: implemented in pick_card func!!!
+check bonus cards,
 add card_points to player's points
 
 when it all works: add graphics

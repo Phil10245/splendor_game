@@ -9,7 +9,9 @@ import random
 # Next up: BonusCard class and func. logic similar to cardcreator stff done before!
 # => also done.
 # NEXT UP: RESSOURCE_STACK >done
-# next: player class - there will be 2 funcs: 1 - pick ressources DONE; 2nd: pick card. that is where we are
+# next: player class - there will be 2 funcs: 1 - pick ressources REFACTOR!; 2nd: pick card. DONE
+# time for the game loop and py game. keep it text based till it's running ok.
+# ressource stack just a list, instead of class?
 
 class Card():
 
@@ -139,18 +141,22 @@ class RessourceStack():
             self.lst_res = [6] * 4
 
     def __str__(self):
-        return (f"RED: {self.lst_res[0]} \nGREEN: {self.lst_res[1]} \nBLUE: {self.lst_res[2]} \nBLACK: {self.lst_res[3]} ")
+        return (f"GREEN: {self.lst_res[0]} \nBLUE: {self.lst_res[1]} \nRED: {self.lst_res[2]} \nBLACK: {self.lst_res[3]} ")
+
 
 class player():
     #human or pc,points counter, carddeck, res-dec, state (acti> not), take ressources,
     # take a card, receive bonuscard,
-    res = [0,0,0,0]
+    (green, blue, red, blck) = (15,15,15,15)
     # active / it`s teh player´s turn:
     state = 0
     #id for knowing the order of players:
     id = 0
     #the accumulated points:
     points = 0
+    #base coordinates:
+    x = 0
+    y = 0
 
     cardstack = list ()
 
@@ -164,39 +170,55 @@ class player():
 
     #take ressources.one a time repat the move acoordingly
     #add them to the player´s Ressourc
-    def take_Red(self, rs: RessourceStack):
+    #REFACTOR so taht it's not four  times same code! give color to pick as param!!
+    def take_Green(self, rs: RessourceStack):
         if rs.lst_res[0] >= 1:
-            self.res[0] += 1
+            self.green += 1
             rs.lst_res[0] -= 1
         else:
             print ("invalid move")
 
-    def take_Green(self, rs: RessourceStack):
+    def take_Blue(self, rs: RessourceStack):
         if rs.lst_res[1] >= 1:
-            self.res[1] += 1
+            self.blue += 1
             rs.lst_res[1] -= 1
         else:
             print ("invalid move")
 
-    def take_Blue(self, rs: RessourceStack):
+    def take_Red(self, rs: RessourceStack):
         if rs.lst_res[2] >= 1:
-            self.res[2] += 1
+            self.red += 1
             rs.lst_res[2] -= 1
         else:
             print ("invalid move")
 
     def take_Blck(self, rs: RessourceStack):
         if rs.lst_res[3] >= 1:
-            self.res[3] += 1
+            self.blck += 1
             rs.lst_res[3] -= 1
         else:
             print ("invalid move")
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
-    def pick_Crd(self, ob:OpenBoard, el:int):
+    def pick_Crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
         '''param el: index of card that is to be taken from the OpenBoard
-        param ob: the board'''
-        self.cardstack.append(ob.replaceCard(el))
+        param ob: the board
+        param stack: Ressourcestack obj - to refill wit the paid res.'''
+        if (self.green, self.blue, self.red, self.blck) >= (ob.deck[el].green, ob.deck[el].blue, ob.deck[el].red, ob.deck[el].blck):
+            # updating player's stack
+            self.green -= ob.deck[el].green
+            self.blue -= ob.deck[el].blue
+            self.red -= ob.deck[el].red
+            self.blck -= ob.deck[el].blck
+            #Updating resource stack:
+            stack.lst_res[0] += ob.deck[el].green
+            stack.lst_res[1] += ob.deck[el].blue
+            stack.lst_res[2] += ob.deck[el].red
+            stack.lst_res[3] += ob.deck[el].blck
+            # moving the card  from board to player
+            self.cardstack.append(ob.replaceCard(el))
+        else:
+            print("No sufficient funds. Please take another action")
 
 
 
@@ -230,10 +252,12 @@ def test2():
     nstack = RessourceStack(2)
     print(nstack)
     np = player("hans", 0, 1)
-    print(np.name, np.state, np.res[0], np.cardstack)
-    np.take_Red(nstack)
-    np.pick_Crd(ob, 0)
-    print(ob)
+    print(np.name, np.state, np.green, np.cardstack)
+    for _ in range(4):
+        np.take_Blck(nstack)
+    np.pick_Crd(ob, 11, nstack)
+    #print(ob)
     print(np.cardstack[0])
     print(nstack)
+    print(np.green, np.blue, np.red, np.blck)
 test2()
