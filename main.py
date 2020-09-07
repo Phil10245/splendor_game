@@ -14,7 +14,6 @@ import random
 # ressource stack just a list, instead of class?
 
 class Card():
-
     ''' card object - points, colour, ressource need, coordinates '''
 
     x = 0
@@ -46,9 +45,9 @@ class Card():
 
 
     def res_need(self, level):
-        '''func to make random ressource need distribution'''
-        '''has a total res as a limit but it should itself vary a bit'''
-        ''' to be closer to the game, that has not all possible combinations,
+        '''func to make random ressource need distribution
+        has a total res as a limit but it should itself vary a bit
+        to be closer to the game, that has not all possible combinations,
         im working with hardcoded combinations, from which random.choice picks, according to difficult level'''
         if level == 0:
             r1st, r2nd, r3rd, r4th = (random.choice(((0,0,0,4),(1,1,1,2),(0,0,2,2),
