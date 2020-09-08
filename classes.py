@@ -169,36 +169,15 @@ class Player():
     #take ressources.one a time repat the move acoordingly
     #add them to the player´s Ressourc
     #REFACTOR so taht it's not four  times same code! give color to pick as param!!
-    def take_Green(self, rs: RessourceStack):
-        if rs.lst_res[0] >= 1:
+    def take_res(self, rs: RessourceStack, id: int):
+        if rs.lst_res[id] >= 1:
             self.green += 1
-            rs.lst_res[0] -= 1
-        else:
-            print ("invalid move")
-
-    def take_Blue(self, rs: RessourceStack):
-        if rs.lst_res[1] >= 1:
-            self.blue += 1
-            rs.lst_res[1] -= 1
-        else:
-            print ("invalid move")
-
-    def take_Red(self, rs: RessourceStack):
-        if rs.lst_res[2] >= 1:
-            self.red += 1
-            rs.lst_res[2] -= 1
-        else:
-            print ("invalid move")
-
-    def take_Blck(self, rs: RessourceStack):
-        if rs.lst_res[3] >= 1:
-            self.blck += 1
-            rs.lst_res[3] -= 1
+            rs.lst_res[id] -= 1
         else:
             print ("invalid move")
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
-    def pick_Crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
+    def pick_crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
         '''param el: index of card that is to be taken from the OpenBoard
         param ob: the board
         param stack: Ressourcestack obj - to refill wit the paid res.'''

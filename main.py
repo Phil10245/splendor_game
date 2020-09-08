@@ -1,6 +1,18 @@
 from classes import Card, OpenBoard, BonusC, BonusBoard, RessourceStack, Player
 #import pygame
 
+#defining all known funcs, needed for the game not implemented in classes:
+#check func -> already implented in player class.
+#check points -> if >=15 game ends,playyer wins
+#
+
+
+
+
+
+
+
+
 def test():
     '''to test the functions. new tests added as functions are developed'''
     new_card = Card(2)
@@ -29,8 +41,8 @@ def test2():
     np = Player("hans", 0, 1)
     print(np.name, np.state, np.green, np.cardstack)
     for _ in range(4):
-        np.take_Blck(nstack)
-    np.pick_Crd(ob, 11, nstack)
+        np.take_res(nstack, 2)
+    np.pick_crd(ob, 11, nstack)
     #print(ob)
     print(np.cardstack[0])
     print(nstack)
