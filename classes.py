@@ -104,7 +104,7 @@ class BonusC():
     def __init__(self):
         res = [3,3,3,0]
         random.shuffle(res)
-        print(res)
+        #print(res)
         self.green, self.blue, self.red, self.blck = res
 
     def __str__(self):
@@ -121,6 +121,9 @@ class BonusBoard():
         for _ in range(3):
             self.deck.append(BonusC())
 
+    def __str__(self):
+        return str([el.__str__() for el in self.deck])
+
     def remove(self, el: int):
         return self.deck.pop(el)
 
@@ -131,21 +134,16 @@ class RessourceStack():
     '''
 
     def __init__(self, n:int):
-        if n == 2:
-            self.lst_res = [4] * 4
-        elif n == 3:
-            self.lst_res = [5] * 4
-        elif n == 4:
-            self.lst_res = [6] * 4
+        (self.green, self.blue, self.red, self.blck)  = (n + 2) * 4
 
     def __str__(self):
-        return (f"GREEN: {self.lst_res[0]} \nBLUE: {self.lst_res[1]} \nRED: {self.lst_res[2]} \nBLACK: {self.lst_res[3]} ")
+        return (f"GREEN: {self.green} \nBLUE: {self.blue} \nRED: {self.red} \nBLACK: {self.blck} ")
 
 
 class Player():
     #human or pc,points counter, carddeck, res-dec, state (acti> not), take ressources,
     # take a card, receive bonuscard,
-    (green, blue, red, blck) = (15,15,15,15)
+    (green, blue, red, blck) = (0,0,0,0)
     # active / it`s teh player´s turn:
     state = 0
     #id for knowing the order of players:
@@ -166,13 +164,17 @@ class Player():
         else:
             self.state = "computer"
 
+    def __str__(self):
+        return f'''{self.name}: \nGREEN: {self.green}, BLUE: {self.blue}, RED: {self.red}, BLACK: {self.blck}
+Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
+
     #take ressources.one a time repat the move acoordingly
     #add them to the player´s Ressourc
     #REFACTOR so taht it's not four  times same code! give color to pick as param!!
-    def take_res(self, rs: RessourceStack, id: int):
-        if rs.lst_res[id] >= 1:
-            self.green += 1
-            rs.lst_res[id] -= 1
+    def take_res(self, rs: RessourceStack, ressource: str):
+        if rs.ressource >= 1:
+            self.ressource += 1
+            rs.ressource -= 1
         else:
             print ("invalid move")
 
