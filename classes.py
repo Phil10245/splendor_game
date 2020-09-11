@@ -61,7 +61,7 @@ class Card():
         return (lst)
 
 
-    def __init__ (self, level):
+    def __init__ (self, level,x: int, y: int):
             self.colour = random.randint(1, 4)
             self.level = level
             (self.green, self.blue, self.red, self.blck) = self.res_need(level)
@@ -79,11 +79,12 @@ class OpenBoard():
     deck = list()
 
     def __init__(self):
-        for _ in range(3): #that`s the 3 difficulties
-            for __ in range(4): #instance the 4 cards
-                self.deck.append(Card(_))
-                #!still to do: algo to determine positions on board!
-                #self.deck[-1].x = WIDTH/3
+        for _ in range(3):
+            y = 50 + _ * 100 # determining the y coordinate
+            #that`s the 3 difficulties
+            for __ in range(4):   #instance the 4 card
+                x = 250 + __ * 70 # determining the x coordinate
+                self.deck.append(Card(_, x, y)) # initializing the card with all params.
 
     def __str__(self):
         return str([el.__str__() for el in self.deck])
