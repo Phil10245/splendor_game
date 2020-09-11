@@ -31,6 +31,13 @@ YELLOW = (255,255,0)
 BLUE = (0,0,200)
 RED = (255,0,0)
 
+#setup drawings:
+#1 Rect
+RECTWIDTH = 90
+RECTHEIGHT = 100
+PADDING_V = 100
+PADDING_H = 100
+
 #setup game loop
 FPS = 60
 clock = g.time.Clock()
@@ -57,15 +64,14 @@ def draw():
 
     #draw board
     #draw carddeck (openboard)
-    '''for card in carddeck:
-        x, y, ltr, visible = letter
-        if visible:
-            g.draw.circle(win, BLUE, (x,y), RADIUS, 3)
-            text = LETTER_FONT.render(ltr,1,BLUE)
-            win.blit(text,(int(x - text.get_width()/2) , int(y - text.get_height()/2.1)))'''
+    for card in ob.deck:
+        x, y = card.x, card.y
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTH, RECTHEIGHT))
+        text = LETTER_FONT.render(str(card.level) ,1,BLACK)
+        win.blit(text,(x + 2, y + 2))
     #draw bonus cards (available)
     #draw active player's stack (cards, points, ress)
-    win.blit(images[hm_stat], (100, 150))
+    #win.blit(images[hm_stat], (100, 150))
     g.display.update()
 
 while run:
@@ -91,18 +97,19 @@ while run:
         continue
 
     rs = RessourceStack(number_of_players)
-    card_board = OpenBoard()
+    ob = OpenBoard()
     boni = BonusBoard()
 
     print(boni)
-    print(card_board)
+    print(ob)
     print(rs)
     #turn of active player -> performs his actions, at the end next.
     #Should be an inner loop !
 
-    '''draw()
+    draw()
+    g.event.wait()
 
-    for event in g.event.get():
+    '''for event in g.event.get():
         if event.type == g.QUIT:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
