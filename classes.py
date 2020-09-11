@@ -81,10 +81,10 @@ class OpenBoard():
 
     def __init__(self):
         for _ in range(3):
-            y = 50 + _ * 100 # determining the y coordinate
+            y = 100 + _ * 110 # determining the y coordinate
             #that`s the 3 difficulties
             for __ in range(4):   #instance the 4 card
-                x = 250 + __ * 70 # determining the x coordinate
+                x = 200 + __ * 100 # determining the x coordinate
                 self.deck.append(Card(_, x, y)) # initializing the card with all params.
 
     def __str__(self):
@@ -126,7 +126,8 @@ class BonusBoard():
         self.deck = []
         for _ in range(3):
             y = 75 + _ * 70     #design : 60*60, 10px padding, starting at 575,75
-            self.deck.append(BonusC(x=575,y))
+            x = 575
+            self.deck.append(BonusC(x,y))
 
     def __str__(self):
         return str([el.__str__() for el in self.deck])
