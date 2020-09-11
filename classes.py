@@ -66,7 +66,8 @@ class Card():
             self.level = level
             (self.green, self.blue, self.red, self.blck) = self.res_need(level)
             self.points = self.detPoints(level)
-
+            self.x = x
+            self.y = y
 
     def __str__(self):
         return ("Colour: {}, Points: {} \nRessources: Green: {}, Blue: {}, Red: {}, Black {}".format(self.colour,
@@ -102,7 +103,11 @@ class BonusC():
     '''a bonuscard is worth 3P and is awarded when a player own the right pattern of cards'''
     points = 3
 
-    def __init__(self):
+    x, y = 0,0
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
         res = [3,3,3,0]
         random.shuffle(res)
         #print(res)
@@ -120,7 +125,8 @@ class BonusBoard():
     def __init__(self):
         self.deck = []
         for _ in range(3):
-            self.deck.append(BonusC())
+            y = 75 + _ * 70     #design : 60*60, 10px padding, starting at 575,75
+            self.deck.append(BonusC(x=575,y))
 
     def __str__(self):
         return str([el.__str__() for el in self.deck])
