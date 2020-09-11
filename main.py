@@ -98,6 +98,7 @@ while run:
     print(card_board)
     print(rs)
     #turn of active player -> performs his actions, at the end next.
+    #Should be an inner loop !
 
     '''draw()
 
