@@ -15,7 +15,7 @@ import pygame as g
 
 #setup display
 g.init()
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1330, 1000
 win = g.display.set_mode((WIDTH, HEIGHT))
 g.display.set_caption("Splendor 0.9")
 
@@ -30,11 +30,12 @@ BLACK = (0,0,0)
 YELLOW = (255,255,0)
 BLUE = (0,0,200)
 RED = (255,0,0)
+GREEN = (0,200,0)
 
 #setup drawings:
 #1 Rect
 RECTWIDTH = 90
-RECTHEIGHT = 100
+RECTHEIGHT = 110
 PADDING_V = 100
 PADDING_H = 100
 
@@ -66,9 +67,24 @@ def draw():
     #draw carddeck (openboard)
     for card in ob.deck:
         x, y = card.x, card.y
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTH, RECTHEIGHT))
-        text = LETTER_FONT.render(str(card.level) ,1,BLACK)
-        win.blit(text,(x + 2, y + 2))
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTH, RECTHEIGHT), 2)
+        #points
+        points = LETTER_FONT.render(str(card.points) ,1,BLACK)
+        win.blit(points,(x + 5, y + 5))
+        rx , ry = x + 45 , y + 20 # initial placing of the ressource numbers
+        # cost
+        for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
+            text = LETTER_FONT.render(str(ress),1,col)
+            win.blit(text, (rx , ry))
+            ry += 20
+        #color
+        if card.colour == 1: O = GREEN
+        if card.colour == 2: O = BLUE
+        if card.colour == 3: O = RED
+        if card.colour == 4: O = BLACK
+        colour = LETTER_FONT.render("O", 1, O)
+        win.blit(colour, (x + 70, y + 5))
+
     #draw bonus cards (available)
     #draw active player's stack (cards, points, ress)
     #win.blit(images[hm_stat], (100, 150))
@@ -89,6 +105,8 @@ while run:
                 player_ = Player("player" + str(_), 1, _)
                 ls_plyer.append(player_)
                 print(player_)
+        elif number_of_players == 69:
+            break
         else:
             print("Maximum players allowed are 4!")
             continue
@@ -107,12 +125,12 @@ while run:
     #Should be an inner loop !
 
     draw()
-    g.event.wait()
+    g.time.wait(10_000)
 
-    '''for event in g.event.get():
+    for event in g.event.get():
         if event.type == g.QUIT:
             run = False
-        if event.type == g.MOUSEBUTTONDOWN:
+    '''    if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
             for letter in letters:
                 x, y, ltr, visible = letter
