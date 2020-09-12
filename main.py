@@ -31,6 +31,7 @@ YELLOW = (255,255,0)
 BLUE = (0,0,200)
 RED = (255,0,0)
 GREEN = (0,200,0)
+LIGHTBLUE = (0,200,252)
 
 #setup drawings:
 #1 Rect
@@ -38,6 +39,8 @@ RECTWIDTH = 90
 RECTHEIGHT = 110
 PADDING_V = 100
 PADDING_H = 100
+RECTWIDTHB = 90
+RECTHEIGHTB = 90
 
 #setup game loop
 FPS = 60
@@ -79,13 +82,25 @@ def draw():
             ry += 20
         #color
         if card.colour == 1: O = GREEN
-        if card.colour == 2: O = BLUE
+        if card.colour == 2: O = LIGHTBLUE
         if card.colour == 3: O = RED
         if card.colour == 4: O = BLACK
         colour = LETTER_FONT.render("O", 1, O)
         win.blit(colour, (x + 70, y + 5))
 
     #draw bonus cards (available)
+    for card in boni.deck:
+        x, y = card.x, card.y
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHB, RECTHEIGHTB), 2)
+        #points
+        points = LETTER_FONT.render(str(card.points) ,1,BLACK)
+        win.blit(points,(x + 5, y + 5))
+        # cost
+        rx , ry = x + 35 , y + 10 # initial placing of the ressource numbers
+        for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
+            text = LETTER_FONT.render(str(ress),1,col)
+            win.blit(text, (rx , ry))
+            ry += 20
     #draw active player's stack (cards, points, ress)
     #win.blit(images[hm_stat], (100, 150))
     g.display.update()

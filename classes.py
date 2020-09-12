@@ -125,8 +125,8 @@ class BonusBoard():
     def __init__(self):
         self.deck = []
         for _ in range(3):
-            y = 75 + _ * 70     #design : 60*60, 10px padding, starting at 575,75
-            x = 575
+            y = 100 + _ * 100     #design : 90*90, 10px padding, starting at 885,75
+            x = 885
             self.deck.append(BonusC(x,y))
 
     def __str__(self):
