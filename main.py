@@ -101,8 +101,22 @@ def draw():
             text = LETTER_FONT.render(str(ress),1,col)
             win.blit(text, (rx , ry))
             ry += 20
+    # draw ressource stack  (variable name: rs)
+    #circle(surface, color, center, radius, width=0)
+    x = 1040
+    i = 0
+    for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
+        print( ress, col, i)
+        y = 135 + i * 90
+        print( x, y)
+        g.draw.circle(win, col, (x, y), 37 , 0)
+        a_res = LETTER_FONT.render(str(ress), 1, WHITE)
+        win.blit(a_res,(x - 5 , y - 10 ))
+        i += 1
+
+
     #draw active player's stack (cards, points, ress)
-    #win.blit(images[hm_stat], (100, 150))
+
     g.display.update()
 
 while run:
@@ -111,6 +125,7 @@ while run:
 
     #setup the game:
     #procedure to determine nb of players and crate the instances
+    # To be replaed by a menu!
     ls_plyer = list()
     number_of_players = input("Please enter the number of players: ")
     try:
@@ -140,12 +155,13 @@ while run:
     #Should be an inner loop !
 
     draw()
-    g.time.wait(10_000)
+    g.time.wait(15_000)
+    run = False
 
-    for event in g.event.get():
+    '''for event in g.event.get():
         if event.type == g.QUIT:
             run = False
-    '''    if event.type == g.MOUSEBUTTONDOWN:
+        if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
             for letter in letters:
                 x, y, ltr, visible = letter
@@ -160,47 +176,3 @@ while run:
                             hm_stat += 1
                             print(hm_stat)
     draw()'''
-
-
-
-
-
-
-
-
-
-def test():
-    '''to test the functions. new tests added as functions are developed'''
-    new_card = Card(2)
-    print(new_card)
-    new_card = Card(1)
-    print(new_card)
-    new_card = Card(0)
-    print(new_card)
-    new_game = OpenBoard()
-    print(new_game)
-    print(new_game.deck[-1])
-    cb = new_game.replaceCard(-1)
-    print(new_game.deck[-1])
-    print(cb)
-    #new_bonus = BonusC()
-    bonus_set = BonusBoard()
-    print(bonus_set.deck[0])
-    crd = bonus_set.remove(0)
-    print(crd)
-
-def test2():
-    ob = OpenBoard()
-    print(ob)
-    nstack = RessourceStack(2)
-    print(nstack)
-    np = Player("hans", 0, 1)
-    print(np.name, np.state, np.green, np.cardstack)
-    for _ in range(4):
-        np.take_res(nstack, 2)
-    np.pick_crd(ob, 11, nstack)
-    #print(ob)
-    print(np.cardstack[0])
-    print(nstack)
-    print(np.green, np.blue, np.red, np.blck)
-#test2()
