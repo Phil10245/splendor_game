@@ -13,6 +13,10 @@ import pygame as g
 
 #copying the code from hangman game - to be adapted but for a first intuition
 
+#to determine active player: Use ls_plyer : [0] is active player -> goes in last positon after his turn.
+# OR iterate over the list
+
+
 #setup display
 g.init()
 WIDTH, HEIGHT = 1330, 1000
@@ -116,6 +120,53 @@ def draw():
 
 
     #draw active player's stack (cards, points, ress)
+    #1 player_name & points
+    p_name = ls_plyer[0].name
+    drw_name = LETTER_FONT.render(p_name, 1, BLACK)
+    win.blit(drw_name, (465,480))
+    p_points = ls_plyer[0].points
+    drw_points = LETTER_FONT.render("Points: " + str(p_points), 1, BLACK)
+    win.blit(drw_points, (665,480))
+    #2 player stack (simple)
+    crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
+    for card in ls_plyer[0].cardstack:
+        if card.colour == 1:
+            crds_count[green] = crds_count.get(green, 0) + 1
+        if card.colour == 2:
+            crds_count[blue] = crds_count.get(blue, 0) + 1
+        if card.colour == 3:
+            crds_count[red] = crds_count.get(red, 0) + 1
+        if card.colour == 4:
+            crds_count[blck] = crds_count.get(blck, 0) + 1
+    print(crds_count)
+    y = 510
+    for idx, key in enumerate(crds_count):
+        x = 465 + idx * 75
+        if key == "green": col = GREEN
+        if key == "blue": col = LIGHTBLUE
+        if key == "red": col = RED
+        if key == "blck": col = BLACK
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHB // 3 * 2, RECTHEIGHTB //3 * 2), 2)
+        drw_nbcrds = LETTER_FONT.render(str(crds_count.get(key, 0)), 1, col)
+        win.blit(drw_nbcrds,(x+20,y+20))
+    #3 player's RessourceStack
+    # analog to draw rs
+    #circle(surface, color, center, radius, width=0)
+    i = 0
+    for ress, col in ((ls_plyer[0].green, GREEN), (ls_plyer[0].blue, BLUE), (ls_plyer[0].red, RED), (ls_plyer[0].blck, BLACK)):
+        print( ress, col, i)
+        if i < 2:
+            x = 850
+            y = 510 + i * 80
+        else:
+            x = 930
+            y = 510 + (i - 2) * 80
+        print( x, y)
+        g.draw.circle(win, col, (x, y), 30 , 0)
+        a_res = LETTER_FONT.render(str(ress), 1, WHITE)
+        win.blit(a_res,(x - 5 , y - 10 ))
+        i += 1
+
 
     g.display.update()
 
