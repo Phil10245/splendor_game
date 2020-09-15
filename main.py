@@ -16,6 +16,8 @@ import pygame as g
 #to determine active player: Use ls_plyer : [0] is active player -> goes in last positon after his turn.
 # OR iterate over the list
 
+#make a draw_points() as it is repeated for boni and card deck
+# same for cost.
 
 #setup display
 g.init()
@@ -41,10 +43,11 @@ LIGHTBLUE = (0,200,252)
 #1 Rect
 RECTWIDTH = 90
 RECTHEIGHT = 110
-PADDING_V = 100
-PADDING_H = 100
+PADDING_V = 10
+PADDING_H = 10
 RECTWIDTHB = 90
 RECTHEIGHTB = 90
+RADIUSP = 30
 
 #setup game loop
 FPS = 60
@@ -64,6 +67,7 @@ def display_message (message1, message2):
 
 
 def draw():
+
     win.fill(WHITE)
 
     #draw Title
@@ -78,19 +82,19 @@ def draw():
         #points
         points = LETTER_FONT.render(str(card.points) ,1,BLACK)
         win.blit(points,(x + 5, y + 5))
-        rx , ry = x + 45 , y + 20 # initial placing of the ressource numbers
         # cost
+        rx , ry = int(x + RECTWIDTH/2 - 5) , int(y + RECTHEIGHT/8) # initial placing of the ressource numbers
         for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
-            text = LETTER_FONT.render(str(ress),1,col)
+            text = LETTER_FONT.render(str(ress), 1, col)
             win.blit(text, (rx , ry))
-            ry += 20
+            ry += int(RECTHEIGHT/5)
         #color
         if card.colour == 1: O = GREEN
         if card.colour == 2: O = LIGHTBLUE
         if card.colour == 3: O = RED
         if card.colour == 4: O = BLACK
         colour = LETTER_FONT.render("O", 1, O)
-        win.blit(colour, (x + 70, y + 5))
+        win.blit(colour, (x + RECTWIDTH - 20 , y + 5))
 
     #draw bonus cards (available)
     for card in boni.deck:
@@ -100,11 +104,11 @@ def draw():
         points = LETTER_FONT.render(str(card.points) ,1,BLACK)
         win.blit(points,(x + 5, y + 5))
         # cost
-        rx , ry = x + 35 , y + 10 # initial placing of the ressource numbers
+        rx , ry = x + 35 , int(y + RECTHEIGHTB/8) # initial placing of the ressource numbers
         for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
             text = LETTER_FONT.render(str(ress),1,col)
             win.blit(text, (rx , ry))
-            ry += 20
+            ry += int(RECTHEIGHTB/5)
     # draw ressource stack  (variable name: rs)
     #circle(surface, color, center, radius, width=0)
     x = 1040
@@ -141,34 +145,35 @@ def draw():
     print(crds_count)
     y = 510
     for idx, key in enumerate(crds_count):
-        x = 465 + idx * 75
+        x = 465 + idx * 100
         if key == "green": col = GREEN
         if key == "blue": col = LIGHTBLUE
         if key == "red": col = RED
         if key == "blck": col = BLACK
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHB // 3 * 2, RECTHEIGHTB //3 * 2), 2)
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHB, RECTHEIGHTB), 2)
         drw_nbcrds = LETTER_FONT.render(str(crds_count.get(key, 0)), 1, col)
-        win.blit(drw_nbcrds,(x+20,y+20))
+        win.blit(drw_nbcrds, (int(x + RECTWIDTHB / 2 - 5) ,y + int(RECTHEIGHTB / 2)))
     #3 player's RessourceStack
-    # analog to draw rs
-    #circle(surface, color, center, radius, width=0)
     i = 0
     for ress, col in ((ls_plyer[0].green, GREEN), (ls_plyer[0].blue, BLUE), (ls_plyer[0].red, RED), (ls_plyer[0].blck, BLACK)):
         print( ress, col, i)
-        if i < 2:
-            x = 850
-            y = 510 + i * 80
-        else:
-            x = 930
-            y = 510 + (i - 2) * 80
+        x = 900 + ((RADIUSP * 2 + PADDING_H) * (i % 2))
+        '< für i = 0 und i = 2 wird der 2. Teil der Summe 0!'
+        y = 540 + ((i // 2) * (PADDING_V + RADIUSP *2))
+        ' "//" ist der Integerdivisioner > der Ausdruck ist somit 0 solange i < 2, dann 1, bis i = 4'
         print( x, y)
-        g.draw.circle(win, col, (x, y), 30 , 0)
+        g.draw.circle(win, col, (x, y), RADIUSP , 0)
         a_res = LETTER_FONT.render(str(ress), 1, WHITE)
         win.blit(a_res,(x - 5 , y - 10 ))
         i += 1
 
 
     g.display.update()
+
+ls_plyer = [Player("Catherine",1,1),Player("Philipp",1,1)]
+rs = RessourceStack(len(ls_plyer))
+ob = OpenBoard()
+boni = BonusBoard()
 
 while run:
 
@@ -177,27 +182,7 @@ while run:
     #setup the game:
     #procedure to determine nb of players and crate the instances
     # To be replaed by a menu!
-    ls_plyer = list()
-    number_of_players = input("Please enter the number of players: ")
-    try:
-        number_of_players = int(number_of_players)
-        if number_of_players < 5 and number_of_players > 0:
-            for _ in range(1, number_of_players + 1):
-                player_ = Player("player" + str(_), 1, _)
-                ls_plyer.append(player_)
-                print(player_)
-        elif number_of_players == 69:
-            break
-        else:
-            print("Maximum players allowed are 4!")
-            continue
-    except:
-        print("Bad input. Enter a Number between  and 4!!!")
-        continue
 
-    rs = RessourceStack(number_of_players)
-    ob = OpenBoard()
-    boni = BonusBoard()
 
     print(boni)
     print(ob)
@@ -206,10 +191,8 @@ while run:
     #Should be an inner loop !
 
     draw()
-    g.time.wait(15_000)
-    run = False
 
-    '''for event in g.event.get():
+    for event in g.event.get():
         if event.type == g.QUIT:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
@@ -226,4 +209,4 @@ while run:
                          if letter[2] not in word:
                             hm_stat += 1
                             print(hm_stat)
-    draw()'''
+    draw()
