@@ -38,13 +38,13 @@ LIGHTBLUE = (0,200,252)
 
 #setup drawings:
 #1 Rect
-RECTWIDTH = 90
-RECTHEIGHT = 110
+RECTWIDTH_CARDDECK = 90
+RECTHEIGHT_CARDDECK = 110
 PADDING_V = 10
 PADDING_H = 10
-RECTWIDTHB = 90
-RECTHEIGHTB = 90
-RADIUSP = 30
+RECTWIDTHBONI = 90
+RECTHEIGHTBONI = 90
+RADIUS_PLAYER_RS = 30
 RAD_RS = 37
 
 #setup game loop
@@ -85,10 +85,10 @@ def draw_card(card, width, height, color):
         if card.colour == 3: O = RED
         if card.colour == 4: O = BLACK
         colour = LETTER_FONT.render("O", 1, O)
-        win.blit(colour, (card.x + RECTWIDTH - 20 , card.y + 5))
+        win.blit(colour, (card.x + RECTWIDTH_CARDDECK - 20 , card.y + 5))
 
 def draw_rs_stack(rs, x, y, r):
-    ''' draw RessourceStack (rs) as colored circles, starting at pos x,y with radius r'''
+    ''' draw RessourceStack (rs) as 4 colored circles, starting at pos x,y with radius r'''
     i = 0
     for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
         print( ress, col, i)
@@ -99,37 +99,20 @@ def draw_rs_stack(rs, x, y, r):
         win.blit(a_res,(x - 5 , y_real - 10 ))
         i += 1
 
-def draw():
-
-    win.fill(WHITE)
-
-    #draw Title
-    text = TITLE_FONT.render("Splendor", 1, BLUE)
-    win.blit(text, (int(WIDTH/2 - text.get_width()/2), 20))
-
-    #draw board
-    #draw carddeck (openboard)
-    for card in ob.deck:
-        draw_card(card, RECTWIDTH, RECTHEIGHT, True)
-
-    #draw bonus cards (available)
-    for card in boni.deck:
-        draw_card(card, RECTWIDTHB, RECTHEIGHTB, False)
-    # draw ressource stack
-    draw_rs_stack(rs, 1040, 135, RAD_RS)
-
-
-    #draw active player's stack (cards, points, ress)
-    #1 player_name & points
-    p_name = ls_plyer[0].name
+def draw_active_player(plyr):
+    ''' Draw name and points of the active player in the lower part of display.
+    Render underneath count of the cards he owns, and on the side 4 circles with
+    the count of Ressources
+    '''
+    p_name = plyr.name
     drw_name = LETTER_FONT.render(p_name, 1, BLACK)
     win.blit(drw_name, (465,480))
-    p_points = ls_plyer[0].points
+    p_points = plyr.points
     drw_points = LETTER_FONT.render("Points: " + str(p_points), 1, BLACK)
     win.blit(drw_points, (665,480))
     #2 player stack (simple)
     crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
-    for card in ls_plyer[0].cardstack:
+    for card in plyr.cardstack:
         if card.colour == 1:
             crds_count[green] = crds_count.get(green, 0) + 1
         if card.colour == 2:
@@ -146,22 +129,46 @@ def draw():
         if key == "blue": col = LIGHTBLUE
         if key == "red": col = RED
         if key == "blck": col = BLACK
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHB, RECTHEIGHTB), 2)
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHBONI, RECTHEIGHTBONI), 2)
         drw_nbcrds = LETTER_FONT.render(str(crds_count.get(key, 0)), 1, col)
-        win.blit(drw_nbcrds, (int(x + RECTWIDTHB / 2 - 5) ,y + int(RECTHEIGHTB / 2)))
+        win.blit(drw_nbcrds, (int(x + RECTWIDTHBONI / 2 - 5) ,y + int(RECTHEIGHTBONI / 2)))
     #3 player's RessourceStack
     i = 0
-    for ress, col in ((ls_plyer[0].green, GREEN), (ls_plyer[0].blue, BLUE), (ls_plyer[0].red, RED), (ls_plyer[0].blck, BLACK)):
+    for ress, col in ((plyr.green, GREEN), (plyr.blue, BLUE), (plyr.red, RED), (plyr.blck, BLACK)):
         print( ress, col, i)
-        x = 900 + ((RADIUSP * 2 + PADDING_H) * (i % 2))
+        x = 900 + ((RADIUS_PLAYER_RS * 2 + PADDING_H) * (i % 2))
         '< für i = 0 und i = 2 wird der 2. Teil der Summe 0!'
-        y = 540 + ((i // 2) * (PADDING_V + RADIUSP *2))
+        y = 540 + ((i // 2) * (PADDING_V + RADIUS_PLAYER_RS *2))
         ' "//" ist der Integerdivisioner > der Ausdruck ist somit 0 solange i < 2, dann 1, bis i = 4'
         print( x, y)
-        g.draw.circle(win, col, (x, y), RADIUSP , 0)
+        g.draw.circle(win, col, (x, y), RADIUS_PLAYER_RS , 0)
         a_res = LETTER_FONT.render(str(ress), 1, WHITE)
         win.blit(a_res,(x - 5 , y - 10 ))
         i += 1
+
+def draw():
+
+    win.fill(WHITE)
+
+    #draw Title
+    text = TITLE_FONT.render("Splendor", 1, BLUE)
+    win.blit(text, (int(WIDTH/2 - text.get_width()/2), 20))
+
+    #Draw board
+    #-------------------------------
+    #draw carddeck (openboard)
+    for card in ob.deck:
+        draw_card(card, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, True)
+
+    # draw bonus cards (available)
+    for card in boni.deck:
+        draw_card(card, RECTWIDTHBONI, RECTHEIGHTBONI, False)
+    # draw ressource stack
+    draw_rs_stack(rs, 1040, 135, RAD_RS)
+
+    #draw active player's stack (cards, points, ress)
+    draw_active_player(ls_plyer[0])
+
 
 
     g.display.update()
