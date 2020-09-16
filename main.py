@@ -65,6 +65,30 @@ def display_message (message1, message2):
     g.display.update()
     g.time.delay(3000)
 
+def draw_card(card, width, height, color):
+    '''draw card obcject, with width and height setting the size of the rectangle
+    if color == True: Draw "O"s coloured in the card's colour in the left corner
+    if color == False, don't draw the "O"s'''
+
+    g.draw.rect(win, BLACK, g.Rect(card.x, card.y, width, height), 2)
+    #points in the right top corner
+    points = LETTER_FONT.render(str(card.points) , 1, BLACK)
+    win.blit(points,(card.x + 5, card.y + 5))
+    # cost
+    rx , ry = int(card.x + width/2 - 5) , int(card.y + height/8) # initial placing of the ressource numbers
+    for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
+        text = LETTER_FONT.render(str(ress), 1, col)
+        win.blit(text, (rx , ry))
+        ry += int(height/5)
+    #color
+    if color == True:
+        if card.colour == 1: O = GREEN
+        if card.colour == 2: O = LIGHTBLUE
+        if card.colour == 3: O = RED
+        if card.colour == 4: O = BLACK
+        colour = LETTER_FONT.render("O", 1, O)
+        win.blit(colour, (card.x + RECTWIDTH - 20 , card.y + 5))
+
 
 def draw():
 
@@ -77,38 +101,11 @@ def draw():
     #draw board
     #draw carddeck (openboard)
     for card in ob.deck:
-        x, y = card.x, card.y
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTH, RECTHEIGHT), 2)
-        #points
-        points = LETTER_FONT.render(str(card.points) ,1,BLACK)
-        win.blit(points,(x + 5, y + 5))
-        # cost
-        rx , ry = int(x + RECTWIDTH/2 - 5) , int(y + RECTHEIGHT/8) # initial placing of the ressource numbers
-        for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
-            text = LETTER_FONT.render(str(ress), 1, col)
-            win.blit(text, (rx , ry))
-            ry += int(RECTHEIGHT/5)
-        #color
-        if card.colour == 1: O = GREEN
-        if card.colour == 2: O = LIGHTBLUE
-        if card.colour == 3: O = RED
-        if card.colour == 4: O = BLACK
-        colour = LETTER_FONT.render("O", 1, O)
-        win.blit(colour, (x + RECTWIDTH - 20 , y + 5))
+        draw_card(card, RECTWIDTH, RECTHEIGHT, True)
 
     #draw bonus cards (available)
     for card in boni.deck:
-        x, y = card.x, card.y
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHB, RECTHEIGHTB), 2)
-        #points
-        points = LETTER_FONT.render(str(card.points) ,1,BLACK)
-        win.blit(points,(x + 5, y + 5))
-        # cost
-        rx , ry = x + 35 , int(y + RECTHEIGHTB/8) # initial placing of the ressource numbers
-        for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
-            text = LETTER_FONT.render(str(ress),1,col)
-            win.blit(text, (rx , ry))
-            ry += int(RECTHEIGHTB/5)
+        draw_card(card, RECTWIDTHB, RECTHEIGHTB, False)
     # draw ressource stack  (variable name: rs)
     #circle(surface, color, center, radius, width=0)
     x = 1040
@@ -191,7 +188,7 @@ while run:
     #Should be an inner loop !
 
     draw()
-
+    g.event.wait()
     for event in g.event.get():
         if event.type == g.QUIT:
             run = False
@@ -210,3 +207,4 @@ while run:
                             hm_stat += 1
                             print(hm_stat)
     draw()
+    g.time.wait
