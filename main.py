@@ -112,13 +112,13 @@ def draw_active_player(plyr):
     crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
     for card in plyr.cardstack:
         if card.colour == 1:
-            crds_count[green] = crds_count.get(green, 0) + 1
+            crds_count["green"] = crds_count.get("green", 0) + 1
         if card.colour == 2:
-            crds_count[blue] = crds_count.get(blue, 0) + 1
+            crds_count["blue"] = crds_count.get("blue", 0) + 1
         if card.colour == 3:
-            crds_count[red] = crds_count.get(red, 0) + 1
+            crds_count["red"] = crds_count.get("red", 0) + 1
         if card.colour == 4:
-            crds_count[blck] = crds_count.get(blck, 0) + 1
+            crds_count["blck"] = crds_count.get("blck", 0) + 1
     y = 510
     for idx, key in enumerate(crds_count):
         x = 465 + idx * 100
@@ -167,6 +167,10 @@ def draw():
     g.display.update()
 
 ls_plyer = [Player("Catherine",1,1),Player("Philipp",1,1)]
+ls_plyer[0].green = 7
+ls_plyer[0].red = 7
+ls_plyer[0].blue = 7
+
 rs = RessourceStack(len(ls_plyer))
 ob = OpenBoard()
 boni = BonusBoard()
@@ -193,9 +197,9 @@ while run:
                 if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
                     g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                     g.display.update()
-                    g.time.wait(5_000)
+                    g.time.wait(2_000)
                     # implement the replaceCard calL!
-                    ob.replace_card(id_clicked_card)
+                    ls_plyer[0].pick_crd(ob, id_clicked_card, rs)
             #add klick on ressources.
             'Calculating distance between mouse and letters = collision_detection:'
             #dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)

@@ -191,18 +191,25 @@ Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
         '''param el: index of card that is to be taken from the OpenBoard
         param ob: the board
         param stack: Ressourcestack obj - to refill wit the paid res.'''
-        if (self.green, self.blue, self.red, self.blck) >= (ob.deck[el].green, ob.deck[el].blue, ob.deck[el].red, ob.deck[el].blck):
+        plyr_res = (self.green, self.blue, self.red, self.blck)
+        cost = (ob.deck[el].green, ob.deck[el].blue, ob.deck[el].red, ob.deck[el].blck)
+        plyr_res_vs_cost = zip(plyr_res, cost)
+        sufficient_res = True
+        for el1, el2 in plyr_res_vs_cost:
+            if el1 < el2:
+                sufficient_res = False
+        if sufficient_res:
             # updating player's stack
             self.green -= ob.deck[el].green
             self.blue -= ob.deck[el].blue
             self.red -= ob.deck[el].red
             self.blck -= ob.deck[el].blck
             #Updating resource stack:
-            stack.lst_res[0] += ob.deck[el].green
-            stack.lst_res[1] += ob.deck[el].blue
-            stack.lst_res[2] += ob.deck[el].red
-            stack.lst_res[3] += ob.deck[el].blck
+            stack.green += ob.deck[el].green
+            stack.blue += ob.deck[el].blue
+            stack.red += ob.deck[el].red
+            stack.blck += ob.deck[el].blck
             # moving the card  from board to player
-            self.cardstack.append(ob.replaceCard(el))
+            self.cardstack.append(ob.replace_card(el))
         else:
             print("No sufficient funds. Please take another action")
