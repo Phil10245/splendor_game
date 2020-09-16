@@ -16,9 +16,6 @@ import pygame as g
 #to determine active player: Use ls_plyer : [0] is active player -> goes in last positon after his turn.
 # OR iterate over the list
 
-#make a draw_points() as it is repeated for boni and card deck
-# same for cost.
-
 #setup display
 g.init()
 WIDTH, HEIGHT = 1330, 1000
@@ -48,6 +45,7 @@ PADDING_H = 10
 RECTWIDTHB = 90
 RECTHEIGHTB = 90
 RADIUSP = 30
+RAD_RS = 37
 
 #setup game loop
 FPS = 60
@@ -89,6 +87,17 @@ def draw_card(card, width, height, color):
         colour = LETTER_FONT.render("O", 1, O)
         win.blit(colour, (card.x + RECTWIDTH - 20 , card.y + 5))
 
+def draw_rs_stack(rs, x, y, r):
+    ''' draw RessourceStack (rs) as colored circles, starting at pos x,y with radius r'''
+    i = 0
+    for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
+        print( ress, col, i)
+        y_real = y + i * (r * 2 + 2 * PADDING_V)
+        print( x, y_real)
+        g.draw.circle(win, col, (x, y_real), r , 0)
+        a_res = LETTER_FONT.render(str(ress), 1, WHITE)
+        win.blit(a_res,(x - 5 , y_real - 10 ))
+        i += 1
 
 def draw():
 
@@ -106,18 +115,8 @@ def draw():
     #draw bonus cards (available)
     for card in boni.deck:
         draw_card(card, RECTWIDTHB, RECTHEIGHTB, False)
-    # draw ressource stack  (variable name: rs)
-    #circle(surface, color, center, radius, width=0)
-    x = 1040
-    i = 0
-    for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
-        print( ress, col, i)
-        y = 135 + i * 90
-        print( x, y)
-        g.draw.circle(win, col, (x, y), 37 , 0)
-        a_res = LETTER_FONT.render(str(ress), 1, WHITE)
-        win.blit(a_res,(x - 5 , y - 10 ))
-        i += 1
+    # draw ressource stack
+    draw_rs_stack(rs, 1040, 135, RAD_RS)
 
 
     #draw active player's stack (cards, points, ress)
