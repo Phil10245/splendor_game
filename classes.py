@@ -178,33 +178,42 @@ Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
     #take ressources.one a time repat the move acoordingly
     #add them to the player´s Ressource
     #REFACTOR so taht it's not four  times same code! give color to pick as param!!
-    def take_res(self, rs:RessourceStack, id_res:int):
+    def take_res(self, id_res:int, rs:RessourceStack):
         '''take a ressource with the id_res from the rs,
         and add it to the player's ressource stack'''
         if id_res == 0:
             if rs.green >= 1:
                 self.green += 1
                 rs.green -= 1
+                return True
             else:
                 print ("invalid move")
+                return False
         if id_res == 1:
             if rs.blue >= 1:
                 self.blue += 1
                 rs.blue -= 1
+                return True
             else:
                 print ("invalid move")
+                return False
         if id_res == 2:
             if rs.red >= 1:
                 self.red += 1
                 rs.red -= 1
+                return True
             else:
                 print ("invalid move")
+                return False
         if id_res == 3:
             if rs.blck >= 1:
                 self.blck += 1
                 rs.blck -= 1
+                return True
             else:
                 print ("invalid move")
+                return False
+
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
     def pick_crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
@@ -231,5 +240,7 @@ Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
             stack.blck += ob.deck[el].blck
             # moving the card  from board to player
             self.cardstack.append(ob.replace_card(el))
+            return True
         else:
             print("No sufficient funds. Please take another action")
+            return False

@@ -168,16 +168,15 @@ def draw():
     rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
 
     #draw active player's stack (cards, points, ress)
-    draw_active_player(ls_plyer[0])
+    draw_active_player(ls_plyer[active_player_id])
 
     g.display.update()
 
     return rs_coordinates
 
-ls_plyer = [Player("Catherine",1,1),Player("Philipp",1,1)]
-ls_plyer[0].green = 7
-ls_plyer[0].red = 7
-ls_plyer[0].blue = 7
+#Players and active_player_id:
+ls_plyer = [Player("Catherine",1,1), Player("Philipp",1,1)]
+active_player_id = 0
 
 rs = RessourceStack(len(ls_plyer))
 ob = OpenBoard()
@@ -186,6 +185,10 @@ boni = BonusBoard()
 print(boni)
 print(ob)
 print(rs)
+print("length player_list:", len(ls_plyer))
+# game counter, to track actions done by active player
+cntr_pck_crd = 0
+cntr_pck_res = 0
 
 while run:
     clock.tick(FPS)
@@ -201,13 +204,20 @@ while run:
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
             print(m_x, m_y)
-            #player klicks on a card
+            #player klicks on card
             for id_clicked_card, clicked_card in enumerate(ob.deck):
                 if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
-                    g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
-                    g.display.update()
-                    # implement the replaceCard calL!
-                    ls_plyer[0].pick_crd(ob, id_clicked_card, rs)
+                    if cntr_pck_res > 0:
+                        #TO DO: render some messagetext
+                        print("invalid move")
+                        continue
+                    else:
+                        g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
+                        g.display.update()
+                        # implement the replaceCard calL!
+                        success = ls_plyer[active_player_id].pick_crd(ob, id_clicked_card, rs)
+                        if success:
+                            cntr_pck_crd += 1
             #player klicks on ressources
             for id_clicked_ress, x, y in rs_coordinates:
                 #Calculating distance between mouse and letters = collision_detection
@@ -215,9 +225,24 @@ while run:
                 if dis < RS_RAD:
                     g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
                     g.display.update()
-                    ls_plyer[0].take_res(rs, id_clicked_ress)
+                    success = ls_plyer[active_player_id].take_res(id_clicked_ress, rs)
+                    print("DEBUG: suucess picking res:", success,  id_clicked_ress)
+                    if success:
+                        cntr_pck_res += 1
 
     g.time.wait(1_000)
+
+    draw()
+
+    if cntr_pck_crd == 1 or cntr_pck_res >= 3:
+        if active_player_id < len(ls_plyer) - 1 :
+            active_player_id += 1
+            cntr_pck_res = 0
+            cntr_pck_crd = 0
+        else:
+            active_player_id = 0
+            cntr_pck_res = 0
+            cntr_pck_crd = 0
 
 
 
