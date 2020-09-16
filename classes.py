@@ -143,7 +143,7 @@ class RessourceStack():
 
     def __init__(self, n:int):
         (self.green, self.blue, self.red, self.blck)  = [n + 2] * 4
-        
+
 
     def __str__(self):
         return (f"GREEN: {self.green} \nBLUE: {self.blue} \nRED: {self.red} \nBLACK: {self.blck} ")
@@ -153,8 +153,6 @@ class Player():
     #human or pc,points counter, carddeck, res-dec, state (acti> not), take ressources,
     # take a card, receive bonuscard,
     (green, blue, red, blck) = (0,0,0,0)
-    # active / it`s teh player´s turn:
-    state = 0
     #id for knowing the order of players:
     id = 0
     #the accumulated points:
@@ -178,14 +176,35 @@ class Player():
 Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
 
     #take ressources.one a time repat the move acoordingly
-    #add them to the player´s Ressourc
+    #add them to the player´s Ressource
     #REFACTOR so taht it's not four  times same code! give color to pick as param!!
-    def take_res(self, rs: RessourceStack, ressource: str):
-        if rs.ressource >= 1:
-            self.ressource += 1
-            rs.ressource -= 1
-        else:
-            print ("invalid move")
+    def take_res(self, rs:RessourceStack, id_res:int):
+        '''take a ressource with the id_res from the rs,
+        and add it to the player's ressource stack'''
+        if id_res == 0:
+            if rs.green >= 1:
+                self.green += 1
+                rs.green -= 1
+            else:
+                print ("invalid move")
+        if id_res == 1:
+            if rs.blue >= 1:
+                self.blue += 1
+                rs.blue -= 1
+            else:
+                print ("invalid move")
+        if id_res == 2:
+            if rs.red >= 1:
+                self.red += 1
+                rs.red -= 1
+            else:
+                print ("invalid move")
+        if id_res == 3:
+            if rs.blck >= 1:
+                self.blck += 1
+                rs.blck -= 1
+            else:
+                print ("invalid move")
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
     def pick_crd(self, ob:OpenBoard, el:int, stack:RessourceStack):

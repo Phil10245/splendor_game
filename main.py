@@ -194,24 +194,31 @@ while run:
     #Should be an inner loop !
 
     rs_coordinates = draw()
-    
+
     for event in g.event.get():
         if event.type == g.QUIT:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
             print(m_x, m_y)
+            #player klicks on a card
             for id_clicked_card, clicked_card in enumerate(ob.deck):
                 if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
                     g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                     g.display.update()
-                    g.time.wait(2_000)
                     # implement the replaceCard calL!
                     ls_plyer[0].pick_crd(ob, id_clicked_card, rs)
-            #add klick on ressources.
+            #player klicks on ressources
+            for id_clicked_ress, x, y in rs_coordinates:
+                #Calculating distance between mouse and letters = collision_detection
+                dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
+                if dis < RS_RAD:
+                    g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
+                    g.display.update()
+                    ls_plyer[0].take_res(rs, id_clicked_ress)
 
-            'Calculating distance between mouse and letters = collision_detection:'
-            #dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
-            #if dis < RADIUS:
+    g.time.wait(1_000)
+
+
 
 g.quit()
