@@ -91,9 +91,7 @@ def draw_rs_stack(rs, x, y, r):
     ''' draw RessourceStack (rs) as 4 colored circles, starting at pos x,y with radius r'''
     i = 0
     for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
-        print( ress, col, i)
         y_real = y + i * (r * 2 + 2 * PADDING_V)
-        print( x, y_real)
         g.draw.circle(win, col, (x, y_real), r , 0)
         a_res = LETTER_FONT.render(str(ress), 1, WHITE)
         win.blit(a_res,(x - 5 , y_real - 10 ))
@@ -121,7 +119,6 @@ def draw_active_player(plyr):
             crds_count[red] = crds_count.get(red, 0) + 1
         if card.colour == 4:
             crds_count[blck] = crds_count.get(blck, 0) + 1
-    print(crds_count)
     y = 510
     for idx, key in enumerate(crds_count):
         x = 465 + idx * 100
@@ -135,12 +132,10 @@ def draw_active_player(plyr):
     #3 player's RessourceStack
     i = 0
     for ress, col in ((plyr.green, GREEN), (plyr.blue, BLUE), (plyr.red, RED), (plyr.blck, BLACK)):
-        print( ress, col, i)
         x = 900 + ((RADIUS_PLAYER_RS * 2 + PADDING_H) * (i % 2))
         '< für i = 0 und i = 2 wird der 2. Teil der Summe 0!'
         y = 540 + ((i // 2) * (PADDING_V + RADIUS_PLAYER_RS *2))
         ' "//" ist der Integerdivisioner > der Ausdruck ist somit 0 solange i < 2, dann 1, bis i = 4'
-        print( x, y)
         g.draw.circle(win, col, (x, y), RADIUS_PLAYER_RS , 0)
         a_res = LETTER_FONT.render(str(ress), 1, WHITE)
         win.blit(a_res,(x - 5 , y - 10 ))
@@ -169,8 +164,6 @@ def draw():
     #draw active player's stack (cards, points, ress)
     draw_active_player(ls_plyer[0])
 
-
-
     g.display.update()
 
 ls_plyer = [Player("Catherine",1,1),Player("Philipp",1,1)]
@@ -178,39 +171,33 @@ rs = RessourceStack(len(ls_plyer))
 ob = OpenBoard()
 boni = BonusBoard()
 
-while run:
+print(boni)
+print(ob)
+print(rs)
 
+while run:
     clock.tick(FPS)
 
-    #setup the game:
-    #procedure to determine nb of players and crate the instances
-    # To be replaed by a menu!
-
-
-    print(boni)
-    print(ob)
-    print(rs)
     #turn of active player -> performs his actions, at the end next.
     #Should be an inner loop !
 
     draw()
-    g.event.wait()
+
     for event in g.event.get():
         if event.type == g.QUIT:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
-            for letter in letters:
-                x, y, ltr, visible = letter
-                if visible:
-                    'Calculating distance between mouse and letters = collision_detection:'
-                    dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
-                    if dis < RADIUS:
-                         letter[3] = False
-                         guessed.append(letter[2])
-                         print(guessed)
-                         if letter[2] not in word:
-                            hm_stat += 1
-                            print(hm_stat)
-    draw()
-    g.time.wait
+            print(m_x, m_y)
+            for card in ob.deck:
+                if m_x > card.x and m_x < card.x + RECTWIDTH_CARDDECK and m_y > card.y and m_y < card.y + RECTHEIGHT_CARDDECK:
+                    g.draw.rect(win, LIGHTBLUE, g.Rect(card.x, card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
+                    g.display.update()
+                    g.time.wait(5_000)
+                    # implement the replaceCard calL!
+            #add klick on ressources. 
+            'Calculating distance between mouse and letters = collision_detection:'
+            #dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
+            #if dis < RADIUS:
+
+g.quit()
