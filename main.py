@@ -189,13 +189,14 @@ while run:
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
             print(m_x, m_y)
-            for card in ob.deck:
-                if m_x > card.x and m_x < card.x + RECTWIDTH_CARDDECK and m_y > card.y and m_y < card.y + RECTHEIGHT_CARDDECK:
-                    g.draw.rect(win, LIGHTBLUE, g.Rect(card.x, card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
+            for id_clicked_card, clicked_card in enumerate(ob.deck):
+                if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
+                    g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                     g.display.update()
                     g.time.wait(5_000)
                     # implement the replaceCard calL!
-            #add klick on ressources. 
+                    ob.replace_card(id_clicked_card)
+            #add klick on ressources.
             'Calculating distance between mouse and letters = collision_detection:'
             #dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
             #if dis < RADIUS:

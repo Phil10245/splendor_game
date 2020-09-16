@@ -91,11 +91,11 @@ class OpenBoard():
         return str([el.__str__() for el in self.deck])
         #!maybe it will work better to call print on each el in the game loop...
 
-    def replaceCard(self, el: int):
+    def replace_card(self, el: int):
         #maybe to add: logic, to test if player has sufficint ressources to buy
         cardbought = self.deck.pop(el)
         level = cardbought.level
-        self.deck.insert(el, Card(level))
+        self.deck.insert(el, Card(level,cardbought.x, cardbought.y))
         return cardbought
 
 
