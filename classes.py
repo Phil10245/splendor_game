@@ -143,6 +143,7 @@ class RessourceStack():
 
     def __init__(self, n:int):
         (self.green, self.blue, self.red, self.blck)  = [n + 2] * 4
+        
 
     def __str__(self):
         return (f"GREEN: {self.green} \nBLUE: {self.blue} \nRED: {self.red} \nBLACK: {self.blck} ")

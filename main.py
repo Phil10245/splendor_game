@@ -1,5 +1,6 @@
 from classes import Card, OpenBoard, BonusC, BonusBoard, RessourceStack, Player
 import pygame as g
+import math
 
 #defining all known funcs, needed for the game not implemented in classes:
 #check func -> already implented in player class.
@@ -45,8 +46,9 @@ PADDING_H = 10
 RECTWIDTHBONI = 90
 RECTHEIGHTBONI = 90
 RADIUS_PLAYER_RS = 30
-RAD_RS = 37
-
+RS_RAD = 37
+RS_X = 1040
+RS_Y = 135
 #setup game loop
 FPS = 60
 clock = g.time.Clock()
@@ -88,14 +90,18 @@ def draw_card(card, width, height, color):
         win.blit(colour, (card.x + RECTWIDTH_CARDDECK - 20 , card.y + 5))
 
 def draw_rs_stack(rs, x, y, r):
-    ''' draw RessourceStack (rs) as 4 colored circles, starting at pos x,y with radius r'''
+    ''' draw RessourceStack (rs) as 4 colored circles, starting at pos x,y with radius r
+    RETURN: lst_res_xy containing the ressources and their coordinates - used in the event listener'''
     i = 0
+    lst_res_xy = []
     for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
         y_real = y + i * (r * 2 + 2 * PADDING_V)
         g.draw.circle(win, col, (x, y_real), r , 0)
         a_res = LETTER_FONT.render(str(ress), 1, WHITE)
         win.blit(a_res,(x - 5 , y_real - 10 ))
+        lst_res_xy.append((i, x, y_real))
         i += 1
+    return lst_res_xy
 
 def draw_active_player(plyr):
     ''' Draw name and points of the active player in the lower part of display.
@@ -159,12 +165,14 @@ def draw():
     for card in boni.deck:
         draw_card(card, RECTWIDTHBONI, RECTHEIGHTBONI, False)
     # draw ressource stack
-    draw_rs_stack(rs, 1040, 135, RAD_RS)
+    rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
 
     #draw active player's stack (cards, points, ress)
     draw_active_player(ls_plyer[0])
 
     g.display.update()
+
+    return rs_coordinates
 
 ls_plyer = [Player("Catherine",1,1),Player("Philipp",1,1)]
 ls_plyer[0].green = 7
@@ -185,8 +193,8 @@ while run:
     #turn of active player -> performs his actions, at the end next.
     #Should be an inner loop !
 
-    draw()
-
+    rs_coordinates = draw()
+    
     for event in g.event.get():
         if event.type == g.QUIT:
             run = False
@@ -201,6 +209,7 @@ while run:
                     # implement the replaceCard calL!
                     ls_plyer[0].pick_crd(ob, id_clicked_card, rs)
             #add klick on ressources.
+
             'Calculating distance between mouse and letters = collision_detection:'
             #dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
             #if dis < RADIUS:
