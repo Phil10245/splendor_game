@@ -142,7 +142,7 @@ class RessourceStack():
     '''
 
     def __init__(self, n:int):
-        (self.green, self.blue, self.red, self.blck)  = [n + 2] * 4
+        (self.green, self.blue, self.red, self.blck)  = [n + 3] * 4
 
 
     def __str__(self):
@@ -213,6 +213,20 @@ Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
                 print ("invalid move")
                 return False
 
+    def card_counter(self):
+        crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
+        for card in self.cardstack:
+            if card.colour == 1:
+                crds_count["green"] = crds_count.get("green", 0) + 1
+            if card.colour == 2:
+                crds_count["blue"] = crds_count.get("blue", 0) + 1
+            if card.colour == 3:
+                crds_count["red"] = crds_count.get("red", 0) + 1
+            if card.colour == 4:
+                crds_count["blck"] = crds_count.get("blck", 0) + 1
+        return crds_count
+
+
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
     def pick_crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
@@ -220,23 +234,43 @@ Points: {self.points} \nOwned Cards: {self.cardstack}\n'''
         param ob: the board
         param stack: Ressourcestack obj - to refill wit the paid res.'''
         plyr_res = (self.green, self.blue, self.red, self.blck)
+        crds_count = self.card_counter()
+        combined = (self.green + crds_count["green"], self.blue + crds_count["blue"],
+        self.red + crds_count["red"], self.blck + crds_count["blck"])
         cost = (ob.deck[el].green, ob.deck[el].blue, ob.deck[el].red, ob.deck[el].blck)
-        plyr_res_vs_cost = zip(plyr_res, cost)
+        plyr_res_vs_cost = zip(combined, cost)
         sufficient_res = True
         for el1, el2 in plyr_res_vs_cost:
             if el1 < el2:
                 sufficient_res = False
         if sufficient_res:
             # updating player's stack
-            self.green -= ob.deck[el].green
-            self.blue -= ob.deck[el].blue
-            self.red -= ob.deck[el].red
-            self.blck -= ob.deck[el].blck
-            #Updating resource stack:
-            stack.green += ob.deck[el].green
-            stack.blue += ob.deck[el].blue
-            stack.red += ob.deck[el].red
-            stack.blck += ob.deck[el].blck
+            # the resulting p's ressources are the cost of the card - the number of cards already owned in the color.
+            # if number of cards owned surpasses cost, than no ressource shall be taken from the player's ressources
+            # AND Updating resource stack accordingly:
+            if crds_count["green"] > ob.deck[el].green:
+                pass
+            else:
+                self.green -= ob.deck[el].green - crds_count["green"]
+                stack.green += ob.deck[el].green - crds_count["green"]
+            if crds_count["blue"] > ob.deck[el].blue:
+                pass
+            else:
+                self.blue -= ob.deck[el].blue - crds_count["blue"]
+                stack.blue += ob.deck[el].blue - crds_count["blue"]
+            if crds_count["red"] > ob.deck[el].red:
+                pass
+            else:
+                self.red -= ob.deck[el].red - crds_count["red"]
+                stack.red += ob.deck[el].red - crds_count["red"]
+            if crds_count["blck"] > ob.deck[el].blck:
+                pass
+            else:
+                self.blck -= ob.deck[el].blck - crds_count["blck"]
+                stack.blck += ob.deck[el].blck - crds_count["blck"]
+
+
+
             # moving the card  from board to player
             self.cardstack.append(ob.replace_card(el))
             return True

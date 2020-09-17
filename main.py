@@ -115,16 +115,7 @@ def draw_active_player(plyr):
     drw_points = LETTER_FONT.render("Points: " + str(p_points), 1, BLACK)
     win.blit(drw_points, (665,480))
     #2 player stack (simple)
-    crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
-    for card in plyr.cardstack:
-        if card.colour == 1:
-            crds_count["green"] = crds_count.get("green", 0) + 1
-        if card.colour == 2:
-            crds_count["blue"] = crds_count.get("blue", 0) + 1
-        if card.colour == 3:
-            crds_count["red"] = crds_count.get("red", 0) + 1
-        if card.colour == 4:
-            crds_count["blck"] = crds_count.get("blck", 0) + 1
+    crds_count = plyr.card_counter()
     y = 510
     for idx, key in enumerate(crds_count):
         x = 465 + idx * 100
@@ -188,7 +179,7 @@ print(rs)
 print("length player_list:", len(ls_plyer))
 # game counter, to track actions done by active player
 cntr_pck_crd = 0
-cntr_pck_res = 0
+cntr_pck_res_as_lst = [0, 0, 0, 0]
 
 while run:
     clock.tick(FPS)
@@ -207,7 +198,7 @@ while run:
             #player klicks on card
             for id_clicked_card, clicked_card in enumerate(ob.deck):
                 if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
-                    if cntr_pck_res > 0:
+                    if 1 in cntr_pck_res_as_lst:
                         #TO DO: render some messagetext
                         print("invalid move")
                         continue
@@ -220,7 +211,7 @@ while run:
                             cntr_pck_crd += 1
                             print("Player:", ls_plyer[active_player_id].name)
                             print("Deck:", ls_plyer[active_player_id].cardstack)
-                            g.display.update()
+                            #g.display.update()
             #player klicks on ressources
             for id_clicked_ress, x, y in rs_coordinates:
                 #Calculating distance between mouse and letters = collision_detection
@@ -231,21 +222,28 @@ while run:
                     success = ls_plyer[active_player_id].take_res(id_clicked_ress, rs)
                     print("DEBUG: suucess picking res:", success,  id_clicked_ress)
                     if success:
-                        cntr_pck_res += 1
+                        if id_clicked_ress == 0:
+                            cntr_pck_res_as_lst[0] += 1
+                    if id_clicked_ress == 1:
+                        cntr_pck_res_as_lst[1] += 1
+                    if id_clicked_ress == 2:
+                        cntr_pck_res_as_lst[2] += 1
+                    if id_clicked_ress == 3:
+                        cntr_pck_res_as_lst[3] += 1
     draw()
 
-    g.time.wait(1_000)
+    g.time.wait(3_000)
 
 
 
-    if cntr_pck_crd == 1 or cntr_pck_res >= 3:
+    if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_lst or sum(cntr_pck_res_as_lst) == 3:
         if active_player_id < len(ls_plyer) - 1 :
             active_player_id += 1
-            cntr_pck_res = 0
+            cntr_pck_res_as_lst = [0, 0, 0, 0]
             cntr_pck_crd = 0
         else:
             active_player_id = 0
-            cntr_pck_res = 0
+            cntr_pck_res_as_lst = [0, 0, 0, 0]
             cntr_pck_crd = 0
 
 
