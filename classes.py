@@ -161,11 +161,10 @@ class Player():
     x = 0
     y = 0
 
-    cardstack = list ()
-
     def __init__(self, name:str, human:int, id:int):
         self.name = name
         self.id = id
+        self.cardstack = []
         if human == 1:
             self.state = "human"
         else:

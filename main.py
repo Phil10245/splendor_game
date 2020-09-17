@@ -218,6 +218,9 @@ while run:
                         success = ls_plyer[active_player_id].pick_crd(ob, id_clicked_card, rs)
                         if success:
                             cntr_pck_crd += 1
+                            print("Player:", ls_plyer[active_player_id].name)
+                            print("Deck:", ls_plyer[active_player_id].cardstack)
+                            g.display.update()
             #player klicks on ressources
             for id_clicked_ress, x, y in rs_coordinates:
                 #Calculating distance between mouse and letters = collision_detection
@@ -229,10 +232,11 @@ while run:
                     print("DEBUG: suucess picking res:", success,  id_clicked_ress)
                     if success:
                         cntr_pck_res += 1
+    draw()
 
     g.time.wait(1_000)
 
-    draw()
+
 
     if cntr_pck_crd == 1 or cntr_pck_res >= 3:
         if active_player_id < len(ls_plyer) - 1 :
