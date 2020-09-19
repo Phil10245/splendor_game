@@ -135,33 +135,19 @@ class BonusBoard():
     def remove(self, el: int):
         return self.deck.pop(el)
 
-class Ressources():
+class Ressources(dict):
     '''subclass to implement everywhere, where the 4 ressources are needed'''
 
-    green = 0
-    red = 0
-    blue = 0
-    blck = 0
+    def __init__(self):
+        super(Ressources, self).__init__()
+        self["green"]=0
+        self["blue"]=0
+        self["red"]=0
+        self["blck"]=0
 
-    dict = {"green": green, "red": red, "blue": blue, "blck": blck}
-
-    def __init__(self, four_item_iterable_gre_blu_red_blc):
-        self.green = four_item_iterable[0]
-        self.blue = four_item_iterable[1]
-        self.reds = four_item_iterable[2]
-        self.blck = four_item_iterable[3]
-
-    def __str__(self):
-        return self.dict
-
-    def get(self):
-        return self.dict
-
-    def set(self, four_item_iterable_gre_blu_red_blc):
-        self.green = four_item_iterable[0]
-        self.blue = four_item_iterable[1]
-        self.reds = four_item_iterable[2]
-        self.blck = four_item_iterable[3]
+    def set_all(self, value):
+        for key in self:
+            self[key] = value
 
 
 
