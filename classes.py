@@ -135,6 +135,36 @@ class BonusBoard():
     def remove(self, el: int):
         return self.deck.pop(el)
 
+class Ressources():
+    '''subclass to implement everywhere, where the 4 ressources are needed'''
+
+    green = 0
+    red = 0
+    blue = 0
+    blck = 0
+
+    dict = {"green": green, "red": red, "blue": blue, "blck": blck}
+
+    def __init__(self, four_item_iterable_gre_blu_red_blc):
+        self.green = four_item_iterable[0]
+        self.blue = four_item_iterable[1]
+        self.reds = four_item_iterable[2]
+        self.blck = four_item_iterable[3]
+
+    def __str__(self):
+        return self.dict
+
+    def get(self):
+        return self.dict
+
+    def set(self, four_item_iterable_gre_blu_red_blc):
+        self.green = four_item_iterable[0]
+        self.blue = four_item_iterable[1]
+        self.reds = four_item_iterable[2]
+        self.blck = four_item_iterable[3]
+
+
+
 
 class RessourceStack():
     '''depending on nb players (n) the available ressources are determined.
@@ -160,6 +190,8 @@ class Player():
     #base coordinates:
     x = 0
     y = 0
+
+    crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
 
     def __init__(self, name:str, human:int, id:int):
         self.name = name
@@ -214,28 +246,27 @@ class Player():
                 return False
 
     def card_counter(self):
-        crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
-        for card in self.cardstack:
+        for id, card in enumerate(self.cardstack):
             if card.colour == 1:
-                crds_count["green"] = crds_count.get("green", 0) + 1
+                self.crds_count["green"] = self.crds_count.get("green", 0) + 1
             if card.colour == 2:
-                crds_count["blue"] = crds_count.get("blue", 0) + 1
+                self.crds_count["blue"] = self.crds_count.get("blue", 0) + 1
             if card.colour == 3:
-                crds_count["red"] = crds_count.get("red", 0) + 1
+                self.crds_count["red"] = self.crds_count.get("red", 0) + 1
             if card.colour == 4:
-                crds_count["blck"] = crds_count.get("blck", 0) + 1
-        return crds_count
+                self.crds_count["blck"] = self.crds_count.get("blck", 0) + 1
+        self.cardstack.pop(id)
 
-    def combine_ressources_with_collected_cards(self, crds_count:dict):
+    def combine_ressources_with_collected_cards(self):
         total_res = {"green": 0, "blue":0, "red": 0, "blck": 0}
-        total_res["green"] = self.ressources["green"] + crds_count["green"]
-        total_res["red"] = self.ressources["red"] + crds_count["red"]
-        total_res["blue"] = self.ressources["blue"] + crds_count["blue"]
-        total_res["blck"] = self.ressources["blck"] + crds_count["blck"]
+        total_res["green"] = self.ressources["green"] + self.crds_count["green"]
+        total_res["red"] = self.ressources["red"] + self.crds_count["red"]
+        total_res["blue"] = self.ressources["blue"] + self.crds_count["blue"]
+        total_res["blck"] = self.ressources["blck"] + self.crds_count["blck"]
         return total_res
 
-    def check_if_card_affordable(self, C:Card, crds_count:dict):
-        owned_res = self.combine_ressources_with_collected_cards(crds_count)
+    def check_if_card_affordable(self, C:Card):
+        owned_res = self.combine_ressources_with_collected_cards()
         if owned_res["green"] < C.green:
             return False
         if owned_res["blue"] < C.blue:
@@ -249,34 +280,33 @@ class Player():
 
     def add_and_deduct_real_costs(self, ob:OpenBoard, el:int, stack:RessourceStack):
 
-        if crds_count["green"] > ob.deck[el].green:
+        if self.crds_count["green"] > ob.deck[el].green:
             pass
         else:
-            self.ressources["green"] -= ob.deck[el].green - crds_count["green"]
-            stack.green += ob.deck[el].green - crds_count["green"]
-        if crds_count["blue"] > ob.deck[el].blue:
+            self.ressources["green"] -= ob.deck[el].green - self.crds_count["green"]
+            stack.green += ob.deck[el].green - self.crds_count["green"]
+        if self.crds_count["blue"] > ob.deck[el].blue:
             pass
         else:
-            self.ressources["blue"] -= ob.deck[el].blue - crds_count["blue"]
-            stack.blue += ob.deck[el].blue - crds_count["blue"]
-        if crds_count["red"] > ob.deck[el].red:
+            self.ressources["blue"] -= ob.deck[el].blue - self.crds_count["blue"]
+            stack.blue += ob.deck[el].blue - self.crds_count["blue"]
+        if self.crds_count["red"] > ob.deck[el].red:
             pass
         else:
-            self.ressources["red"] -= ob.deck[el].red - crds_count["red"]
-            stack.red += ob.deck[el].red - crds_count["red"]
-        if crds_count["blck"] > ob.deck[el].blck:
+            self.ressources["red"] -= ob.deck[el].red - self.crds_count["red"]
+            stack.red += ob.deck[el].red - self.crds_count["red"]
+        if self.crds_count["blck"] > ob.deck[el].blck:
             pass
         else:
-            self.ressources["blck"] -= ob.deck[el].blck - crds_count["blck"]
-            stack.blck += ob.deck[el].blck - crds_count["blck"]
+            self.ressources["blck"] -= ob.deck[el].blck - self.crds_count["blck"]
+            stack.blck += ob.deck[el].blck - self.crds_count["blck"]
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
     def pick_crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
         '''param el: index of card that is to be taken from the OpenBoard
         param ob: the board
         param stack: Ressourcestack obj - to refill wit the paid res.'''
-        crds_count = self.card_counter()
-        sufficient_res = self.check_if_card_affordable(ob.deck[el], crds_count)
+        sufficient_res = self.check_if_card_affordable(ob.deck[el])
         if sufficient_res:
             self.add_and_deduct_real_costs(ob, el, stack)
             #adding points to player
