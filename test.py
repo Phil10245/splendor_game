@@ -38,3 +38,9 @@ try:
     print(card)
 except:
     raise
+#player methods
+try:
+    player1.take_res("green", rs)
+    print(player1)
+except:
+    raise

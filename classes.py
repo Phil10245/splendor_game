@@ -118,7 +118,6 @@ class OpenBoard():
         self.deck.insert(el, Card(level,cardbought.x, cardbought.y))
         return cardbought
 
-
 class BonusC():
     '''a bonuscard is worth 3P and is awarded when a player own the right pattern of cards'''
 
@@ -219,41 +218,17 @@ class Player():
     #take ressources.one a time repat the move acoordingly
     #add them to the player´s Ressource
     #REFACTOR so taht it's not four  times same code! give color to pick as param!!
-    def take_res(self, id_res:int, rs:RessourceStack):
-        '''take a ressource with the id_res from the rs,
+    def take_res(self, key:str, rs:RessourceStack):
+        '''take a ressource with the key from the rs,
         and add it to the player's ressource stack'''
-        if id_res == 0:
-            if rs.green >= 1:
-                self.green += 1
-                rs.green -= 1
-                return True
-            else:
-                print ("invalid move")
-                return False
-        if id_res == 1:
-            if rs.blue >= 1:
-                self.blue += 1
-                rs.blue -= 1
-                return True
-            else:
-                print ("invalid move")
-                return False
-        if id_res == 2:
-            if rs.red >= 1:
-                self.red += 1
-                rs.red -= 1
-                return True
-            else:
-                print ("invalid move")
-                return False
-        if id_res == 3:
-            if rs.blck >= 1:
-                self.blck += 1
-                rs.blck -= 1
-                return True
-            else:
-                print ("invalid move")
-                return False
+
+        if rs.ressources[key] > 0:
+            self.ressources[key] += 1
+            rs.ressources[key] -= 1
+            return True
+        else:
+            print ("invalid move")
+            return False
 
     def card_counter(self):
         for id, card in enumerate(self.cardstack):
