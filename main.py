@@ -1,4 +1,4 @@
-from classes import Card, OpenBoard, BonusC, BonusBoard, RessourceStack, Player
+from classes import *
 import pygame as g
 import math
 
@@ -76,7 +76,7 @@ def draw_card(card, width, height, color):
     win.blit(points,(card.x + 5, card.y + 5))
     # cost
     rx , ry = int(card.x + width/2 - 5) , int(card.y + height/8) # initial placing of the ressource numbers
-    for ress, col in ((card.green, GREEN), (card.blue, BLUE), (card.red, RED), (card.blck, BLACK)):
+    for ress, col in ((card.ressources["green"], GREEN), (card.ressources["blue"], BLUE), (card.ressources["red"], RED), (card.ressources["blck"], BLACK)):
         text = LETTER_FONT.render(str(ress), 1, col)
         win.blit(text, (rx , ry))
         ry += int(height/5)
@@ -89,19 +89,19 @@ def draw_card(card, width, height, color):
         colour = LETTER_FONT.render("O", 1, O)
         win.blit(colour, (card.x + RECTWIDTH_CARDDECK - 20 , card.y + 5))
 
-def draw_rs_stack(rs, x, y, r):
+def draw_rs_stack(rs, x, ystart, r):
     ''' draw RessourceStack (rs) as 4 colored circles, starting at pos x,y with radius r
     RETURN: lst_res_xy containing the ressources and their coordinates - used in the event listener'''
     i = 0
-    lst_res_xy = []
-    for ress, col in ((rs.green, GREEN), (rs.blue, BLUE), (rs.red, RED), (rs.blck, BLACK)):
-        y_real = y + i * (r * 2 + 2 * PADDING_V)
-        g.draw.circle(win, col, (x, y_real), r , 0)
-        a_res = LETTER_FONT.render(str(ress), 1, WHITE)
-        win.blit(a_res,(x - 5 , y_real - 10 ))
-        lst_res_xy.append((i, x, y_real))
+    dict_res_xy = {}
+    for ress, col in (("green", GREEN), ("blue", BLUE), ("red", RED), ("blck", BLACK)):
+        y = ystart + i * (r * 2 + 2 * PADDING_V)
+        g.draw.circle(win, col, (x, y), r , 0)
+        a_res = LETTER_FONT.render(str(rs.ressources[ress]), 1, WHITE)
+        win.blit(a_res,(x - 5 , y - 10 ))
+        dict_res_xy[ress] = (x, y)
         i += 1
-    return lst_res_xy
+    return dict_res_xy
 
 def draw_active_player(plyr):
     ''' Draw name and points of the active player in the lower part of display.
@@ -115,20 +115,19 @@ def draw_active_player(plyr):
     drw_points = LETTER_FONT.render("Points: " + str(p_points), 1, BLACK)
     win.blit(drw_points, (665,480))
     #2 player stack (simple)
-    crds_count = plyr.card_counter()
     y = 510
-    for idx, key in enumerate(crds_count):
+    for idx, key in enumerate(plyr.crds_count):
         x = 465 + idx * 100
         if key == "green": col = GREEN
         if key == "blue": col = LIGHTBLUE
         if key == "red": col = RED
         if key == "blck": col = BLACK
         g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHBONI, RECTHEIGHTBONI), 2)
-        drw_nbcrds = LETTER_FONT.render(str(crds_count.get(key, 0)), 1, col)
+        drw_nbcrds = LETTER_FONT.render(str(plyr.crds_count.get(key)), 1, col)
         win.blit(drw_nbcrds, (int(x + RECTWIDTHBONI / 2 - 5) ,y + int(RECTHEIGHTBONI / 2)))
     #3 player's RessourceStack
     i = 0
-    for ress, col in ((plyr.green, GREEN), (plyr.blue, BLUE), (plyr.red, RED), (plyr.blck, BLACK)):
+    for ress, col in ((plyr.ressources["green"], GREEN), (plyr.ressources["blue"], BLUE), (plyr.ressources["red"], RED), (plyr.ressources["blck"], BLACK)):
         x = 900 + ((RADIUS_PLAYER_RS * 2 + PADDING_H) * (i % 2))
         '< für i = 0 und i = 2 wird der 2. Teil der Summe 0!'
         y = 540 + ((i // 2) * (PADDING_V + RADIUS_PLAYER_RS *2))
@@ -156,17 +155,17 @@ def draw():
     for card in boni.deck:
         draw_card(card, RECTWIDTHBONI, RECTHEIGHTBONI, False)
     # draw ressource stack
-    rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
+    dict_rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
 
     #draw active player's stack (cards, points, ress)
     draw_active_player(ls_plyer[active_player_id])
 
     g.display.update()
 
-    return rs_coordinates
+    return dict_rs_coordinates
 
 #Players and active_player_id:
-ls_plyer = [Player("Catherine",1,1), Player("Philipp",1,1)]
+ls_plyer = [Player("Catherine",1), Player("Philipp",1)]
 active_player_id = 0
 
 rs = RessourceStack(len(ls_plyer))
@@ -179,7 +178,7 @@ print(rs)
 print("length player_list:", len(ls_plyer))
 # game counter, to track actions done by active player
 cntr_pck_crd = 0
-cntr_pck_res_as_lst = [0, 0, 0, 0]
+cntr_pck_res_as_dict = Ressources()
 
 while run:
     clock.tick(FPS)
@@ -187,7 +186,7 @@ while run:
     #turn of active player -> performs his actions, at the end next.
     #Should be an inner loop !
 
-    rs_coordinates = draw()
+    dict_rs_coordinates = draw()
 
     for event in g.event.get():
         if event.type == g.QUIT:
@@ -198,7 +197,7 @@ while run:
             #player klicks on card
             for id_clicked_card, clicked_card in enumerate(ob.deck):
                 if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
-                    if 1 in cntr_pck_res_as_lst:
+                    if 1 in cntr_pck_res_as_dict.values():
                         #TO DO: render some messagetext
                         print("invalid move")
                         continue
@@ -212,37 +211,32 @@ while run:
                             ob.replace_card(id_clicked_card)
                             #g.display.update()
             #player klicks on ressources
-            for id_clicked_ress, x, y in rs_coordinates:
+            for k in dict_rs_coordinates:
                 #Calculating distance between mouse and letters = collision_detection
+                x = dict_rs_coordinates[k][0]
+                y = dict_rs_coordinates[k][1]
                 dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
                 if dis < RS_RAD:
                     g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
                     g.display.update()
-                    success = ls_plyer[active_player_id].take_res(id_clicked_ress, rs)
-                    print("DEBUG: suucess picking res:", success,  id_clicked_ress)
+                    success = ls_plyer[active_player_id].take_res(k, rs)
+                    print("DEBUG: suucess picking res:", success,  k)
                     if success:
-                        if id_clicked_ress == 0:
-                            cntr_pck_res_as_lst[0] += 1
-                    if id_clicked_ress == 1:
-                        cntr_pck_res_as_lst[1] += 1
-                    if id_clicked_ress == 2:
-                        cntr_pck_res_as_lst[2] += 1
-                    if id_clicked_ress == 3:
-                        cntr_pck_res_as_lst[3] += 1
+                        cntr_pck_res_as_dict[k] += 1
     draw()
 
-    g.time.wait(3_000)
+    g.time.wait(2_000)
 
 
 
-    if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_lst or sum(cntr_pck_res_as_lst) == 3:
+    if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:
         if active_player_id < len(ls_plyer) - 1 :
             active_player_id += 1
-            cntr_pck_res_as_lst = [0, 0, 0, 0]
+            cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
         else:
             active_player_id = 0
-            cntr_pck_res_as_lst = [0, 0, 0, 0]
+            cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
 
 

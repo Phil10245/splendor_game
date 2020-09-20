@@ -1,16 +1,5 @@
 import random
 
-# first a cardcreator, creating cards with points, 1 o 4 colors, and ressouce need.
-# all implemented in the Card object! It works fine. Many if statements and combinations are hard hardcoded
-# <> Up next: write the Open_Board class: on init puts 12 cards in a list, 4 of each level,
-# and a func to draw new card, if one is taken out -> done :)
-# Next up: BonusCard class and func. logic similar to cardcreator stff done before!
-# => also done.
-# NEXT UP: RESSOURCE_STACK >done
-# next: player class - there will be 2 funcs: 1 - pick ressources REFACTOR!; 2nd: pick card. DONE
-# time for the game loop and py game. keep it text based till it's running ok.
-# ressource stack just a list, instead of class?
-#check func: compare ress need withn avaiolable ress ->returnn true if sufficient
 
 class Card():
     ''' card object - points, colour, ressource need, coordinates '''
@@ -195,14 +184,14 @@ class RessourceStack():
 class Player():
     #human or pc,points counter, carddeck, res-dec, state (acti> not), take ressources,
     # take a card, receive bonuscard,
-    ressources = Ressources()
+
     #the accumulated points:
     points = 0
     #base coordinates:
     x = 0
     y = 0
 
-    crds_count = Ressources()
+
 
     def __init__(self, name:str, human:int):
         self.name = name
@@ -210,6 +199,8 @@ class Player():
             self.state = "human"
         else:
             self.state = "computer"
+        self.ressources = Ressources()
+        self.crds_count = Ressources()
 
     def __str__(self):
         string = [f"{self.name}:", self.ressources.__str__(), f"Points: {self.points}"]
