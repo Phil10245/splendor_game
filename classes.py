@@ -18,30 +18,43 @@ class Card():
     x = 0
     y = 0
 
+    def max_need(self):
+        max_lst = []
+        for k in self.ressources:
+            max_lst.append(self.ressources[k])
+        max_value = max(max_lst)
+        return max_value
+
+    def min_need(self):
+        min_lst = []
+        for k in self.ressources:
+            min_lst.append(self.ressources[k])
+        min_value = min(min_lst)
+        return min_value
+
+
     def detPoints(self, level):
         ''' func to calculate point value of cards. '''
 
         if level == 0:
-            if max(self.red, self.green, self.blck, self.blue) ==  4:
+            if self.max_need() ==  4:
                 return 1
             else:
                 return 0
         elif level == 1:
-            if max(self.red, self.green, self.blck, self.blue) ==  6:
+            if self.max_need() ==  6:
                 return 3
-            elif max(self.red, self.green, self.blck, self.blue) == 3:
+            elif self.max_need() == 3:
                 return 1
             else:
                 return 2
         else:
-            if (max(self.red, self.green, self.blck, self.blue) == 7 and
-            min(self.red, self.green, self.blck, self.blue) == 3):
+            if self.max_need() == 7 and self.min_need() == 3:
                 return 5
-            if max(self.red, self.green, self.blck, self.blue) == 5:
+            if self.max_need() == 5:
                 return 3
             else:
                 return 4
-
 
     def res_need(self, level):
         '''func to make random ressource need distribution
@@ -61,19 +74,24 @@ class Card():
         random.shuffle(lst)
         return (lst)
 
+    def __init__ (self, level, x: int, y: int):
+        self.colour = random.randint(1, 4)
+        self.level = level
 
-    def __init__ (self, level,x: int, y: int):
-            self.colour = random.randint(1, 4)
-            self.level = level
-            (self.green, self.blue, self.red, self.blck) = self.res_need(level)
-            self.points = self.detPoints(level)
-            self.x = x
-            self.y = y
+        self.ressources = Ressources()
+        need = self.res_need(level)
+        i = 0
+        for k in self.ressources:
+            self.ressources[k] = need[i]
+            i += 1
+
+        self.points = self.detPoints(level)
+        self.x = x
+        self.y = y
 
     def __str__(self):
-        return ("Colour: {}, Points: {} \nRessources: Green: {}, Blue: {}, Red: {}, Black {}".format(self.colour,
-        self.points, self.green, self.blue, self.red, self.blck))
-
+        string = [f"Colour: {self.colour}, Points: {self.points} \n" , self.ressources.__str__()]
+        return "".join(string)
 
 class OpenBoard():
     '''list of 12 card objects (4 of each level),
@@ -111,13 +129,14 @@ class BonusC():
         self.y = y
         res = [3,3,3,0]
         random.shuffle(res)
-        #print(res)
-        self.green, self.blue, self.red, self.blck = res
+        self.ressources = Ressources()
+        i = 0
+        for k in self.ressources:
+            self.ressources[k] = res[i]
+            i += 1
 
     def __str__(self):
-        return ("Points: {} \nRessources: Green: {}, Blue: {}, Red: {}, Black {}".format(
-        self.points, self.green, self.blue, self.red, self.blck))
-
+        return (f"Points: {self.points} \n" ,self.ressources.__str__())
 
 class BonusBoard():
     '''list of 3 BonusC objects. With method remove to pop one'''
@@ -149,39 +168,45 @@ class Ressources(dict):
         for key in self:
             self[key] = value
 
+    def set_green(self, value):
+        self["green"] = value
 
+    def set_red(self, value):
+        self["red"] = value
 
+    def set_blue(self, value):
+        self["blue"] = value
 
-class RessourceStack():
-    '''depending on nb players (n) the available ressources are determined.
-    This needs to be implemented in __init__. First implementation in a list. Possible an optimization: dic
-    '''
-
-    def __init__(self, n:int):
-        (self.green, self.blue, self.red, self.blck)  = [n + 3] * 4
-
+    def set_blck(self, value):
+        self["blck"] = value
 
     def __str__(self):
-        return (f"GREEN: {self.green} \nBLUE: {self.blue} \nRED: {self.red} \nBLACK: {self.blck} ")
+        return f"Green: {self['green']}\nRed: {self['red']}\nBlue: {self['blue']}\nBlack: {self['blck']}"
 
+class RessourceStack():
+    '''depending on nb players (n) the available ressources are determined.'''
+
+    def __init__(self, n:int):
+        self.ressources = Ressources()
+        self.ressources.set_all(n+3)
+
+    def __str__(self):
+        return self.ressources.__str__()
 
 class Player():
     #human or pc,points counter, carddeck, res-dec, state (acti> not), take ressources,
     # take a card, receive bonuscard,
-    ressources = {"green": 0, "blue":0, "red": 0, "blck": 0}
-    #id for knowing the order of players:
-    id = 0
+    ressources = Ressources()
     #the accumulated points:
     points = 0
     #base coordinates:
     x = 0
     y = 0
 
-    crds_count = {"green": 0, "blue": 0, "red": 0, "blck": 0}
+    crds_count = Ressources()
 
-    def __init__(self, name:str, human:int, id:int):
+    def __init__(self, name:str, human:int):
         self.name = name
-        self.id = id
         self.cardstack = []
         if human == 1:
             self.state = "human"
@@ -189,9 +214,8 @@ class Player():
             self.state = "computer"
 
     def __str__(self):
-        return (f'''{self.name}: \nGREEN: {self.ressources["green"]}, BLUE: {self.ressources["blue"]}, RED: {self.ressources["red"]}, BLACK: {self.ressources["blck"]}
-        Points: {self.points} \nOwned Cards: {self.cardstack}\n''')
-
+        string = [f"{self.name}:", self.ressources.__str__(), f"Points: {self.points}\nOwned Cards: {self.cardstack}\n"]
+        return "\n".join(string)
     #take ressources.one a time repat the move acoordingly
     #add them to the player´s Ressource
     #REFACTOR so taht it's not four  times same code! give color to pick as param!!
