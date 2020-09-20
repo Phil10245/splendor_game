@@ -206,18 +206,15 @@ class Player():
 
     def __init__(self, name:str, human:int):
         self.name = name
-        self.cardstack = []
         if human == 1:
             self.state = "human"
         else:
             self.state = "computer"
 
     def __str__(self):
-        string = [f"{self.name}:", self.ressources.__str__(), f"Points: {self.points}\nOwned Cards: {self.cardstack}\n"]
+        string = [f"{self.name}:", self.ressources.__str__(), f"Points: {self.points}"]
         return "\n".join(string)
-    #take ressources.one a time repat the move acoordingly
-    #add them to the player´s Ressource
-    #REFACTOR so taht it's not four  times same code! give color to pick as param!!
+
     def take_res(self, key:str, rs:RessourceStack):
         '''take a ressource with the key from the rs,
         and add it to the player's ressource stack'''
@@ -230,74 +227,50 @@ class Player():
             print ("invalid move")
             return False
 
-    def card_counter(self):
-        for id, card in enumerate(self.cardstack):
-            if card.colour == 1:
+    def get_and_accum_card_colour(self, c:Card):
+            if c.colour == 1:
                 self.crds_count["green"] = self.crds_count.get("green", 0) + 1
-            if card.colour == 2:
+            if c.colour == 2:
                 self.crds_count["blue"] = self.crds_count.get("blue", 0) + 1
-            if card.colour == 3:
+            if c.colour == 3:
                 self.crds_count["red"] = self.crds_count.get("red", 0) + 1
-            if card.colour == 4:
+            if c.colour == 4:
                 self.crds_count["blck"] = self.crds_count.get("blck", 0) + 1
-        self.cardstack.pop(id)
 
     def combine_ressources_with_collected_cards(self):
-        total_res = {"green": 0, "blue":0, "red": 0, "blck": 0}
-        total_res["green"] = self.ressources["green"] + self.crds_count["green"]
-        total_res["red"] = self.ressources["red"] + self.crds_count["red"]
-        total_res["blue"] = self.ressources["blue"] + self.crds_count["blue"]
-        total_res["blck"] = self.ressources["blck"] + self.crds_count["blck"]
+        total_res = {k: self.ressources[k] + self.crds_count[k] for k in self.ressources}
         return total_res
 
-    def check_if_card_affordable(self, C:Card):
+    def check_if_card_affordable(self, c:Card):
         owned_res = self.combine_ressources_with_collected_cards()
-        if owned_res["green"] < C.green:
-            return False
-        if owned_res["blue"] < C.blue:
-            return False
-        if owned_res["red"] < C.red:
-            return False
-        if owned_res["blck"] < C.blck:
-            return False
+        for r in owned_res:
+            if owned_res[r] < c.ressources[r]:
+                return False
         else:
             return True
 
-    def add_and_deduct_real_costs(self, ob:OpenBoard, el:int, stack:RessourceStack):
+    def add_and_deduct_real_costs(self, c:Card, stack:RessourceStack):
 
-        if self.crds_count["green"] > ob.deck[el].green:
-            pass
-        else:
-            self.ressources["green"] -= ob.deck[el].green - self.crds_count["green"]
-            stack.green += ob.deck[el].green - self.crds_count["green"]
-        if self.crds_count["blue"] > ob.deck[el].blue:
-            pass
-        else:
-            self.ressources["blue"] -= ob.deck[el].blue - self.crds_count["blue"]
-            stack.blue += ob.deck[el].blue - self.crds_count["blue"]
-        if self.crds_count["red"] > ob.deck[el].red:
-            pass
-        else:
-            self.ressources["red"] -= ob.deck[el].red - self.crds_count["red"]
-            stack.red += ob.deck[el].red - self.crds_count["red"]
-        if self.crds_count["blck"] > ob.deck[el].blck:
-            pass
-        else:
-            self.ressources["blck"] -= ob.deck[el].blck - self.crds_count["blck"]
-            stack.blck += ob.deck[el].blck - self.crds_count["blck"]
+        for k in self.ressources:
+            if self.crds_count[k] > c.ressources[k]:
+                pass
+            else:
+                self.ressources[k] -= c.ressources[k] - self.crds_count[k]
+                stack.ressources[k] += c.ressources[k] - self.crds_count[k]
+
 
     #add card to player´s stack, rempve card from board And deduct the ressources from player
-    def pick_crd(self, ob:OpenBoard, el:int, stack:RessourceStack):
+    def pick_crd(self, c:Card, stack:RessourceStack):
         '''param el: index of card that is to be taken from the OpenBoard
         param ob: the board
         param stack: Ressourcestack obj - to refill wit the paid res.'''
-        sufficient_res = self.check_if_card_affordable(ob.deck[el])
+        sufficient_res = self.check_if_card_affordable(c)
         if sufficient_res:
-            self.add_and_deduct_real_costs(ob, el, stack)
+            self.add_and_deduct_real_costs(c, stack)
             #adding points to player
-            self.points += ob.deck[el].points
+            self.points += c.points
             # moving the card  from board to player
-            self.cardstack.append(ob.replace_card(el))
+            self.get_and_accum_card_colour(c)
             return True
         else:
             print("No sufficient funds. Please take another action")

@@ -206,11 +206,10 @@ while run:
                         g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                         g.display.update()
                         # implement the replaceCard calL!
-                        success = ls_plyer[active_player_id].pick_crd(ob, id_clicked_card, rs)
+                        success = ls_plyer[active_player_id].pick_crd(clicked_card, rs)
                         if success:
                             cntr_pck_crd += 1
-                            print("Player:", ls_plyer[active_player_id].name)
-                            print("Deck:", ls_plyer[active_player_id].cardstack)
+                            ob.replace_card(id_clicked_card)
                             #g.display.update()
             #player klicks on ressources
             for id_clicked_ress, x, y in rs_coordinates:

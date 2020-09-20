@@ -42,5 +42,13 @@ except:
 try:
     player1.take_res("green", rs)
     print(player1)
+    print(rs)
+except:
+    raise
+try:
+    player1.pick_crd(ob.deck[6], rs)
+    player1.ressources.set_all(9)
+    player1.pick_crd(ob.deck[6], rs)
+    print(player1)
 except:
     raise
