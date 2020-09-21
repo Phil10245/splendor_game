@@ -158,15 +158,16 @@ def draw():
     dict_rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
 
     #draw active player's stack (cards, points, ress)
-    draw_active_player(ls_plyer[active_player_id])
+    draw_active_player(active_player])
 
     g.display.update()
 
     return dict_rs_coordinates
 
-#Players and active_player_id:
+#Players and active_player / id:
 ls_plyer = [Player("Catherine",1), Player("Philipp",1)]
 active_player_id = 0
+
 
 rs = RessourceStack(len(ls_plyer))
 ob = OpenBoard()
@@ -183,8 +184,7 @@ cntr_pck_res_as_dict = Ressources()
 while run:
     clock.tick(FPS)
 
-    #turn of active player -> performs his actions, at the end next.
-    #Should be an inner loop !
+    active_player = ls_plyer[active_player_id]
 
     dict_rs_coordinates = draw()
 
@@ -204,8 +204,9 @@ while run:
                     else:
                         g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                         g.display.update()
+                        g.time.wait(0_800)
                         # implement the replaceCard calL!
-                        success = ls_plyer[active_player_id].pick_crd(clicked_card, rs)
+                        success = active_player.pick_crd(clicked_card, rs)
                         if success:
                             cntr_pck_crd += 1
                             ob.replace_card(id_clicked_card)
@@ -219,14 +220,15 @@ while run:
                 if dis < RS_RAD:
                     g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
                     g.display.update()
-                    success = ls_plyer[active_player_id].take_res(k, rs)
+                    success = active_player.take_res(k, rs)
                     print("DEBUG: suucess picking res:", success,  k)
                     if success:
                         cntr_pck_res_as_dict[k] += 1
     draw()
 
-    g.time.wait(2_000)
+    g.time.wait(1_000)
 
+    if active_player
 
 
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:
@@ -238,6 +240,8 @@ while run:
             active_player_id = 0
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
+
+
 
 
 
