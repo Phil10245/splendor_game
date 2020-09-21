@@ -54,6 +54,16 @@ FPS = 60
 clock = g.time.Clock()
 run = True
 
+def display_game_notification(message1, message2=None):
+    g.time.delay(500)
+    text = WORD_FONT.render(message1, 1, BLUE)
+    win.fill(WHITE)
+    if message2 not None:
+        text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
+        win.blit(text2, (300,350))
+    win.blit(text, (300,275))
+    g.display.update()
+    g.time.delay(4_000)
 
 def display_message (message1, message2):
     g.time.delay(2_000)
@@ -210,7 +220,10 @@ while run:
                         if success:
                             cntr_pck_crd += 1
                             ob.replace_card(id_clicked_card)
-                            #g.display.update()
+                    for bonus in boni.deck:
+                        if bonus.check_pattern_against_player:
+                            active_player.points += bonus.points
+
             #player klicks on ressources
             for k in dict_rs_coordinates:
                 #Calculating distance between mouse and letters = collision_detection
@@ -220,6 +233,7 @@ while run:
                 if dis < RS_RAD:
                     g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
                     g.display.update()
+                    g.time.wait(800)
                     success = active_player.take_res(k, rs)
                     print("DEBUG: suucess picking res:", success,  k)
                     if success:
@@ -228,10 +242,12 @@ while run:
 
     g.time.wait(1_000)
 
-    if active_player.points == 0:
-        run = False
-        display_message(f"Gratulations!!!\n {active_player.name}",
-        "You won! Well done. Yo're amazing and sexy!!!")
+    if active_player_id == 0:
+        for player in ls_plyer:
+            if player.points >= 15:
+                run = False
+                display_message(f"Gratulations!!!\n {active_player.name}",
+                "You won! Well done. Yo're amazing and sexy!!!")
 
 
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:

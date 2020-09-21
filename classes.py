@@ -126,6 +126,20 @@ class BonusC():
     def __str__(self):
         return (f"Points: {self.points} \n" ,self.ressources.__str__())
 
+    def check_pattern_against_player(self, player):
+        '''pattern bonus card: 3,3,3,0 - pl must have the corresponding cards.
+        if that is the case, checker will amount to 4, as for the 0 ressource, the
+        condition is always True.'''
+
+        checker = 0
+        for res in self.ressources:
+            if self.ressources[res] <= player.crds_count[res]:
+                checker += 1
+        if checker == 4:
+            return True
+        return False
+
+
 class BonusBoard():
     '''list of 3 BonusC objects. With method remove to pop one'''
 

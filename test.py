@@ -1,6 +1,6 @@
 import random
 from classes import *
-import main
+
 
 #test classes
 #Ressources
@@ -54,7 +54,12 @@ try:
 except:
     raise
 try:
-    dit = main.draw()
-    print(dit)
+    answer = bb.deck[0].check_pattern_against_player(player1)
+    print(answer, bb.deck[0].points)
 except:
     raise
+#try:
+#    dit = main.draw()
+#    print(dit)
+#xcept:
+#    raise
