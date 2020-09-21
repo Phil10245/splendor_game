@@ -54,8 +54,8 @@ try:
 except:
     raise
 try:
-    answer = bb.deck[0].check_pattern_against_player(player1)
-    print(answer, bb.deck[0].points)
+    answer = player1.check_if_qualified_for_bonus(bb)
+    print(answer)
 except:
     raise
 #try:

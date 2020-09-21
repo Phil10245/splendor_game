@@ -126,20 +126,6 @@ class BonusC():
     def __str__(self):
         return (f"Points: {self.points} \n" ,self.ressources.__str__())
 
-    def check_pattern_against_player(self, player):
-        '''pattern bonus card: 3,3,3,0 - pl must have the corresponding cards.
-        if that is the case, checker will amount to 4, as for the 0 ressource, the
-        condition is always True.'''
-
-        checker = 0
-        for res in self.ressources:
-            if self.ressources[res] <= player.crds_count[res]:
-                checker += 1
-        if checker == 4:
-            return True
-        return False
-
-
 class BonusBoard():
     '''list of 3 BonusC objects. With method remove to pop one'''
 
@@ -153,7 +139,7 @@ class BonusBoard():
     def __str__(self):
         return str([el.__str__() for el in self.deck])
 
-    def remove(self, el: int):
+    def remove(self, el:int):
         return self.deck.pop(el)
 
 class Ressources(dict):
@@ -229,7 +215,6 @@ class Player():
             rs.ressources[key] -= 1
             return True
         else:
-            print ("invalid move")
             return False
 
     def get_and_accum_card_colour(self, c:Card):
@@ -278,5 +263,18 @@ class Player():
             self.get_and_accum_card_colour(c)
             return True
         else:
-            print("No sufficient funds. Please take another action")
             return False
+
+    def check_if_qualified_for_bonus(self, bb:BonusBoard):
+        '''pattern bonus card: 3,3,3,0 - pl must have the corresponding cards.
+        if that is the case, checker will amount to 4, as for the 0 ressource, the
+        condition is always True.'''
+
+        for card in bb.deck:
+            checker = 0
+            for res in card.ressources:
+                if card.ressources[res] <= self.crds_count[res]:
+                    checker += 1
+            if checker == 4:
+                return True
+        return False

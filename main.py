@@ -2,21 +2,6 @@ from classes import *
 import pygame as g
 import math
 
-#defining all known funcs, needed for the game not implemented in classes:
-#check func -> already implented in player class.
-
-#check points -> if >=15 game ends,playyer wins
-
-#check if a player fulfills the pattern to receive a bonus card:
-#after each turn. check for all bonuscards
-
-#count game_stats like nb of turns and print points of all players
-
-#copying the code from hangman game - to be adapted but for a first intuition
-
-#to determine active player: Use ls_plyer : [0] is active player -> goes in last positon after his turn.
-# OR iterate over the list
-
 #setup display
 g.init()
 WIDTH, HEIGHT = 1330, 1000
@@ -54,16 +39,15 @@ FPS = 60
 clock = g.time.Clock()
 run = True
 
-def display_game_notification(message1, message2=None):
-    g.time.delay(500)
+def display_game_notification(message1, message2=""):
+    g.time.delay(100)
     text = WORD_FONT.render(message1, 1, BLUE)
-    win.fill(WHITE)
-    if message2 not None:
+    if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (300,350))
-    win.blit(text, (300,275))
+        win.blit(text2, (WIDTH / 2 - text2.get_width() / 2 , HEIGHT / 2 - text.get_height() / 3))
+    win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 3))
     g.display.update()
-    g.time.delay(4_000)
+    g.time.delay(2_000)
 
 def display_message (message1, message2):
     g.time.delay(2_000)
@@ -183,10 +167,6 @@ rs = RessourceStack(len(ls_plyer))
 ob = OpenBoard()
 boni = BonusBoard()
 
-print(boni)
-print(ob)
-print(rs)
-print("length player_list:", len(ls_plyer))
 # game counter, to track actions done by active player
 cntr_pck_crd = 0
 cntr_pck_res_as_dict = Ressources()
@@ -203,39 +183,45 @@ while run:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
-            print(m_x, m_y)
             #player klicks on card
             for id_clicked_card, clicked_card in enumerate(ob.deck):
                 if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
                     if 1 in cntr_pck_res_as_dict.values():
-                        #TO DO: render some messagetext
-                        print("invalid move")
+                        display_game_notification("That won't work!", "Insufficient Ressources")
                         continue
                     else:
                         g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                         g.display.update()
                         g.time.wait(800)
-                        # implement the replaceCard calL!
+                        # check if player can take card and if so replace it.
                         success = active_player.pick_crd(clicked_card, rs)
                         if success:
                             cntr_pck_crd += 1
                             ob.replace_card(id_clicked_card)
-                    for bonus in boni.deck:
-                        if bonus.check_pattern_against_player:
+                            if clicked_card.points > 0:
+                                display_game_notification(f"{clicked_card.points} points are added to your points!")
+                    #check if player qualifies for any bonus
+                    for id, bonus in enumerate(boni.deck):
+                        if bonus.check_pattern_against_player(active_player):
                             active_player.points += bonus.points
-
+                            boni.remove(id)
+                            display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
             #player klicks on ressources
             for k in dict_rs_coordinates:
-                #Calculating distance between mouse and letters = collision_detection
+                #Calculating distance between mouse and ressources = collision_detection
                 x = dict_rs_coordinates[k][0]
                 y = dict_rs_coordinates[k][1]
                 dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
-                if dis < RS_RAD:
+                if dis < RS_RAD / 2:
                     g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
                     g.display.update()
                     g.time.wait(800)
-                    success = active_player.take_res(k, rs)
-                    print("DEBUG: suucess picking res:", success,  k)
+                    if cntr_pck_res_as_dict[k] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[k] == 0:
+                        success = active_player.take_res(k, rs)
+                        display_game_notification(f"1 of the {k} ressources added to your stack")
+                    else:
+                        display_game_notification("You can either take 2X the same, or 3 different ones!!! DUCKER!")
+                        success = False
                     if success:
                         cntr_pck_res_as_dict[k] += 1
     draw()
@@ -259,7 +245,7 @@ while run:
             active_player_id = 0
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
-
+        display_game_notification(f"It's {ls_plyer[active_player_id].name}'s turn :)")
 
 
 
