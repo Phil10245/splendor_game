@@ -201,11 +201,10 @@ while run:
                             if clicked_card.points > 0:
                                 display_game_notification(f"{clicked_card.points} points are added to your points!")
                     #check if player qualifies for any bonus
-                    for id, bonus in enumerate(boni.deck):
-                        if bonus.check_pattern_against_player(active_player):
-                            active_player.points += bonus.points
-                            boni.remove(id)
-                            display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
+                    if active_player.check_if_qualified_for_bonus(boni):
+                        active_player.points += 3
+                        boni.remove(id)
+                        display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
             #player klicks on ressources
             for k in dict_rs_coordinates:
                 #Calculating distance between mouse and ressources = collision_detection
