@@ -56,14 +56,14 @@ run = True
 
 
 def display_message (message1, message2):
-    g.time.delay(2000)
-    text = LOSE_FONT.render(message1, 1, RED)
-    text2 = TITLE_FONT.render(message2, 1, BLUE)
+    g.time.delay(2_000)
+    text = LOSE_FONT.render(message1, 1, BLUE)
+    text2 = TITLE_FONT.render(message2, 1, LIGHTBLUE)
     win.fill(WHITE)
     win.blit(text, (300,275))
     win.blit(text2, (300,350))
     g.display.update()
-    g.time.delay(3000)
+    g.time.delay(10_000)
 
 def draw_card(card, width, height, color):
     '''draw card obcject, with width and height setting the size of the rectangle
@@ -158,7 +158,7 @@ def draw():
     dict_rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
 
     #draw active player's stack (cards, points, ress)
-    draw_active_player(active_player])
+    draw_active_player(active_player)
 
     g.display.update()
 
@@ -204,7 +204,7 @@ while run:
                     else:
                         g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
                         g.display.update()
-                        g.time.wait(0_800)
+                        g.time.wait(800)
                         # implement the replaceCard calL!
                         success = active_player.pick_crd(clicked_card, rs)
                         if success:
@@ -228,7 +228,10 @@ while run:
 
     g.time.wait(1_000)
 
-    if active_player
+    if active_player.points == 0:
+        run = False
+        display_message(f"Gratulations!!!\n {active_player.name}",
+        "You won! Well done. Yo're amazing and sexy!!!")
 
 
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:
