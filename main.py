@@ -2,11 +2,7 @@ from classes import *
 import pygame as g
 import math
 
-#setup display
 g.init()
-WIDTH, HEIGHT = 1330, 1000
-win = g.display.set_mode((WIDTH, HEIGHT))
-g.display.set_caption("Splendor 0.9")
 
 #font
 LETTER_FONT = g.font.SysFont("comicsans", 30)
@@ -17,6 +13,7 @@ TITLE_FONT = g.font.SysFont("comicsans", 50)
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 YELLOW = (255,255,0)
+DARKYELLOW = (100,100,0)
 BLUE = (0,0,200)
 RED = (255,0,0)
 GREEN = (0,200,0)
@@ -24,6 +21,7 @@ LIGHTBLUE = (0,200,252)
 
 #setup drawings:
 #1 Rect
+BUTTON_WIDTH = 300
 RECTWIDTH_CARDDECK = 90
 RECTHEIGHT_CARDDECK = 110
 PADDING_V = 10
@@ -34,10 +32,20 @@ RADIUS_PLAYER_RS = 30
 RS_RAD = 37
 RS_X = 1040
 RS_Y = 135
-#setup game loop
-FPS = 60
-clock = g.time.Clock()
-run = True
+
+def change_number_of_players(number):
+        if number < 4:
+            return number + 1
+        else:
+            return 1
+
+def draw_menu_page(screen):
+    win.fill(DARKYELLOW)
+    start_b.draw(screen)
+    for player in input_name_boxes:
+        player.draw(screen)
+    exit_b.draw(screen)
+    g.display.update()
 
 def display_game_notification(message1, message2=""):
     g.time.delay(100)
@@ -158,6 +166,32 @@ def draw():
 
     return dict_rs_coordinates
 
+
+#setup display
+
+WIDTH, HEIGHT = 1330, 1000
+win = g.display.set_mode((WIDTH, HEIGHT))
+g.display.set_caption("Splendor 0.9")
+
+#setup game loop
+FPS = 60
+clock = g.time.Clock()
+
+#setting up start menu:
+start_b = Button(WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, LETTER_FONT, "START")
+exit_b = Button(WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, LETTER_FONT, text="END")
+option2 = WORD_FONT.render("How many players?", 1, BLUE)
+name_player1 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, "Player1")
+name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player2")
+name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
+name_player4 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player4")
+input_name_boxes = [name_player1, name_player2, name_player3, name_player4]
+y = -200
+for input_box in input_name_boxes:
+    input_box.rect.move_ip(0, HEIGHT / 2 + y)
+    y += 100
+#The start menu should be here
+#another while loop?
 #Players and active_player / id:
 ls_plyer = [Player("Catherine",1), Player("Philipp",1)]
 active_player_id = 0
@@ -171,6 +205,26 @@ boni = BonusBoard()
 cntr_pck_crd = 0
 cntr_pck_res_as_dict = Ressources()
 
+
+in_menu = True
+run = True
+#menu and start_screen
+while in_menu:
+    clock.tick(FPS)
+    win.fill(WHITE)
+    draw_menu_page(win)
+
+    for event in g.event.get():
+        if event.type == g.QUIT:
+            run = in_menu = False
+        for box in input_name_boxes:
+            box.handle_event(event)
+        if start_b.handle_event(event):
+            in_menu = False
+        if exit_b.handle_event(event):
+            run = in_menu = False
+
+#game_loop
 while run:
     clock.tick(FPS)
 
