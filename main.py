@@ -1,5 +1,5 @@
 from classes import *
-from colours import * 
+from colours import *
 import pygame as g
 import math
 
@@ -42,7 +42,7 @@ def display_game_notification(message1, message2=""):
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (WIDTH / 2 - text2.get_width() / 2 , HEIGHT / 2 - text.get_height() / 3))
+        win.blit(text2, (WIDTH / 2 - text2.get_width() / 2 , HEIGHT / 2 - text.get_height() / 2))
     win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 3))
     g.display.update()
     g.time.delay(1_500)
@@ -139,9 +139,9 @@ def draw():
 
     #Draw board
     #-------------------------------
-    #draw carddeck (openboard)
-    for card in ob.deck:
-        draw_card(card, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, True)
+    #draw carddeck
+    for card in lst_cards:
+        card.draw(win)
 
     # draw bonus cards (available)
     for card in boni.deck:
@@ -180,8 +180,15 @@ y = -200
 for input_box in input_name_boxes:
     input_box.rect.move_ip(0, HEIGHT / 2 + y)
     y += 100
-#The start menu should be here
-#another while loop?
+
+#initiate the 12 cards of the carddeck
+lst_cards = []
+for difficulty_level in range(3):
+    y = 100 + difficulty_level * 160 # determining the y coordinate
+    for __ in range(4):   #instance the 4 card
+        x = 465 + __ * 130 # determining the x coordinate
+        c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
+        lst_cards.append(c)
 
 # game counter, to track actions done by active player
 cntr_pck_crd = 0
@@ -229,7 +236,6 @@ active_player_id = 0
 
 
 rs = RessourceStack(len(ls_player))
-ob = OpenBoard()
 boni = BonusBoard()
 
 #game_loop
@@ -245,24 +251,25 @@ while run:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
-            #player klicks on card
-            for id_clicked_card, clicked_card in enumerate(ob.deck):
-                if m_x > clicked_card.x and m_x < clicked_card.x + RECTWIDTH_CARDDECK and m_y > clicked_card.y and m_y < clicked_card.y + RECTHEIGHT_CARDDECK:
+            for card in lst_cards:
+                if card.handle_event(event):
+                    g.draw.rect(win, LIGHTBLUE, card.rect, 5)
+                    g.display.update()
                     if 1 in cntr_pck_res_as_dict.values():
-                        display_game_notification("That won't work!", "Insufficient Ressources")
+                        display_game_notification("That won't work!", "You took already a ressource.")
                         continue
                     else:
-                        g.draw.rect(win, LIGHTBLUE, g.Rect(clicked_card.x, clicked_card.y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK), 2)
-                        g.display.update()
-                        g.time.wait(800)
-                        # check if player can take card and if so replace it.
-                        success = active_player.pick_crd(clicked_card, rs)
+                        # check if player can take card and if so replace it. refactor i one function - one task
+                        success = active_player.pick_crd(card, rs)
                         if success:
                             cntr_pck_crd += 1
-                            ob.replace_card(id_clicked_card)
+                            #TODO: Replace ob function:
+                            ob.replace_card(card)
                             if clicked_card.points > 0:
                                 display_game_notification(f"{clicked_card.points} points are added to your points!")
-                    #check if player qualifies for any bonus
+                        else:
+                            display_game_notification("Not enough Ressources")
+                    #TODO: Seems incomplete. Should be a for loop over the three cards?
                     if active_player.check_if_qualified_for_bonus(boni):
                         active_player.points += 3
                         boni.remove(id)
@@ -276,7 +283,6 @@ while run:
                 if dis < RS_RAD / 2:
                     g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
                     g.display.update()
-                    g.time.wait(800)
                     if cntr_pck_res_as_dict[k] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[k] == 0:
                         success = active_player.take_res(k, rs)
                         display_game_notification(f"1 of the {k} ressources added to your stack")
@@ -285,6 +291,8 @@ while run:
                         success = False
                     if success:
                         cntr_pck_res_as_dict[k] += 1
+            g.time.wait(800)
+
     draw()
 
     g.time.wait(1_000)

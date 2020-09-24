@@ -94,6 +94,7 @@ class Card():
 
     def __init__ (self, level, x: int, y: int, w: int, h: int, font):
         self.colour = random.choice([(0,0,0), (0,0,200), (255,0,0), (0,200,0), (240,240,240)])
+        self.clicked = LIGHTBLUE
         self.level = level
         self.rect = g.Rect(x, y, w, h)
         self.ressources = Ressources()
@@ -182,9 +183,8 @@ class Card():
     def handle_event(self, event):
         if event.type == g.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
-                self.colour = LIGHTBLUE
                 return True
-            
+
 class OpenBoard():
     '''list of 12 card objects (4 of each level),
     with methods to replace a card. '''
@@ -218,7 +218,7 @@ class BonusC():
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        res = [3,3,3,0]
+        res = [3,3,3,0,0]
         random.shuffle(res)
         self.ressources = Ressources()
         i = 0
