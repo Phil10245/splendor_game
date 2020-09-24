@@ -13,7 +13,7 @@ TITLE_FONT = g.font.SysFont("comicsans", 50)
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 YELLOW = (255,255,0)
-DARKYELLOW = (100,100,0)
+DARKYELLOW = (150,100,0)
 BLUE = (0,0,200)
 RED = (255,0,0)
 GREEN = (0,200,0)
@@ -42,8 +42,10 @@ def change_number_of_players(number):
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
     start_b.draw(screen)
+    number_player_b.draw(screen)
     for player in input_name_boxes:
-        player.draw(screen)
+        if player.visible:
+            player.draw(screen)
     exit_b.draw(screen)
     g.display.update()
 
@@ -180,7 +182,7 @@ clock = g.time.Clock()
 #setting up start menu:
 start_b = Button(WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, LETTER_FONT, "START")
 exit_b = Button(WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, LETTER_FONT, text="END")
-option2 = WORD_FONT.render("How many players?", 1, BLUE)
+number_player_b = Button(WIDTH / 2 - 70, HEIGHT / 2 - 200, 50, 50, LETTER_FONT, "2")
 name_player1 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, "Player1")
 name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player2")
 name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
@@ -223,6 +225,8 @@ while in_menu:
             in_menu = False
         if exit_b.handle_event(event):
             run = in_menu = False
+        if number_player_b.handle_event(event):
+            number_player_b.increase_num(4, win)
 
 #game_loop
 while run:

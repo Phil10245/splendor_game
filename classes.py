@@ -22,6 +22,17 @@ class Button():
         screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
         g.draw.rect(screen, self.color, self.rect, 2)
 
+    def increase_num(self, limit, screen):
+        try:
+            start = int(self.text)
+        except:
+            return
+        if start == limit:
+            self.text = "1"
+        else:
+            self.text = str(start + 1)
+        self.txt_surface = self.font.render(self.text, True, self.color)
+
 
 class InputBox():
 
