@@ -6,9 +6,12 @@ g.init()
 class Button():
     '''creates a clickable button'''
 
+    active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
+
     def __init__(self, x, y, w, h, font, text=""):
         self.rect = g.Rect(x, y, w, h)
-        self.color = g.Color("black")
+        self.color = self.active_inactive_colours[1]
+        self.active = False
         self.text = text
         self.font = font
         self.text_surface = self.font.render(text, 1, self.color)
@@ -16,7 +19,11 @@ class Button():
     def handle_event(self, event):
         if event.type == g.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
+                self.active = True
+                self.color = self.active_inactive_colours[0] if self.active else self.active_inactive_colours[1]
                 return True
+            else:
+                self.active = False
 
     def draw(self, screen):
         screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
@@ -31,8 +38,8 @@ class Button():
             self.text = "1"
         else:
             self.text = str(start + 1)
-        self.txt_surface = self.font.render(self.text, True, self.color)
-
+        self.text_surface = self.font.render(self.text, True, self.color)
+        return int(self.text)
 
 class InputBox():
 
@@ -40,12 +47,12 @@ class InputBox():
 
     def __init__(self, x, y, w, h, font, text=''):
         self.rect = g.Rect(x, y, w, h)
-        self.color = self.active_inactive_colours[0]
+        self.color = self.active_inactive_colours[1]
         self.text = text
         self.font = font
         self.txt_surface = self.font.render(text, True, self.color)
         self.active = False
-        self.visible = True
+        self.visible = False
 
     def handle_event(self, event):
         if event.type == g.MOUSEBUTTONDOWN:

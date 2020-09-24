@@ -33,19 +33,13 @@ RS_RAD = 37
 RS_X = 1040
 RS_Y = 135
 
-def change_number_of_players(number):
-        if number < 4:
-            return number + 1
-        else:
-            return 1
-
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
     start_b.draw(screen)
     number_player_b.draw(screen)
-    for player in input_name_boxes:
-        if player.visible:
-            player.draw(screen)
+    for box in input_name_boxes:
+        if box.visible:
+            box.draw(screen)
     exit_b.draw(screen)
     g.display.update()
 
@@ -194,14 +188,6 @@ for input_box in input_name_boxes:
     y += 100
 #The start menu should be here
 #another while loop?
-#Players and active_player / id:
-ls_plyer = [Player("Catherine",1), Player("Philipp",1)]
-active_player_id = 0
-
-
-rs = RessourceStack(len(ls_plyer))
-ob = OpenBoard()
-boni = BonusBoard()
 
 # game counter, to track actions done by active player
 cntr_pck_crd = 0
@@ -210,29 +196,53 @@ cntr_pck_res_as_dict = Ressources()
 
 in_menu = True
 run = True
+i = 2
 #menu and start_screen
+lst_player_names = []
 while in_menu:
     clock.tick(FPS)
     win.fill(WHITE)
     draw_menu_page(win)
+
 
     for event in g.event.get():
         if event.type == g.QUIT:
             run = in_menu = False
         for box in input_name_boxes:
             box.handle_event(event)
+            number_player_b.active = False
         if start_b.handle_event(event):
             in_menu = False
+            number_player_b.active = False
+            for box in input_name_boxes:
+                if box.visible:
+                    lst_player_names.append(box.text)
         if exit_b.handle_event(event):
             run = in_menu = False
+            number_player_b.active = False
         if number_player_b.handle_event(event):
-            number_player_b.increase_num(4, win)
+            i = number_player_b.increase_num(4, win)
+            for box in input_name_boxes[:i]:
+                box.visible = True
+            for box in input_name_boxes[i:]:
+                box.visible = False
+
+#Players and active_player / id:
+ls_player = []
+for player in lst_player_names:
+    ls_player.append(Player(str(player), 1))
+active_player_id = 0
+
+
+rs = RessourceStack(len(ls_player))
+ob = OpenBoard()
+boni = BonusBoard()
 
 #game_loop
 while run:
     clock.tick(FPS)
 
-    active_player = ls_plyer[active_player_id]
+    active_player = ls_player[active_player_id]
 
     dict_rs_coordinates = draw()
 
@@ -286,7 +296,7 @@ while run:
     g.time.wait(1_000)
 
     if active_player_id == 0:
-        for player in ls_plyer:
+        for player in ls_player:
             if player.points >= 15:
                 run = False
                 display_message(f"Gratulations!!!\n {active_player.name}",
@@ -294,7 +304,7 @@ while run:
 
 
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:
-        if active_player_id < len(ls_plyer) - 1 :
+        if active_player_id < len(ls_player) - 1 :
             active_player_id += 1
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
@@ -302,7 +312,7 @@ while run:
             active_player_id = 0
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
-        display_game_notification(f"It's {ls_plyer[active_player_id].name}'s turn :)")
+        display_game_notification(f"It's {ls_player[active_player_id].name}'s turn :)")
 
 
 
