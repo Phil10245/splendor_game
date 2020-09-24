@@ -1,6 +1,8 @@
 from classes import *
+from colours import * 
 import pygame as g
 import math
+
 
 g.init()
 
@@ -10,14 +12,7 @@ WORD_FONT = g.font.SysFont("comicsans", 60)
 LOSE_FONT = g.font.SysFont("comicsans", 120)
 TITLE_FONT = g.font.SysFont("comicsans", 50)
 # colours
-WHITE = (255, 255, 255)
-BLACK = (0,0,0)
-YELLOW = (255,255,0)
-DARKYELLOW = (150,100,0)
-BLUE = (0,0,200)
-RED = (255,0,0)
-GREEN = (0,200,0)
-LIGHTBLUE = (0,200,252)
+
 
 #setup drawings:
 #1 Rect
@@ -44,17 +39,16 @@ def draw_menu_page(screen):
     g.display.update()
 
 def display_game_notification(message1, message2=""):
-    g.time.delay(100)
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
         win.blit(text2, (WIDTH / 2 - text2.get_width() / 2 , HEIGHT / 2 - text.get_height() / 3))
     win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 3))
     g.display.update()
-    g.time.delay(2_000)
+    g.time.delay(1_500)
 
 def display_message (message1, message2):
-    g.time.delay(2_000)
+    g.time.delay(1_000)
     text = LOSE_FONT.render(message1, 1, BLUE)
     text2 = TITLE_FONT.render(message2, 1, LIGHTBLUE)
     win.fill(WHITE)

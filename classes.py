@@ -1,6 +1,8 @@
 import random
 import pygame as g
 
+from colours import *
+
 g.init()
 
 class Button():
@@ -10,24 +12,24 @@ class Button():
 
     def __init__(self, x, y, w, h, font, text=""):
         self.rect = g.Rect(x, y, w, h)
-        self.color = self.active_inactive_colours[1]
+        self.colour = self.active_inactive_colours[1]
         self.active = False
         self.text = text
         self.font = font
-        self.text_surface = self.font.render(text, 1, self.color)
+        self.text_surface = self.font.render(self.text, 1, self.colour)
 
     def handle_event(self, event):
         if event.type == g.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.active = True
-                self.color = self.active_inactive_colours[0] if self.active else self.active_inactive_colours[1]
+                self.colour = self.active_inactive_colours[0] if self.active else self.active_inactive_colours[1]
                 return True
             else:
                 self.active = False
 
     def draw(self, screen):
         screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
-        g.draw.rect(screen, self.color, self.rect, 2)
+        g.draw.rect(screen, self.colour, self.rect, 2)
 
     def increase_num(self, limit, screen):
         try:
@@ -38,7 +40,7 @@ class Button():
             self.text = "1"
         else:
             self.text = str(start + 1)
-        self.text_surface = self.font.render(self.text, True, self.color)
+        self.text_surface = self.font.render(self.text, True, self.colour)
         return int(self.text)
 
 class InputBox():
@@ -47,10 +49,10 @@ class InputBox():
 
     def __init__(self, x, y, w, h, font, text=''):
         self.rect = g.Rect(x, y, w, h)
-        self.color = self.active_inactive_colours[1]
+        self.colour = self.active_inactive_colours[1]
         self.text = text
         self.font = font
-        self.txt_surface = self.font.render(text, True, self.color)
+        self.txt_surface = self.font.render(text, True, self.colour)
         self.active = False
         self.visible = False
 
@@ -62,8 +64,8 @@ class InputBox():
                 self.active = not self.active
             else:
                 self.active = False
-            # Change the current color of the input box.
-            self.color = self.active_inactive_colours[0] if self.active else self.active_inactive_colours[1]
+            # Change the current colour of the input box.
+            self.colour = self.active_inactive_colours[0] if self.active else self.active_inactive_colours[1]
         if event.type == g.KEYDOWN:
             if self.active:
                 if event.key == g.K_RETURN:
@@ -74,7 +76,7 @@ class InputBox():
                 else:
                     self.text += event.unicode
                 # Re-render the text.
-                self.txt_surface = self.font.render(self.text, True, self.color)
+                self.txt_surface = self.font.render(self.text, True, self.colour)
 
     def update(self):
         # Resize the box if the text is too long.
@@ -85,13 +87,29 @@ class InputBox():
         # Blit the text.
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         # Blit the rect.
-        g.draw.rect(screen, self.color, self.rect, 2)
+        g.draw.rect(screen, self.colour, self.rect, 2)
 
 class Card():
     ''' card object - points, colour, ressource need, coordinates '''
 
-    x = 0
-    y = 0
+    def __init__ (self, level, x: int, y: int, w: int, h: int, font):
+        self.colour = random.choice([(0,0,0), (0,0,200), (255,0,0), (0,200,0), (240,240,240)])
+        self.level = level
+        self.rect = g.Rect(x, y, w, h)
+        self.ressources = Ressources()
+        need = self.res_need(level)
+        i = 0
+        for k in self.ressources:
+            self.ressources[k] = need[i]
+            i += 1
+
+        self.points = self.detPoints(level)
+        self.font = font
+        self.text_surface = self.font.render(str(self.points), 1, self.colour)
+
+    def __str__(self):
+        string = [f"Colour: {self.colour}, Points: {self.points} \n" , self.ressources.__str__()]
+        return "".join(string)
 
     def max_need(self):
         max_lst = []
@@ -106,7 +124,6 @@ class Card():
             min_lst.append(self.ressources[k])
         min_value = min(min_lst)
         return min_value
-
 
     def detPoints(self, level):
         ''' func to calculate point value of cards. '''
@@ -149,24 +166,19 @@ class Card():
         random.shuffle(lst)
         return (lst)
 
-    def __init__ (self, level, x: int, y: int):
-        self.colour = random.randint(1, 4)
-        self.level = level
+    def draw(self, screen):
+        # Blit the text
+        screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect
+        g.draw.rect(screen, self.colour, self.rect, 0)
+        # Blit Ressources
+        rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
+        for ress, col in ((self.ressources["green"], GREEN), (self.ressources["blue"], BLUE),
+        (self.ressources["red"], RED), (self.ressources["blck"], BLACK, (self.ressources["white"], WHITE))):
+            text = self.font.render(str(ress), 1, col)
+            screen.blit(text, (rx , ry))
+            ry += int(self.rect.h / 6)
 
-        self.ressources = Ressources()
-        need = self.res_need(level)
-        i = 0
-        for k in self.ressources:
-            self.ressources[k] = need[i]
-            i += 1
-
-        self.points = self.detPoints(level)
-        self.x = x
-        self.y = y
-
-    def __str__(self):
-        string = [f"Colour: {self.colour}, Points: {self.points} \n" , self.ressources.__str__()]
-        return "".join(string)
 
 class OpenBoard():
     '''list of 12 card objects (4 of each level),
@@ -188,9 +200,9 @@ class OpenBoard():
 
     def replace_card(self, el: int):
         #maybe to add: logic, to test if player has sufficint ressources to buy
-        cardbought = self.deck.pop(el)
-        level = cardbought.level
-        self.deck.insert(el, Card(level,cardbought.x, cardbought.y))
+        card_bought = self.deck.pop(el)
+        level = card_bought.level
+        self.deck.insert(el, Card(level,card_bought.x, card_bought.y))
         return cardbought
 
 class BonusC():
