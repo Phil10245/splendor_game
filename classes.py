@@ -245,10 +245,11 @@ class Ressources(dict):
 
     def __init__(self):
         super(Ressources, self).__init__()
-        self["green"]=0
-        self["blue"]=0
-        self["red"]=0
-        self["blck"]=0
+        self["green"] = 0
+        self["blue"] = 0
+        self["red"] = 0
+        self["blck"] = 0
+        self["white"] = 0
 
     def set_all(self, value):
         for key in self:
@@ -266,8 +267,11 @@ class Ressources(dict):
     def set_blck(self, value):
         self["blck"] = value
 
+    def set_white(self, value):
+        self["white"] = value
+
     def __str__(self):
-        return f"Green: {self['green']}\nRed: {self['red']}\nBlue: {self['blue']}\nBlack: {self['blck']}"
+        return f"Green: {self['green']}\nRed: {self['red']}\nBlue: {self['blue']}\nBlack: {self['blck']}\nWhite: {self['white']}"
 
 class RessourceStack():
     '''depending on nb players (n) the available ressources are determined.'''
