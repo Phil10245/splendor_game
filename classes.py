@@ -155,14 +155,14 @@ class Card():
         im working with hardcoded combinations, from which random.choice picks, according to difficult level'''
 
         if level == 0:
-            r1st, r2nd, r3rd, r4th = (random.choice(((0,0,0,4),(1,1,1,2),(0,0,2,2),
-            (1,1,1,1), (0,0,1,2),(0,0,0,3), (0,1,1,3))))
+            r1st, r2nd, r3rd, r4th, r5th = (random.choice(((0,0,0,0,4),(0,1,1,1,2),(0,0,0,2,2),
+            (1,1,1,1,0), (0,0,0,1,2),(0,0,0,0,3), (0,0,1,1,3))))
         elif level == 1:
-            r1st, r2nd, r3rd, r4th = (random.choice(((0,2,3,2),(0,1,2,4), (0,0,0,5),
-            (0,0,3,5), (0,0,0,6))))
+            r1st, r2nd, r3rd, r4th, r5th = (random.choice(((0,0,2,3,2),(0,0,1,2,4), (0,0,0,0,5),
+            (0,0,0,3,5), (0,0,0,0,6))))
         else:
-            r1st, r2nd, r3rd, r4th = random.choice(((3,3,3,5), (0,0,0,7), (0,0,3,7)))
-        lst = [r1st, r2nd, r3rd, r4th]
+            r1st, r2nd, r3rd, r4th, r5th = random.choice(((3,3,3,5,0), (0,0,0,0,7), (0,0,0,3,7)))
+        lst = [r1st, r2nd, r3rd, r4th, r5th]
         random.shuffle(lst)
         return (lst)
 
@@ -174,12 +174,17 @@ class Card():
         # Blit Ressources
         rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
         for ress, col in ((self.ressources["green"], GREEN), (self.ressources["blue"], BLUE),
-        (self.ressources["red"], RED), (self.ressources["blck"], BLACK, (self.ressources["white"], WHITE))):
+        (self.ressources["red"], RED), (self.ressources["blck"], BLACK), (self.ressources["white"], WHITE)):
             text = self.font.render(str(ress), 1, col)
             screen.blit(text, (rx , ry))
             ry += int(self.rect.h / 6)
 
-
+    def handle_event(self, event):
+        if event.type == g.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.colour = LIGHTBLUE
+                return True
+            
 class OpenBoard():
     '''list of 12 card objects (4 of each level),
     with methods to replace a card. '''
