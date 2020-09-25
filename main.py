@@ -197,7 +197,7 @@ cntr_pck_res_as_dict = Ressources()
 
 in_menu = True
 run = True
-i = 2
+i = 0
 #menu and start_screen
 lst_player_names = []
 while in_menu:
@@ -251,7 +251,7 @@ while run:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
             m_x, m_y = g.mouse.get_pos()
-            for card in lst_cards:
+            for card_id, card in enumerate(lst_cards):
                 if card.handle_event(event):
                     g.draw.rect(win, LIGHTBLUE, card.rect, 5)
                     g.display.update()
@@ -263,10 +263,9 @@ while run:
                         success = active_player.pick_crd(card, rs)
                         if success:
                             cntr_pck_crd += 1
-                            #TODO: Replace ob function:
-                            lst_cards.pop(card)
-                            if clicked_card.points > 0:
-                                display_game_notification(f"{clicked_card.points} points are added to your points!")
+                            if card.points > 0:
+                                display_game_notification(f"{card.points} points are added to your points!")
+                            card.replace_card(card_id, lst_cards)
                         else:
                             display_game_notification("Not enough Ressources")
                     #TODO: Seems incomplete. Should be a for loop over the three cards?

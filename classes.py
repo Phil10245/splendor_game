@@ -185,11 +185,10 @@ class Card():
             if self.rect.collidepoint(event.pos):
                 return True
 
-    def replace_card(self):
-        taken_card = self.deck.pop(el)
-        level = taken_card.level
-        self.deck.insert(el, Card(level,card_bought.x, card_bought.y))
-        return cardbought
+    def replace_card(self, el, cardlist):
+        replacement = Card(self.level, self.rect.x, self.rect.y, self.rect.w, self.rect.h, self.font)
+        cardlist.pop(el)
+        cardlist.insert(el,replacement)
 
 class BonusC():
     '''a bonuscard is worth 3P and is awarded when a player own the right pattern of cards'''
