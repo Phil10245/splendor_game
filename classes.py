@@ -28,7 +28,7 @@ class Button():
                 self.active = False
 
     def draw(self, screen):
-        screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
+        screen.blit(self.text_surface, (self.rect.x + self.rect.w / 2 + self.text_surface.get_width() / 2, self.rect.y + self.rect.h / 2 + self.text_surface.get_height() / 2))
         g.draw.rect(screen, self.colour, self.rect, 2)
 
     def increase_num(self, limit, screen):
@@ -52,7 +52,7 @@ class InputBox():
         self.colour = self.active_inactive_colours[1]
         self.text = text
         self.font = font
-        self.txt_surface = self.font.render(text, True, self.colour)
+        self.text_surface = self.font.render(text, True, self.colour)
         self.active = False
         self.visible = False
 
@@ -76,21 +76,22 @@ class InputBox():
                 else:
                     self.text += event.unicode
                 # Re-render the text.
-                self.txt_surface = self.font.render(self.text, True, self.colour)
+                self.text_surface = self.font.render(self.text, True, self.colour)
 
     def update(self):
         # Resize the box if the text is too long.
-        width = max(200, self.txt_surface.get_width()+10)
+        width = max(200, self.text_surface.get_width()+10)
         self.rect.w = width
 
     def draw(self, screen):
         # Blit the text.
-        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        screen.blit(self.text_surface, (self.rect.x + self.rect.w / 2 + 3 / 2, self.rect.y + self.rect.h / 2))
         # Blit the rect.
         g.draw.rect(screen, self.colour, self.rect, 2)
 
 class Card():
-    ''' card object - points, colour, ressource need, coordinates '''
+    ''' card object - points, colour, ressource need, coordinates and all mainly
+    card related functions'''
 
     def __init__ (self, level, x: int, y: int, w: int, h: int, font):
         self.colour = random.choice([LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE])
@@ -106,7 +107,7 @@ class Card():
 
         self.points = self.detPoints(level)
         self.font = font
-        self.text_surface = self.font.render(str(self.points), 1, self.colour)
+        self.text_surface = self.font.render(str(self.points), 1, BLACK)
 
     def __str__(self):
         string = [f"Colour: {self.colour}, Points: {self.points} \n" , self.ressources.__str__()]
@@ -174,9 +175,10 @@ class Card():
         g.draw.rect(screen, self.colour, self.rect, 0)
         # Blit Ressources
         rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
-        for ress, col in ((self.ressources["green"], GREEN), (self.ressources["blue"], BLUE),
-        (self.ressources["red"], RED), (self.ressources["blck"], BLACK), (self.ressources["white"], WHITE)):
-            text = self.font.render(str(ress), 1, col)
+        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
+        order_res =("blck", "blue", "red", "green", "white")
+        for ress, colour_text in zip(order_res, colours_text):
+            text = self.font.render(str(self.ressources[ress]), 1, colour_text)
             screen.blit(text, (rx , ry))
             ry += int(self.rect.h / 6)
 
@@ -194,10 +196,12 @@ class BonusC():
     '''a bonuscard is worth 3P and is awarded when a player own the right pattern of cards'''
 
     points = 3
+    colour = ORANGE
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, x, y, w, h, font):
+        self.rect = g.Rect(x, y, w, h)
+        self.font = font
+        self.text_surface = self.font.render(str(self.points), 1, BLACK)
         res = [3,3,3,0,0]
         random.shuffle(res)
         self.ressources = Ressources()
@@ -209,21 +213,20 @@ class BonusC():
     def __str__(self):
         return (f"Points: {self.points} \n" ,self.ressources.__str__())
 
-class BonusBoard():
-    '''list of 3 BonusC objects. With method remove to pop one'''
-
-    def __init__(self):
-        self.deck = []
-        for _ in range(3):
-            y = 100 + _ * 100     #design : 90*90, 10px padding, starting at 885,75
-            x = 885
-            self.deck.append(BonusC(x,y))
-
-    def __str__(self):
-        return str([el.__str__() for el in self.deck])
-
-    def remove(self, el:int):
-        return self.deck.pop(el)
+    def draw(self, screen):
+        # Blit the text
+        screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect
+        g.draw.rect(screen, self.colour, self.rect, 0)
+        # Blit Ressources
+        rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
+        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
+        order_res =("blck", "blue", "red", "green", "white")
+        for ress, colour_text in zip(order_res, colours_text):
+            if self.ressources[ress] != 0:
+                text = self.font.render(str(self.ressources[ress]), 1, colour_text)
+                screen.blit(text, (rx , ry))
+                ry += int(self.rect.h / 6)
 
 class Ressources(dict):
     '''subclass to implement everywhere, where the 4 ressources are needed'''
@@ -359,16 +362,15 @@ class Player():
         else:
             return False
 
-    def check_if_qualified_for_bonus(self, bb:BonusBoard):
+    def check_if_qualified_for_bonus(self, bc:BonusC):
         '''pattern bonus card: 3,3,3,0 - pl must have the corresponding cards.
         if that is the case, checker will amount to 4, as for the 0 ressource, the
         condition is always True.'''
 
-        for card in bb.deck:
-            checker = 0
-            for res in card.ressources:
-                if card.ressources[res] <= self.crds_count[res]:
-                    checker += 1
-            if checker == 4:
-                return True
+        checker = 0
+        for res in bc.ressources:
+            if bc.ressources[res] <= self.crds_count[res]:
+                checker += 1
+                if checker == 4:
+                    return True
         return False

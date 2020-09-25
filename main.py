@@ -11,19 +11,21 @@ LETTER_FONT = g.font.SysFont("comicsans", 30)
 WORD_FONT = g.font.SysFont("comicsans", 60)
 LOSE_FONT = g.font.SysFont("comicsans", 120)
 TITLE_FONT = g.font.SysFont("comicsans", 50)
-# colours
 
+#setup display
+WIDTH, HEIGHT = 1330, 1000
+win = g.display.set_mode((WIDTH, HEIGHT))
+g.display.set_caption("Splendor 0.9")
 
-#setup drawings:
-#1 Rect
+# parameters for drawings. TODO: make it relative to screensize
 BUTTON_WIDTH = 300
 RECTWIDTH_CARDDECK = 90
 RECTHEIGHT_CARDDECK = 120
 RECT_P_RES = 70
 PADDING_V = 10
 PADDING_H = 10
-RECTWIDTHBONI = 90
-RECTHEIGHTBONI = 90
+RECTWIDTHBONI = 100
+RECTHEIGHTBONI = 118
 RADIUS_PLAYER_RS = 35
 RS_RAD = 38
 RS_X = 1040
@@ -113,24 +115,18 @@ def draw():
     for card in lst_cards:
         card.draw(win)
 
-    #TODO
     # draw bonus cards (available)
-    #for card in boni.deck:
-    #    draw_card(card, RECTWIDTHBONI, RECTHEIGHTBONI, False)
-    # draw ressource stack
-    rs.draw(win, LETTER_FONT, x=1045, y=138, r=38, padding=PADDING_H)
+    for bcard in lst_bcards:
+        bcard.draw(win)
 
-    #draw active player's stack (cards, points, ress)
+    # draw ressource stack
+    ressource_stack.draw(win, LETTER_FONT, x=1045, y=138, r=38, padding=PADDING_H)
+
+    #draw active player
     draw_active_player(active_player)
 
     g.display.update()
 
-
-#setup display
-
-WIDTH, HEIGHT = 1330, 1000
-win = g.display.set_mode((WIDTH, HEIGHT))
-g.display.set_caption("Splendor 0.9")
 
 #setup game loop
 FPS = 60
@@ -150,7 +146,7 @@ for input_box in input_name_boxes:
     input_box.rect.move_ip(0, HEIGHT / 2 + y)
     y += 100
 
-#initiate the 12 cards of the carddeck
+#initiate the 12 cards of the carddeck.
 lst_cards = []
 for difficulty_level in range(3):
     y = 100 + difficulty_level * (PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
@@ -159,7 +155,16 @@ for difficulty_level in range(3):
         c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
         lst_cards.append(c)
 
-# game counter, to track actions done by active player
+#initiate the 3 bonus cards.
+lst_bcards = []
+for _ in range(3):
+    y = 100 + _ * (RECTHEIGHTBONI + PADDING_V)
+    x = 885
+    bonus = BonusC(x, y, RECTWIDTHBONI, RECTHEIGHTBONI, LETTER_FONT)
+    lst_bcards.append(bonus)
+
+
+#game counter, to track actions done by active player.
 cntr_pck_crd = 0
 cntr_pck_res_as_dict = Ressources()
 
@@ -167,6 +172,7 @@ cntr_pck_res_as_dict = Ressources()
 in_menu = True
 run = True
 i = 0
+
 #menu and start_screen
 lst_player_names = []
 while in_menu:
@@ -203,9 +209,7 @@ for player in lst_player_names:
     lst_player.append(Player(str(player), 1))
 active_player_id = 0
 
-
-rs = RessourceStack(len(lst_player))
-boni = BonusBoard()
+ressource_stack = RessourceStack(len(lst_player))
 
 #game_loop
 while run:
@@ -228,7 +232,7 @@ while run:
                         continue
                     else:
                         # check if player can take card and if so replace it. refactor i one function - one task
-                        success = active_player.pick_crd(card, rs)
+                        success = active_player.pick_crd(card, ressource_stack)
                         if success:
                             cntr_pck_crd += 1
                             if card.points > 0:
@@ -237,17 +241,19 @@ while run:
                         else:
                             display_game_notification("Not enough Ressources")
                     #TODO: Seems incomplete. Should be a for loop over the three cards?
-                    if active_player.check_if_qualified_for_bonus(boni):
-                        active_player.points += 3
-                        boni.remove(id)
-                        display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
+                    for bcard in lst_bcards:
+                        if active_player.check_if_qualified_for_bonus(bcard):
+                            active_player.points += 3
+                            bcard.visible = False
+                            display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
+                            break
             #player klicks on ressources
-            for ress, ressource_rect in rs.lst_rects:
+            for ress, ressource_rect in ressource_stack.lst_rects:
                 if event.type == g.MOUSEBUTTONDOWN:
                     if ressource_rect.collidepoint(event.pos):
                         highlight_circle(ressource_rect)
                         if cntr_pck_res_as_dict[ress] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[ress] == 0:
-                            success = active_player.take_res(ress, rs)
+                            success = active_player.take_res(ress, ressource_stack)
                             if success:
                                 display_game_notification(f"1 of the {ress} ressources added to your stack")
                                 cntr_pck_res_as_dict[ress] += 1
@@ -267,7 +273,6 @@ while run:
                 display_message(f"Gratulations!!!\n {active_player.name}",
                 "You won! Well done. You're amazing and sexy!!!")
 
-
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) >= 3:
         if active_player_id < len(lst_player) - 1 :
             active_player_id += 1
@@ -278,8 +283,5 @@ while run:
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
         display_game_notification(f"It's {lst_player[active_player_id].name}'s turn :)")
-
-
-
 
 g.quit()
