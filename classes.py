@@ -44,7 +44,7 @@ class Button():
         return int(self.text)
 
 class InputBox():
-
+    '''inspired by https://stackoverflow.com/questions/46390231/how-to-create-a-text-input-box-with-pygame'''
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
     def __init__(self, x, y, w, h, font, text=''):
