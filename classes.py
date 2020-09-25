@@ -202,6 +202,7 @@ class BonusC():
         self.rect = g.Rect(x, y, w, h)
         self.font = font
         self.text_surface = self.font.render(str(self.points), 1, BLACK)
+        self.visible = True
         res = [3,3,3,0,0]
         random.shuffle(res)
         self.ressources = Ressources()
@@ -214,19 +215,20 @@ class BonusC():
         return (f"Points: {self.points} \n" ,self.ressources.__str__())
 
     def draw(self, screen):
-        # Blit the text
-        screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
-        # Blit the rect
-        g.draw.rect(screen, self.colour, self.rect, 0)
-        # Blit Ressources
-        rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
-        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
-        order_res =("blck", "blue", "red", "green", "white")
-        for ress, colour_text in zip(order_res, colours_text):
-            if self.ressources[ress] != 0:
-                text = self.font.render(str(self.ressources[ress]), 1, colour_text)
-                screen.blit(text, (rx , ry))
-                ry += int(self.rect.h / 6)
+        if self.visible:
+            # Blit the text
+            screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
+            # Blit the rect
+            g.draw.rect(screen, self.colour, self.rect, 0)
+            # Blit Ressources
+            rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
+            colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
+            order_res =("blck", "blue", "red", "green", "white")
+            for ress, colour_text in zip(order_res, colours_text):
+                if self.ressources[ress] != 0:
+                    text = self.font.render(str(self.ressources[ress]), 1, colour_text)
+                    screen.blit(text, (rx , ry))
+                    ry += int(self.rect.h / 6)
 
 class Ressources(dict):
     '''subclass to implement everywhere, where the 4 ressources are needed'''
