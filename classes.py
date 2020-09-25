@@ -236,6 +236,7 @@ class Ressources(dict):
         self["blck"] = 0
         self["white"] = 0
 
+
     def set_all(self, value):
         for key in self:
             self[key] = value
@@ -264,21 +265,27 @@ class RessourceStack():
     def __init__(self, n:int):
         self.ressources = Ressources()
         self.ressources.set_all(n+3)
+        self.lst_rects =[]
 
     def __str__(self):
         return self.ressources.__str__()
 
+    def draw(self, screen, font, x=0, y=0, r=0, padding=0):
+        i = 0
+        colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
+        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
+        order_res =("blck", "blue", "red", "green", "white")
+        for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
+            ynext = y + i * (r * 2 + padding)
+            res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r , 0)
+            text = font.render(str(self.ressources[ress]), 1, WHITE)
+            screen.blit(text, (x - text.get_width() / 2 , ynext - text.get_height() / 2))
+            self.lst_rects.append((ress, res_rect))
+            i += 1
+
 class Player():
-    #human or pc,points counter, carddeck, res-dec, state (acti> not), take ressources,
-    # take a card, receive bonuscard,
 
-    #the accumulated points:
     points = 0
-    #base coordinates:
-    x = 0
-    y = 0
-
-
 
     def __init__(self, name:str, human:int):
         self.name = name
@@ -305,14 +312,16 @@ class Player():
             return False
 
     def get_and_accum_card_colour(self, c:Card):
-            if c.colour == 1:
+            if c.colour == LIGHTGREEN:
                 self.crds_count["green"] = self.crds_count.get("green", 0) + 1
-            if c.colour == 2:
+            if c.colour == LIGHTBLUE:
                 self.crds_count["blue"] = self.crds_count.get("blue", 0) + 1
-            if c.colour == 3:
+            if c.colour == LIGHTRED:
                 self.crds_count["red"] = self.crds_count.get("red", 0) + 1
-            if c.colour == 4:
+            if c.colour == LIGHTBLACK:
                 self.crds_count["blck"] = self.crds_count.get("blck", 0) + 1
+            if c.colour == DARKWHITE:
+                self.crds_count["white"] = self.crds_count.get("white", 0) + 1
 
     def combine_ressources_with_collected_cards(self):
         total_res = {k: self.ressources[k] + self.crds_count[k] for k in self.ressources}
@@ -335,8 +344,6 @@ class Player():
                 self.ressources[k] -= c.ressources[k] - self.crds_count[k]
                 stack.ressources[k] += c.ressources[k] - self.crds_count[k]
 
-
-    #add card to player´s stack, rempve card from board And deduct the ressources from player
     def pick_crd(self, c:Card, stack:RessourceStack):
         '''param el: index of card that is to be taken from the OpenBoard
         param ob: the board

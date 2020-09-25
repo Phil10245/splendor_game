@@ -25,7 +25,7 @@ PADDING_H = 10
 RECTWIDTHBONI = 90
 RECTHEIGHTBONI = 90
 RADIUS_PLAYER_RS = 35
-RS_RAD = 37
+RS_RAD = 38
 RS_X = 1040
 RS_Y = 135
 
@@ -57,44 +57,6 @@ def display_message (message1, message2):
     win.blit(text2, (300,350))
     g.display.update()
     g.time.delay(10_000)
-
-def draw_card(card, width, height, color):
-    '''draw card obcject, with width and height setting the size of the rectangle
-    if color == True: Draw "O"s coloured in the card's colour in the left corner
-    if color == False, don't draw the "O"s'''
-
-    g.draw.rect(win, BLACK, g.Rect(card.x, card.y, width, height), 2)
-    #points in the right top corner
-    points = LETTER_FONT.render(str(card.points) , 1, BLACK)
-    win.blit(points,(card.x + 5, card.y + 5))
-    # cost
-    rx , ry = int(card.x + width/2 - 5) , int(card.y + height/8) # initial placing of the ressource numbers
-    for ress, col in ((card.ressources["green"], GREEN), (card.ressources["blue"], BLUE), (card.ressources["red"], RED), (card.ressources["blck"], BLACK)):
-        text = LETTER_FONT.render(str(ress), 1, col)
-        win.blit(text, (rx , ry))
-        ry += int(height/5)
-    #color
-    if color == True:
-        if card.colour == 1: O = GREEN
-        if card.colour == 2: O = LIGHTBLUE
-        if card.colour == 3: O = RED
-        if card.colour == 4: O = BLACK
-        colour = LETTER_FONT.render("O", 1, O)
-        win.blit(colour, (card.x + RECTWIDTH_CARDDECK - 20 , card.y + 5))
-
-def draw_rs_stack(rs, x, ystart, r):
-    ''' draw RessourceStack (rs) as 4 colored circles, starting at pos x,y with radius r
-    RETURN: lst_res_xy containing the ressources and their coordinates - used in the event listener'''
-    i = 0
-    dict_res_xy = {}
-    for ress, col in (("green", GREEN), ("blue", BLUE), ("red", RED), ("blck", BLACK)):
-        y = ystart + i * (r * 2 + 2 * PADDING_V)
-        g.draw.circle(win, col, (x, y), r , 0)
-        a_res = LETTER_FONT.render(str(rs.ressources[ress]), 1, WHITE)
-        win.blit(a_res,(x - 5 , y - 10 ))
-        dict_res_xy[ress] = (x, y)
-        i += 1
-    return dict_res_xy
 
 def draw_active_player(plyr):
     ''' Draw name and points of the active player in the lower part of display.
@@ -129,6 +91,14 @@ def draw_active_player(plyr):
         win.blit(a_res,(x - 5 , y - 5 ))
         i += 1
 
+def highlight_rect(Rect):
+    g.draw.rect(win, LIGHTBLUE, Rect, 5)
+    g.display.update()
+
+def highlight_circle(Rect):
+    g.draw.circle(win, LIGHTBLUE, (Rect.x + RS_RAD, Rect.y + RS_RAD), RS_RAD, 5)
+    g.display.update()
+
 def draw():
 
     win.fill(DARKYELLOW)
@@ -143,18 +113,17 @@ def draw():
     for card in lst_cards:
         card.draw(win)
 
+    #TODO
     # draw bonus cards (available)
-    for card in boni.deck:
-        draw_card(card, RECTWIDTHBONI, RECTHEIGHTBONI, False)
+    #for card in boni.deck:
+    #    draw_card(card, RECTWIDTHBONI, RECTHEIGHTBONI, False)
     # draw ressource stack
-    dict_rs_coordinates = draw_rs_stack(rs, RS_X, RS_Y, RS_RAD)
+    rs.draw(win, LETTER_FONT, x=1045, y=138, r=38, padding=PADDING_H)
 
     #draw active player's stack (cards, points, ress)
     draw_active_player(active_player)
 
     g.display.update()
-
-    return dict_rs_coordinates
 
 
 #setup display
@@ -244,17 +213,16 @@ while run:
 
     active_player = lst_player[active_player_id]
 
-    dict_rs_coordinates = draw()
+    draw()
 
     for event in g.event.get():
         if event.type == g.QUIT:
             run = False
         if event.type == g.MOUSEBUTTONDOWN:
-            m_x, m_y = g.mouse.get_pos()
+            #player clicks on card
             for card_id, card in enumerate(lst_cards):
                 if card.handle_event(event):
-                    g.draw.rect(win, LIGHTBLUE, card.rect, 5)
-                    g.display.update()
+                    highlight_rect(card.rect)
                     if 1 in cntr_pck_res_as_dict.values():
                         display_game_notification("That won't work!", "You took already a ressource.")
                         continue
@@ -274,37 +242,33 @@ while run:
                         boni.remove(id)
                         display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
             #player klicks on ressources
-            for k in dict_rs_coordinates:
-                #Calculating distance between mouse and ressources = collision_detection
-                x = dict_rs_coordinates[k][0]
-                y = dict_rs_coordinates[k][1]
-                dis = math.sqrt((x-m_x)**2 + (y - m_y)**2)
-                if dis < RS_RAD / 2:
-                    g.draw.circle(win, LIGHTBLUE, (x, y), RS_RAD , 2)
-                    g.display.update()
-                    if cntr_pck_res_as_dict[k] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[k] == 0:
-                        success = active_player.take_res(k, rs)
-                        display_game_notification(f"1 of the {k} ressources added to your stack")
-                    else:
-                        display_game_notification("You can either take 2X the same, or 3 different ones!!! DUCKER!")
-                        success = False
-                    if success:
-                        cntr_pck_res_as_dict[k] += 1
-            g.time.wait(800)
+            for ress, ressource_rect in rs.lst_rects:
+                if event.type == g.MOUSEBUTTONDOWN:
+                    if ressource_rect.collidepoint(event.pos):
+                        highlight_circle(ressource_rect)
+                        if cntr_pck_res_as_dict[ress] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[ress] == 0:
+                            success = active_player.take_res(ress, rs)
+                            if success:
+                                display_game_notification(f"1 of the {ress} ressources added to your stack")
+                                cntr_pck_res_as_dict[ress] += 1
+                                print("DEBUG: cntr_pck_res_as_dict:", cntr_pck_res_as_dict)
+                            else:
+                                display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
+                            break
+
+    g.time.wait(500)
 
     draw()
-
-    g.time.wait(1_000)
 
     if active_player_id == 0:
         for player in lst_player:
             if player.points >= 15:
                 run = False
                 display_message(f"Gratulations!!!\n {active_player.name}",
-                "You won! Well done. Yo're amazing and sexy!!!")
+                "You won! Well done. You're amazing and sexy!!!")
 
 
-    if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:
+    if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) >= 3:
         if active_player_id < len(lst_player) - 1 :
             active_player_id += 1
             cntr_pck_res_as_dict = Ressources()
