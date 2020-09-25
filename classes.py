@@ -93,7 +93,7 @@ class Card():
     ''' card object - points, colour, ressource need, coordinates '''
 
     def __init__ (self, level, x: int, y: int, w: int, h: int, font):
-        self.colour = random.choice([(0,0,0), (0,0,200), (255,0,0), (0,200,0), (240,240,240)])
+        self.colour = random.choice([LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE])
         self.clicked = LIGHTBLUE
         self.level = level
         self.rect = g.Rect(x, y, w, h)
@@ -185,28 +185,9 @@ class Card():
             if self.rect.collidepoint(event.pos):
                 return True
 
-class OpenBoard():
-    '''list of 12 card objects (4 of each level),
-    with methods to replace a card. '''
-
-    deck = list()
-
-    def __init__(self):
-        for _ in range(3):
-            y = 100 + _ * 120 # determining the y coordinate
-            #that`s the 3 difficulties
-            for __ in range(4):   #instance the 4 card
-                x = 465 + __ * 100 # determining the x coordinate
-                self.deck.append(Card(_, x, y)) # initializing the card with all params.
-
-    def __str__(self):
-        return str([el.__str__() for el in self.deck])
-        #!maybe it will work better to call print on each el in the game loop...
-
-    def replace_card(self, el: int):
-        #maybe to add: logic, to test if player has sufficint ressources to buy
-        card_bought = self.deck.pop(el)
-        level = card_bought.level
+    def replace_card(self):
+        taken_card = self.deck.pop(el)
+        level = taken_card.level
         self.deck.insert(el, Card(level,card_bought.x, card_bought.y))
         return cardbought
 

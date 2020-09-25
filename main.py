@@ -18,12 +18,13 @@ TITLE_FONT = g.font.SysFont("comicsans", 50)
 #1 Rect
 BUTTON_WIDTH = 300
 RECTWIDTH_CARDDECK = 90
-RECTHEIGHT_CARDDECK = 110
+RECTHEIGHT_CARDDECK = 120
+RECT_P_RES = 70
 PADDING_V = 10
 PADDING_H = 10
 RECTWIDTHBONI = 90
 RECTHEIGHTBONI = 90
-RADIUS_PLAYER_RS = 30
+RADIUS_PLAYER_RS = 35
 RS_RAD = 37
 RS_X = 1040
 RS_Y = 135
@@ -102,36 +103,35 @@ def draw_active_player(plyr):
     '''
     p_name = plyr.name
     drw_name = LETTER_FONT.render(p_name, 1, BLACK)
-    win.blit(drw_name, (465,480))
+    win.blit(drw_name, (465,510))
     p_points = plyr.points
     drw_points = LETTER_FONT.render("Points: " + str(p_points), 1, BLACK)
-    win.blit(drw_points, (665,480))
+    win.blit(drw_points, (665,510))
     #2 player stack (simple)
-    y = 510
+    y = 530
     for idx, key in enumerate(plyr.crds_count):
-        x = 465 + idx * 100
+        x = 465 + idx * (RECT_P_RES + PADDING_H)
         if key == "green": col = GREEN
         if key == "blue": col = LIGHTBLUE
         if key == "red": col = RED
         if key == "blck": col = BLACK
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECTWIDTHBONI, RECTHEIGHTBONI), 2)
+        if key == "white": col == WHITE
+        g.draw.rect(win, BLACK, g.Rect(x, y, RECT_P_RES, RECT_P_RES), 2)
         drw_nbcrds = LETTER_FONT.render(str(plyr.crds_count.get(key)), 1, col)
-        win.blit(drw_nbcrds, (int(x + RECTWIDTHBONI / 2 - 5) ,y + int(RECTHEIGHTBONI / 2)))
+        win.blit(drw_nbcrds, (int(x + RECT_P_RES / 2 - 5) ,y + int(RECT_P_RES / 2)))
     #3 player's RessourceStack
     i = 0
-    for ress, col in ((plyr.ressources["green"], GREEN), (plyr.ressources["blue"], BLUE), (plyr.ressources["red"], RED), (plyr.ressources["blck"], BLACK)):
-        x = 900 + ((RADIUS_PLAYER_RS * 2 + PADDING_H) * (i % 2))
-        '< für i = 0 und i = 2 wird der 2. Teil der Summe 0!'
-        y = 540 + ((i // 2) * (PADDING_V + RADIUS_PLAYER_RS *2))
-        ' "//" ist der Integerdivisioner > der Ausdruck ist somit 0 solange i < 2, dann 1, bis i = 4'
+    for ress, col in ((plyr.ressources["green"], GREEN), (plyr.ressources["blue"], BLUE), (plyr.ressources["red"], RED), (plyr.ressources["blck"], BLACK), (plyr.ressources["white"], WHITE)):
+        y = 608 + RADIUS_PLAYER_RS + PADDING_V
+        x = 465 + RADIUS_PLAYER_RS + (PADDING_H + RADIUS_PLAYER_RS * 2) * i
         g.draw.circle(win, col, (x, y), RADIUS_PLAYER_RS , 0)
         a_res = LETTER_FONT.render(str(ress), 1, WHITE)
-        win.blit(a_res,(x - 5 , y - 10 ))
+        win.blit(a_res,(x - 5 , y - 5 ))
         i += 1
 
 def draw():
 
-    win.fill(WHITE)
+    win.fill(DARKYELLOW)
 
     #draw Title
     text = TITLE_FONT.render("Splendor", 1, BLUE)
@@ -184,9 +184,9 @@ for input_box in input_name_boxes:
 #initiate the 12 cards of the carddeck
 lst_cards = []
 for difficulty_level in range(3):
-    y = 100 + difficulty_level * 160 # determining the y coordinate
+    y = 100 + difficulty_level * (PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
     for __ in range(4):   #instance the 4 card
-        x = 465 + __ * 130 # determining the x coordinate
+        x = 465 + __ * ( PADDING_H + RECTWIDTH_CARDDECK)# determining the x coordinate
         c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
         lst_cards.append(c)
 
@@ -229,20 +229,20 @@ while in_menu:
                 box.visible = False
 
 #Players and active_player / id:
-ls_player = []
+lst_player = []
 for player in lst_player_names:
-    ls_player.append(Player(str(player), 1))
+    lst_player.append(Player(str(player), 1))
 active_player_id = 0
 
 
-rs = RessourceStack(len(ls_player))
+rs = RessourceStack(len(lst_player))
 boni = BonusBoard()
 
 #game_loop
 while run:
     clock.tick(FPS)
 
-    active_player = ls_player[active_player_id]
+    active_player = lst_player[active_player_id]
 
     dict_rs_coordinates = draw()
 
@@ -264,7 +264,7 @@ while run:
                         if success:
                             cntr_pck_crd += 1
                             #TODO: Replace ob function:
-                            ob.replace_card(card)
+                            lst_cards.pop(card)
                             if clicked_card.points > 0:
                                 display_game_notification(f"{clicked_card.points} points are added to your points!")
                         else:
@@ -298,7 +298,7 @@ while run:
     g.time.wait(1_000)
 
     if active_player_id == 0:
-        for player in ls_player:
+        for player in lst_player:
             if player.points >= 15:
                 run = False
                 display_message(f"Gratulations!!!\n {active_player.name}",
@@ -306,7 +306,7 @@ while run:
 
 
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) == 3:
-        if active_player_id < len(ls_player) - 1 :
+        if active_player_id < len(lst_player) - 1 :
             active_player_id += 1
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
@@ -314,7 +314,7 @@ while run:
             active_player_id = 0
             cntr_pck_res_as_dict = Ressources()
             cntr_pck_crd = 0
-        display_game_notification(f"It's {ls_player[active_player_id].name}'s turn :)")
+        display_game_notification(f"It's {lst_player[active_player_id].name}'s turn :)")
 
 
 
