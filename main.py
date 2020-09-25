@@ -127,7 +127,6 @@ def draw():
 
     g.display.update()
 
-
 #setup game loop
 FPS = 60
 clock = g.time.Clock()
@@ -163,11 +162,9 @@ for _ in range(3):
     bonus = BonusC(x, y, RECTWIDTHBONI, RECTHEIGHTBONI, LETTER_FONT)
     lst_bcards.append(bonus)
 
-
 #game counter, to track actions done by active player.
 cntr_pck_crd = 0
 cntr_pck_res_as_dict = Ressources()
-
 
 in_menu = True
 run = True
