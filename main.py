@@ -60,39 +60,6 @@ def display_message (message1, message2):
     g.display.update()
     g.time.delay(10_000)
 
-def draw_active_player(plyr):
-    ''' Draw name and points of the active player in the lower part of display.
-    Render underneath count of the cards he owns, and on the side 4 circles with
-    the count of Ressources
-    '''
-    p_name = plyr.name
-    drw_name = LETTER_FONT.render(p_name, 1, BLACK)
-    win.blit(drw_name, (465,510))
-    p_points = plyr.points
-    drw_points = LETTER_FONT.render("Points: " + str(p_points), 1, BLACK)
-    win.blit(drw_points, (665,510))
-    #2 player stack (simple)
-    y = 530
-    for idx, key in enumerate(plyr.crds_count):
-        x = 465 + idx * (RECT_P_RES + PADDING_H)
-        if key == "green": col = GREEN
-        if key == "blue": col = LIGHTBLUE
-        if key == "red": col = RED
-        if key == "blck": col = BLACK
-        if key == "white": col == WHITE
-        g.draw.rect(win, BLACK, g.Rect(x, y, RECT_P_RES, RECT_P_RES), 2)
-        drw_nbcrds = LETTER_FONT.render(str(plyr.crds_count.get(key)), 1, col)
-        win.blit(drw_nbcrds, (int(x + RECT_P_RES / 2 - 5) ,y + int(RECT_P_RES / 2)))
-    #3 player's RessourceStack
-    i = 0
-    for ress, col in ((plyr.ressources["green"], GREEN), (plyr.ressources["blue"], BLUE), (plyr.ressources["red"], RED), (plyr.ressources["blck"], BLACK), (plyr.ressources["white"], WHITE)):
-        y = 608 + RADIUS_PLAYER_RS + PADDING_V
-        x = 465 + RADIUS_PLAYER_RS + (PADDING_H + RADIUS_PLAYER_RS * 2) * i
-        g.draw.circle(win, col, (x, y), RADIUS_PLAYER_RS , 0)
-        a_res = LETTER_FONT.render(str(ress), 1, WHITE)
-        win.blit(a_res,(x - 5 , y - 5 ))
-        i += 1
-
 def highlight_rect(Rect):
     g.draw.rect(win, LIGHTBLUE, Rect, 5)
     g.display.update()
@@ -123,7 +90,9 @@ def draw():
     ressource_stack.draw(win, LETTER_FONT, x=1045, y=138, r=38, padding=PADDING_H)
 
     #draw active player
-    draw_active_player(active_player)
+    active_player.draw_name_points(win, LETTER_FONT, 465, 550, 100)
+    active_player.draw_crds_count(win, LETTER_FONT, 465, 600, RECT_P_RES, PADDING_H)
+    active_player.draw_ressources_stack(win, LETTER_FONT, 465, 715, RADIUS_PLAYER_RS, PADDING_V )
 
     g.display.update()
 

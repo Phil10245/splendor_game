@@ -379,3 +379,41 @@ class Player():
         if checker >= 4:
             return True
         return False
+
+    def draw_name_points(self, screen, font, x=0, y=0, width=0):
+        ''' Draw name and points of the active player in the lower part of display.
+        Render underneath count of the cards he owns, and on the side 4 circles with
+        the count of Ressources
+        '''
+        p_name = self.name
+        drw_name = font.render(p_name, 1, BLACK)
+        screen.blit(drw_name, (x, y))
+        p_points = self.points
+        drw_points = font.render("Points: " + str(p_points), 1, BLACK)
+        screen.blit(drw_points, (x + 3 * width , y))
+
+    #2 player stack (simple)
+    def draw_crds_count(self, screen, font, x=0, y=0, w=0, padding=0):
+        i = 0
+        colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
+        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
+        order_res =("blck", "blue", "red", "green", "white")
+        for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
+            xnext = x + i * (w + padding)
+            g.draw.rect(screen, colour_bg, g.Rect(xnext, y, w, w), 2)
+            drw_nbcrds = font.render(str(self.crds_count.get(ress)), 1, colour_text)
+            screen.blit(drw_nbcrds, (int(xnext + w / 2 - 5), y + int(w / 2)))
+            i += 1
+
+    #3 player's RessourceStack
+    def draw_ressources_stack(self, screen, font, x=0, y=0, r=0, padding=0):
+        i = 0
+        colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
+        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
+        order_res =("blck", "blue", "red", "green", "white")
+        for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
+            xnext = x + i * (r * 2 + padding)
+            res_rect = g.draw.circle(screen, colour_bg, (xnext, y), r , 0)
+            text = font.render(str(self.ressources[ress]), 1, colour_text)
+            screen.blit(text, (xnext - text.get_width() / 2 , y - text.get_height() / 2))
+            i += 1
