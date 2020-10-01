@@ -173,6 +173,8 @@ class Card():
         screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
         # Blit the rect
         g.draw.rect(screen, self.colour, self.rect, 0)
+        # Blit the text
+        screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
         # Blit Ressources
         rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
         colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
@@ -217,10 +219,10 @@ class BonusC():
 
     def draw(self, screen):
         if self.visible:
-            # Blit the text
-            screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
             # Blit the rect
             g.draw.rect(screen, self.colour, self.rect, 0)
+            # Blit the text
+            screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
             # Blit Ressources
             rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
             colours_text= (BLACK, BLUE, RED, GREEN, WHITE)

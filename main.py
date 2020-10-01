@@ -185,11 +185,12 @@ while in_menu:
             box.handle_event(event)
             number_player_b.active = False
         if start_b.handle_event(event):
-            in_menu = False
             number_player_b.active = False
             for box in input_name_boxes:
                 if box.visible:
                     lst_player_names.append(box.text)
+            if len(lst_player_names) >= 1:
+                in_menu = False
         if exit_b.handle_event(event):
             run = in_menu = False
             number_player_b.active = False
@@ -235,8 +236,8 @@ while run:
                             if card.points > 0:
                                 display_game_notification(f"{card.points} points are added to your points!")
                             card.replace_card(card_id, lst_cards)
-                        else:
-                            display_game_notification("Not enough Ressources")
+                    else:
+                        display_game_notification("Not enough Ressources")
                     #TODO: Seems incomplete. Should be a for loop over the three cards?
                     for bcard in lst_bcards:
                         if active_player.check_if_qualified_for_bonus(bcard):
@@ -255,8 +256,10 @@ while run:
                             if success:
                                 display_game_notification(f"1 of the {ress} ressources added to your stack")
                                 cntr_pck_res_as_dict[ress] += 1
+                                break
                             else:
                                 display_game_notification("You can't take this, sweetie.")
+                                break
                         else:
                             display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
                             break
@@ -273,6 +276,7 @@ while run:
                 run = False
                 display_message(f"Gratulations!!!\n {active_player.name}",
                 "You won! Well done. You're amazing and sexy!!!")
+                g.quit()
 
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) >= 3:
         if active_player_id < len(lst_player) - 1 :
