@@ -203,7 +203,8 @@ class BonusC():
         self.font = font
         self.text_surface = self.font.render(str(self.points), 1, BLACK)
         self.visible = True
-        res = [3,3,3,0,0]
+        res =([3,3,3,0,0], [4,4,0,0,0])
+        res = random.choice(res)
         random.shuffle(res)
         self.ressources = Ressources()
         i = 0
@@ -212,7 +213,7 @@ class BonusC():
             i += 1
 
     def __str__(self):
-        return (f"Points: {self.points} \n" ,self.ressources.__str__())
+        return (f"Points: {self.points} \n"  + self.ressources.__str__())
 
     def draw(self, screen):
         if self.visible:
@@ -373,6 +374,6 @@ class Player():
         for res in bc.ressources:
             if bc.ressources[res] <= self.crds_count[res]:
                 checker += 1
-                if checker == 4:
-                    return True
+        if checker >= 4:
+            return True
         return False

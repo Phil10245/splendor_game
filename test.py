@@ -1,65 +1,67 @@
 import random
 from classes import *
+from pygame import font
 
 
 #test classes
-#Ressources
+print("#Ressources")
 try:
     res = Ressources()
     res.set_all(69)
     print(res)
 except:
     raise
-#Players
+print("#Players")
 try:
     player1 = Player("phil", 1)
     print(player1)
     print(player1.ressources)
 except:
     raise
-#RessourceStack
+print("#RessourceStack")
 try:
     rs = RessourceStack(3)
     print(rs)
 except:
     raise
-    #BonusBoard + BonusCard
-try:
-    bb = BonusBoard()
-    print(bb)
-    bb.remove(0)
-    print(bb)
-except:
-    raise
-#Open_Board + cards
-try:
-    ob = OpenBoard()
-    print(ob)
-    card = ob.replace_card(7)
-    print(card)
-except:
-    raise
-#player methods
+print("#player methods")
 try:
     player1.take_res("green", rs)
     print(player1)
     print(rs)
 except:
     raise
+print("#card")
 try:
-    player1.pick_crd(ob.deck[6], rs)
+    c = Card(2,0,0,0,0, font.SysFont("comicsans", 30))
+    print(c)
+    c.replace_card(0, [c])
+    print(c)
+    pass
+except:
+    raise
+try:
+    player1.pick_crd(c, rs)
     player1.ressources.set_all(9)
-    player1.pick_crd(ob.deck[6], rs)
+    player1.pick_crd(c, rs)
     print(player1)
 except:
     raise
+print("#Bonusard")
 try:
-    answer = player1.check_if_qualified_for_bonus(bb)
-    print(answer)
+    for i in range(4):
+        print("new Bonuscard:")
+        bc = BonusC(0,0,0,0, font.SysFont("comicsans", 30))
+        print(bc)
 except:
     raise
-#try:
-#    dit = main.draw()
-#    print(dit)
-#xcept:
-#    raise
+print("#check_if_qualified_for_bonus")
+try:
+    player1.crds_count.set_all(3)
+    print(player1.check_if_qualified_for_bonus(bc))
+    player1.crds_count.set_all(2)
+    print(player1.check_if_qualified_for_bonus(bc))
+    player1.crds_count.set_all(4)
+    print(player1.check_if_qualified_for_bonus(bc))
+except:
+    raise

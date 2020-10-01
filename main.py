@@ -230,7 +230,7 @@ while run:
                     else:
                         # check if player can take card and if so replace it. refactor i one function - one task
                         success = active_player.pick_crd(card, ressource_stack)
-                        if success:
+                    if success:
                             cntr_pck_crd += 1
                             if card.points > 0:
                                 display_game_notification(f"{card.points} points are added to your points!")
@@ -242,6 +242,7 @@ while run:
                         if active_player.check_if_qualified_for_bonus(bcard):
                             active_player.points += 3
                             bcard.visible = False
+                            lst_bcards.remove(bcard)
                             display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
                             break
             #player klicks on ressources
@@ -254,14 +255,17 @@ while run:
                             if success:
                                 display_game_notification(f"1 of the {ress} ressources added to your stack")
                                 cntr_pck_res_as_dict[ress] += 1
-                                print("DEBUG: cntr_pck_res_as_dict:", cntr_pck_res_as_dict)
                             else:
-                                display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
+                                display_game_notification("You can't take this, sweetie.")
+                        else:
+                            display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
                             break
 
     g.time.wait(500)
 
     draw()
+
+    g.time.wait(500)
 
     if active_player_id == 0:
         for player in lst_player:
