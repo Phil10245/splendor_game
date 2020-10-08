@@ -13,23 +13,28 @@ LOSE_FONT = g.font.SysFont("comicsans", 120)
 TITLE_FONT = g.font.SysFont("comicsans", 50)
 
 #setup display
-WIDTH, HEIGHT = 1330, 1000
+WIDTH, HEIGHT = 1300, 1000
 win = g.display.set_mode((WIDTH, HEIGHT))
 g.display.set_caption("Splendor 0.9")
 
 # parameters for drawings. TODO: make it relative to screensize
-BUTTON_WIDTH = 300
-RECTWIDTH_CARDDECK = 90
-RECTHEIGHT_CARDDECK = 120
-RECT_P_RES = 70
-PADDING_V = 10
-PADDING_H = 10
-RECTWIDTHBONI = 100
-RECTHEIGHTBONI = 118
-RADIUS_PLAYER_RS = 35
-RS_RAD = 38
-RS_X = 1040
-RS_Y = 135
+SIDEBAR_WIDTH = int(WIDTH / 4)
+REDUCED_WIDTH = WIDTH - SIDEBAR_WIDTH
+BUTTON_WIDTH = int(REDUCED_WIDTH / 3)
+RECTWIDTH_CARDDECK = int(REDUCED_WIDTH / 10)
+RECTHEIGHT_CARDDECK = int(HEIGHT / 8)
+RECT_P_RES = int(REDUCED_WIDTH / 10)
+PADDING_V = int(WIDTH / 100)
+PADDING_H = int(REDUCED_WIDTH / 100)
+RECTWIDTHBONI = int(REDUCED_WIDTH / 10)
+RECTHEIGHTBONI = int(HEIGHT / 8)
+RADIUS_PLAYER_RS = int(REDUCED_WIDTH / 25)
+RS_RAD = int(REDUCED_WIDTH / 24)
+
+START_X_CARDS = SIDEBAR_WIDTH + int(WIDTH / 2.5) - (RECTWIDTH_CARDDECK + PADDING_H)*2
+START_X_Player = START_X_CARDS
+START_X_BONI = START_X_CARDS + (RECTWIDTH_CARDDECK + PADDING_H)*4 + PADDING_H*2
+START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RS_RAD/2)
 
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
@@ -45,8 +50,8 @@ def display_game_notification(message1, message2=""):
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (WIDTH / 2 - text2.get_width() / 2 , HEIGHT / 2 - text.get_height() / 2))
-    win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 3))
+        win.blit(text2, (WIDTH // 2 - text2.get_width() // 2 , HEIGHT // 2 - text.get_height() // 2))
+    win.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 3))
     g.display.update()
     g.time.delay(1_500)
 
@@ -61,11 +66,11 @@ def display_message (message1, message2):
     g.time.delay(10_000)
 
 def highlight_rect(Rect):
-    g.draw.rect(win, LIGHTBLUE, Rect, 5)
+    g.draw.rect(win, HIGHLIGHTORANGE, Rect, 5)
     g.display.update()
 
 def highlight_circle(Rect):
-    g.draw.circle(win, LIGHTBLUE, (Rect.x + RS_RAD, Rect.y + RS_RAD), RS_RAD, 5)
+    g.draw.circle(win, HIGHLIGHTORANGE, (Rect.x + RS_RAD, Rect.y + RS_RAD), RS_RAD, 5)
     g.display.update()
 
 def draw():
@@ -87,12 +92,12 @@ def draw():
         bcard.draw(win)
 
     # draw ressource stack
-    ressource_stack.draw(win, LETTER_FONT, x=1045, y=138, r=38, padding=PADDING_H)
+    ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=int(HEIGHT / 6), r=RS_RAD, padding=PADDING_H)
 
     #draw active player
-    active_player.draw_name_points(win, LETTER_FONT, 465, 550, 100)
-    active_player.draw_crds_count(win, LETTER_FONT, 465, 600, RECT_P_RES, PADDING_H)
-    active_player.draw_ressources_stack(win, LETTER_FONT, 465, 715, RADIUS_PLAYER_RS, PADDING_V )
+    active_player.draw_name_points(win, LETTER_FONT, START_X_Player, 550, (RECTWIDTH_CARDDECK + PADDING_H)*2)
+    active_player.draw_crds_count(win, LETTER_FONT, START_X_Player, 600, RECT_P_RES, PADDING_H)
+    active_player.draw_ressources_stack(win, LETTER_FONT, START_X_Player, 715, RADIUS_PLAYER_RS, PADDING_V )
 
     g.display.update()
 
@@ -111,15 +116,15 @@ name_player4 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Play
 input_name_boxes = [name_player1, name_player2, name_player3, name_player4]
 y = -200
 for input_box in input_name_boxes:
-    input_box.rect.move_ip(0, HEIGHT / 2 + y)
+    input_box.rect.move_ip(0, int(HEIGHT/2)+ y)
     y += 100
 
 #initiate the 12 cards of the carddeck.
 lst_cards = []
 for difficulty_level in range(3):
-    y = 100 + difficulty_level * (PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
+    y = 100 + difficulty_level*(PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
     for __ in range(4):   #instance the 4 card
-        x = 465 + __ * ( PADDING_H + RECTWIDTH_CARDDECK)# determining the x coordinate
+        x = START_X_CARDS + __*(PADDING_H + RECTWIDTH_CARDDECK)# determining the x coordinate
         c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
         lst_cards.append(c)
 
@@ -127,7 +132,7 @@ for difficulty_level in range(3):
 lst_bcards = []
 for _ in range(3):
     y = 100 + _ * (RECTHEIGHTBONI + PADDING_V)
-    x = 885
+    x = START_X_BONI
     bonus = BonusC(x, y, RECTWIDTHBONI, RECTHEIGHTBONI, LETTER_FONT)
     lst_bcards.append(bonus)
 

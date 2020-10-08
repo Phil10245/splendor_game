@@ -18,5 +18,8 @@ Bonus Cards are awarded when a player has the needed number of cards of a specif
 Game ends when a player reaches 15 points. 
 
 
+Till now, there is no confirmation by the rights-owners that it can e published like that. 
+
+
 
 
