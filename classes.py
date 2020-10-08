@@ -54,7 +54,7 @@ class InputBox():
         self.font = font
         self.text_surface = self.font.render(text, True, self.colour)
         self.active = False
-        self.visible = False
+        self.visible = True
 
     def handle_event(self, event):
         if event.type == g.MOUSEBUTTONDOWN:
@@ -291,7 +291,7 @@ class RessourceStack():
             self.lst_rects.append((ress, res_rect))
             i += 1
 
-class Player():
+class Player(): 
 
     points = 0
 
