@@ -392,7 +392,6 @@ class Player():
         drw_points = font.render("Points: " + str(p_points), 1, BLACK)
         screen.blit(drw_points, (x + dist , y))
 
-    #2 player stack (simple)
     def draw_crds_count(self, screen, font, x=0, y=0, w=0, padding=0):
         i = 0
         colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
@@ -405,14 +404,13 @@ class Player():
             screen.blit(drw_nbcrds, (int(xnext + w / 2 - 5), y + int(w / 2)))
             i += 1
 
-    #3 player's RessourceStack
     def draw_ressources_stack(self, screen, font, x=0, y=0, r=0, padding=0):
         i = 0
         colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
         colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
         order_res =("blck", "blue", "red", "green", "white")
         for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
-            xnext = x + r + i * (r * 2 + padding)
+            xnext = x + i * (r * 2 + padding)
             res_rect = g.draw.circle(screen, colour_bg, (xnext, y), r , 0)
             text = font.render(str(self.ressources[ress]), 1, colour_text)
             screen.blit(text, (xnext - text.get_width() / 2 , y - text.get_height() / 2))

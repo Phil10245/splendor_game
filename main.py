@@ -17,24 +17,30 @@ WIDTH, HEIGHT = 1300, 1000
 win = g.display.set_mode((WIDTH, HEIGHT))
 g.display.set_caption("Splendor 0.9")
 
-# parameters for drawings. TODO: make it relative to screensize
 SIDEBAR_WIDTH = int(WIDTH / 4)
 REDUCED_WIDTH = WIDTH - SIDEBAR_WIDTH
 BUTTON_WIDTH = int(REDUCED_WIDTH / 3)
 RECTWIDTH_CARDDECK = int(REDUCED_WIDTH / 10)
 RECTHEIGHT_CARDDECK = int(HEIGHT / 8)
-RECT_P_RES = int(REDUCED_WIDTH / 10)
+RECTSQUARE_PLAYER_CARDS = int(REDUCED_WIDTH / 10)
 PADDING_V = int(WIDTH / 100)
 PADDING_H = int(REDUCED_WIDTH / 100)
 RECTWIDTHBONI = int(REDUCED_WIDTH / 10)
 RECTHEIGHTBONI = int(HEIGHT / 8)
 RADIUS_PLAYER_RS = int(REDUCED_WIDTH / 25)
-RS_RAD = int(REDUCED_WIDTH / 24)
+RADIUS_RESOURCES = int(REDUCED_WIDTH / 24)
 
 START_X_CARDS = SIDEBAR_WIDTH + int(WIDTH / 2.5) - (RECTWIDTH_CARDDECK + PADDING_H)*2
-START_X_Player = START_X_CARDS
+START_Y_CARDS = TITLE_FONT.get_height() + 2*PADDING_V 
+START_X_PLAYER = START_X_CARDS
+START_Y_PLAYER = START_Y_CARDS + 7*PADDING_V + 10*RADIUS_RESOURCES
+START_Y_PLAYER_CARDS = START_Y_PLAYER + PADDING_V + LETTER_FONT.get_height()
+START_X_PLAYER_RS = START_X_CARDS + int(RECTSQUARE_PLAYER_CARDS/ 2)
+START_Y_PLAYER_RS = START_Y_PLAYER_CARDS + RECTSQUARE_PLAYER_CARDS + PADDING_V*2 + RADIUS_PLAYER_RS
 START_X_BONI = START_X_CARDS + (RECTWIDTH_CARDDECK + PADDING_H)*4 + PADDING_H*2
-START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RS_RAD/2)
+START_Y_BONI = START_Y_CARDS
+START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2)
+START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES                     
 
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
@@ -70,7 +76,7 @@ def highlight_rect(Rect):
     g.display.update()
 
 def highlight_circle(Rect):
-    g.draw.circle(win, HIGHLIGHTORANGE, (Rect.x + RS_RAD, Rect.y + RS_RAD), RS_RAD, 5)
+    g.draw.circle(win, HIGHLIGHTORANGE, (Rect.x + RADIUS_RESOURCES, Rect.y + RADIUS_RESOURCES), RADIUS_RESOURCES, 5)
     g.display.update()
 
 def draw():
@@ -92,12 +98,12 @@ def draw():
         bcard.draw(win)
 
     # draw ressource stack
-    ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=int(HEIGHT / 6), r=RS_RAD, padding=PADDING_H)
+    ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=START_Y_RS, r=RADIUS_RESOURCES, padding=PADDING_H)
 
     #draw active player
-    active_player.draw_name_points(win, LETTER_FONT, START_X_Player, 550, (RECTWIDTH_CARDDECK + PADDING_H)*2)
-    active_player.draw_crds_count(win, LETTER_FONT, START_X_Player, 600, RECT_P_RES, PADDING_H)
-    active_player.draw_ressources_stack(win, LETTER_FONT, START_X_Player, 715, RADIUS_PLAYER_RS, PADDING_V )
+    active_player.draw_name_points(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER, (RECTWIDTH_CARDDECK + PADDING_H)*4)
+    active_player.draw_crds_count(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER_CARDS, RECTSQUARE_PLAYER_CARDS, PADDING_H)
+    active_player.draw_ressources_stack(win, LETTER_FONT, START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
 
     g.display.update()
 
