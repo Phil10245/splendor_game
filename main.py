@@ -1,6 +1,8 @@
+# pylint: disable=no-member
+
 from classes import *
-from colours import *
 import pygame as g
+from pygame.locals import *
 import math
 
 
@@ -17,9 +19,11 @@ WIDTH, HEIGHT = 1300, 1000
 win = g.display.set_mode((WIDTH, HEIGHT))
 g.display.set_caption("Splendor 0.9")
 
+#setup gui
 SIDEBAR_WIDTH = int(WIDTH / 4)
 REDUCED_WIDTH = WIDTH - SIDEBAR_WIDTH
 BUTTON_WIDTH = int(REDUCED_WIDTH / 3)
+INGAME_BUTTON = int(REDUCED_WIDTH / 12)
 RECTWIDTH_CARDDECK = int(REDUCED_WIDTH / 10)
 RECTHEIGHT_CARDDECK = int(HEIGHT / 8)
 RECTSQUARE_PLAYER_CARDS = int(REDUCED_WIDTH / 10)
@@ -31,7 +35,7 @@ RADIUS_PLAYER_RS = int(REDUCED_WIDTH / 25)
 RADIUS_RESOURCES = int(REDUCED_WIDTH / 24)
 
 START_X_CARDS = SIDEBAR_WIDTH + int(WIDTH / 2.5) - (RECTWIDTH_CARDDECK + PADDING_H)*2
-START_Y_CARDS = TITLE_FONT.get_height() + 2*PADDING_V 
+START_Y_CARDS = TITLE_FONT.get_height() + 2*PADDING_V
 START_X_PLAYER = START_X_CARDS
 START_Y_PLAYER = START_Y_CARDS + 7*PADDING_V + 10*RADIUS_RESOURCES
 START_Y_PLAYER_CARDS = START_Y_PLAYER + PADDING_V + LETTER_FONT.get_height()
@@ -40,7 +44,8 @@ START_Y_PLAYER_RS = START_Y_PLAYER_CARDS + RECTSQUARE_PLAYER_CARDS + PADDING_V*2
 START_X_BONI = START_X_CARDS + (RECTWIDTH_CARDDECK + PADDING_H)*4 + PADDING_H*2
 START_Y_BONI = START_Y_CARDS
 START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2)
-START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES                     
+START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES
+
 
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
@@ -56,7 +61,7 @@ def display_game_notification(message1, message2=""):
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (WIDTH // 2 - text2.get_width() // 2 , HEIGHT // 2 - text.get_height() // 2))
+        win.blit(text2, (win.get_width() / 2, win.get_height() / 2 ))
     win.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 3))
     g.display.update()
     g.time.delay(1_500)
@@ -87,6 +92,10 @@ def draw():
     text = TITLE_FONT.render("Splendor", 1, BLUE)
     win.blit(text, (int(WIDTH/2 - text.get_width()/2), 20))
 
+    #draw Buttons
+    help_button.draw(win)
+    exit_button.draw(win)
+
     #Draw board
     #-------------------------------
     #draw carddeck
@@ -112,9 +121,9 @@ FPS = 60
 clock = g.time.Clock()
 
 #setting up start menu:
-start_b = Button(WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, LETTER_FONT, "START")
-exit_b = Button(WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, LETTER_FONT, text="END")
-number_player_b = Button(WIDTH / 2 - 70, HEIGHT / 2 - 200, 50, 50, LETTER_FONT, "2")
+start_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, "START")
+exit_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, text="END")
+number_player_b = Button(LETTER_FONT, WIDTH / 2 - 70, HEIGHT / 2 - 200, 50, 50, "4")
 name_player1 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, "Player1")
 name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player2")
 name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
@@ -159,7 +168,7 @@ while in_menu:
 
 
     for event in g.event.get():
-        if event.type == g.QUIT:
+        if event.type == QUIT:
             run = in_menu = False
         for box in input_name_boxes:
             box.handle_event(event)
@@ -180,6 +189,13 @@ while in_menu:
                 box.visible = True
             for box in input_name_boxes[i:]:
                 box.visible = False
+#in-gamebuttons
+help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
+help_button.colour = BLACK
+       
+exit_button = Button(LETTER_FONT, WIDTH - 3*INGAME_BUTTON + PADDING_H, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15  , "Exit")
+exit_button.colour = BLACK  
+    
 
 #Players and active_player / id:
 lst_player = []
@@ -198,9 +214,15 @@ while run:
     draw()
 
     for event in g.event.get():
-        if event.type == g.QUIT:
+        if event.type == QUIT:
             run = False
-        if event.type == g.MOUSEBUTTONDOWN:
+        if event.type == MOUSEBUTTONDOWN:
+            #player clicks help button:
+            if help_button.handle_event(event): 
+                pass
+            #player clicks exit button:
+            if exit_button.handle_event(event):
+                pass
             #player clicks on card
             for card_id, card in enumerate(lst_cards):
                 if card.handle_event(event):
@@ -209,7 +231,7 @@ while run:
                         display_game_notification("That won't work!", "You took already a ressource.")
                         continue
                     else:
-                        # check if player can take card and if so replace it. refactor i one function - one task
+                        # check if player can take card and if so replace it. TODO: refactor i one function - one task
                         success = active_player.pick_crd(card, ressource_stack)
                     if success:
                             cntr_pck_crd += 1
@@ -218,7 +240,6 @@ while run:
                             card.replace_card(card_id, lst_cards)
                     else:
                         display_game_notification("Not enough Ressources")
-                    #TODO: Seems incomplete. Should be a for loop over the three cards?
                     for bcard in lst_bcards:
                         if active_player.check_if_qualified_for_bonus(bcard):
                             active_player.points += 3
@@ -228,7 +249,7 @@ while run:
                             break
             #player klicks on ressources
             for ress, ressource_rect in ressource_stack.lst_rects:
-                if event.type == g.MOUSEBUTTONDOWN:
+                if event.type == MOUSEBUTTONDOWN:
                     if ressource_rect.collidepoint(event.pos):
                         highlight_circle(ressource_rect)
                         if cntr_pck_res_as_dict[ress] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[ress] == 0:

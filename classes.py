@@ -1,3 +1,5 @@
+# pylint: disable=no-member
+
 import random
 import pygame as g
 
@@ -10,7 +12,7 @@ class Button():
 
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
-    def __init__(self, x, y, w, h, font, text=""):
+    def __init__(self, font, x, y, w, h, text=""):
         self.rect = g.Rect(x, y, w, h)
         self.colour = self.active_inactive_colours[1]
         self.active = False
@@ -22,13 +24,12 @@ class Button():
         if event.type == g.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.active = True
-                self.colour = self.active_inactive_colours[0] if self.active else self.active_inactive_colours[1]
                 return True
             else:
                 self.active = False
 
     def draw(self, screen):
-        screen.blit(self.text_surface, (self.rect.x + self.rect.w / 2 + self.text_surface.get_width() / 2, self.rect.y + self.rect.h / 2 + self.text_surface.get_height() / 2))
+        screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2, self.rect.centery - self.text_surface.get_height() / 2))
         g.draw.rect(screen, self.colour, self.rect, 2)
 
     def increase_num(self, limit, screen):
@@ -85,7 +86,7 @@ class InputBox():
 
     def draw(self, screen):
         # Blit the text.
-        screen.blit(self.text_surface, (self.rect.x + self.rect.w / 2 + 3 / 2, self.rect.y + self.rect.h / 2))
+        screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2, self.rect.centery - self.text_surface.get_height() / 2))
         # Blit the rect.
         g.draw.rect(screen, self.colour, self.rect, 2)
 
@@ -281,9 +282,8 @@ class RessourceStack():
     def draw(self, screen, font, x=0, y=0, r=0, padding=0):
         i = 0
         colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
-        colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
         order_res =("blck", "blue", "red", "green", "white")
-        for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
+        for ress, colour_bg in zip(order_res, colours_bg):
             ynext = y + i * (r * 2 + padding)
             res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r , 0)
             text = font.render(str(self.ressources[ress]), 1, WHITE)
@@ -411,7 +411,7 @@ class Player():
         order_res =("blck", "blue", "red", "green", "white")
         for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
             xnext = x + i * (r * 2 + padding)
-            res_rect = g.draw.circle(screen, colour_bg, (xnext, y), r , 0)
+            g.draw.circle(screen, colour_bg, (xnext, y), r , 0)
             text = font.render(str(self.ressources[ress]), 1, colour_text)
             screen.blit(text, (xnext - text.get_width() / 2 , y - text.get_height() / 2))
             i += 1
