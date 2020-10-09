@@ -400,7 +400,7 @@ class Player():
             screen.blit(drw_nbcrds, (int(xnext + w / 2 - 5), y + int(w / 2)))
             i += 1
 
-    def draw_Resources_stack(self, screen, font, x=0, y=0, r=0, padding=0):
+    def draw_resources_stack(self, screen, font, x=0, y=0, r=0, padding=0):
         i = 0
         colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
         colours_text= (BLACK, BLUE, RED, GREEN, WHITE)

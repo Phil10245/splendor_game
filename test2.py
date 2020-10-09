@@ -1,26 +1,11 @@
-import pygame as g
-import random
-from classes import *
-from colours import *
+from copy import deepcopy
+from classes import Player
 
-g.init()
-WIDTH, HEIGHT = 1330, 1000
-win = g.display.set_mode((WIDTH, HEIGHT))
 
-win.fill(WHITE)
+pla1 = Player("P", 1)
+pla2 = Player("p", 1)
 
-lst_cards = []
-
-res = Ressources(win)
-
-g.display.update()
-
-run = True
-
-while run:
-
-    for event in g.event.get():
-        if event.type == g.QUIT:
-            run = False
-
-    g.event.wait()
+old_lst = [pla1, pla2]
+new_lst = deepcopy(old_lst)
+new_lst.pop(0)
+print(new_lst)

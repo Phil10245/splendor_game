@@ -7,6 +7,7 @@ the pre-game-menu-loop and the game loop
 import sys
 import pygame as g
 from pygame.locals import *
+from copy import deepcopy
 from classes import Button, InputBox, Card, BonusC, Resources, Resourcestack, Player
 from colours import WHITE, BLACK, BLUE, LIGHTBLUE, DARKYELLOW, HIGHLIGHTORANGE
 
@@ -35,7 +36,7 @@ PADDING_V = int(WIDTH / 100)
 PADDING_H = int(REDUCED_WIDTH / 100)
 RECTWIDTHBONI = int(REDUCED_WIDTH / 10)
 RECTHEIGHTBONI = int(HEIGHT / 8)
-RADIUS_PLAYER_RS = int(REDUCED_WIDTH / 25)
+RADIUS_PLAYER_RS = int(RECTSQUARE_PLAYER_CARDS/2)
 RADIUS_RESOURCES = int(REDUCED_WIDTH / 24)
 
 START_X_CARDS = SIDEBAR_WIDTH + int(WIDTH / 2.5) - (RECTWIDTH_CARDDECK + PADDING_H)*2
@@ -50,6 +51,23 @@ START_Y_BONI = START_Y_CARDS
 START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2)
 START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES
 
+def draw_sidebar():
+    ''' creates a sidebar sowing info on the non active players'''
+    all_players = deepcopy(lst_player)
+    all_players.pop(active_player_id)
+    shrinking_f = 3/5
+    x = SIDEBAR_WIDTH // 4
+    y = SIDEBAR_WIDTH // (len(all_players) + 2)
+    for player in all_players:
+        #draw name and points
+        player.draw_name_points(win, LETTER_FONT, x, y, int((RECTWIDTH_CARDDECK + PADDING_H)*3*shrinking_f))
+        y += PADDING_V + LETTER_FONT.get_height()
+        #draw cards
+        player.draw_crds_count(win, LETTER_FONT, x, y, int(RECTSQUARE_PLAYER_CARDS*shrinking_f), int(PADDING_H*shrinking_f))
+        y += int(RECTSQUARE_PLAYER_CARDS*shrinking_f) + int(PADDING_V*2*shrinking_f + RADIUS_PLAYER_RS*shrinking_f)
+        #draw ressources
+        player.draw_resources_stack(win, LETTER_FONT, x + int(RADIUS_PLAYER_RS*shrinking_f), y, int(RADIUS_PLAYER_RS*shrinking_f), int(PADDING_H*shrinking_f))
+        y += 2*(RADIUS_PLAYER_RS + PADDING_V)
 
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
@@ -116,7 +134,10 @@ def draw():
     #draw active player
     active_player.draw_name_points(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER, (RECTWIDTH_CARDDECK + PADDING_H)*4)
     active_player.draw_crds_count(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER_CARDS, RECTSQUARE_PLAYER_CARDS, PADDING_H)
-    active_player.draw_Resources_stack(win, LETTER_FONT, START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
+    active_player.draw_resources_stack(win, LETTER_FONT, START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
+    
+    # draw sidebar
+    draw_sidebar()
 
     g.display.update()
 
@@ -237,7 +258,9 @@ while run:
                         if active_player.check_if_card_affordable(card):
                             active_player.pick_crd(card, ressource_stack)
                             cntr_pck_crd += 1
-                            if card.points > 0:
+                            if card.points == 1:
+                                display_game_notification("1 point is added to your points!")
+                            elif card.points > 1:
                                 display_game_notification(f"{card.points} points are added to your points!")
                             card.replace_card(card_id, lst_cards)
                         else:
@@ -269,7 +292,7 @@ while run:
 
     draw()
 
-    g.time.wait(200)
+    g.time.wait(500)
 
     if active_player_id == 0:
         for player in lst_player:
@@ -293,3 +316,4 @@ while run:
 g.display.quit()
 g.quit()
 sys.exit()
+exit()
