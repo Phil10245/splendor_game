@@ -1,10 +1,14 @@
-# pylint: disable=no-member
+'''
+The main module of the splendor game. The GUI is set up here.
+The module contains four parts: Constants and function definitions,
+the pre-game-menu-loop and the game loop
+'''
 
-from classes import *
+import sys
 import pygame as g
 from pygame.locals import *
-import math
-
+from classes import Button, InputBox, Card, BonusC, Resources, Resourcestack, Player
+from colours import WHITE, BLACK, BLUE, LIGHTBLUE, DARKYELLOW, HIGHLIGHTORANGE
 
 g.init()
 
@@ -51,9 +55,9 @@ def draw_menu_page(screen):
     win.fill(DARKYELLOW)
     start_b.draw(screen)
     number_player_b.draw(screen)
-    for box in input_name_boxes:
-        if box.visible:
-            box.draw(screen)
+    for b in input_name_boxes:
+        if b.visible:
+            b.draw(screen)
     exit_b.draw(screen)
     g.display.update()
 
@@ -62,7 +66,7 @@ def display_game_notification(message1, message2=""):
     if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
         win.blit(text2, (win.get_width() / 2, win.get_height() / 2 ))
-    win.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 3))
+    win.blit(text, (int(win.get_width() / 2), int(win.get_height() / 2)))
     g.display.update()
     g.time.delay(1_500)
 
@@ -71,17 +75,17 @@ def display_message (message1, message2):
     text = LOSE_FONT.render(message1, 1, BLUE)
     text2 = TITLE_FONT.render(message2, 1, LIGHTBLUE)
     win.fill(WHITE)
-    win.blit(text, (300,275))
-    win.blit(text2, (300,350))
+    win.blit(text, (win.get_width() / 2, win.get_height() / 4))
+    win.blit(text2, (win.get_width() / 2, win.get_height() / 2 ))
     g.display.update()
     g.time.delay(10_000)
 
-def highlight_rect(Rect):
-    g.draw.rect(win, HIGHLIGHTORANGE, Rect, 5)
+def highlight_rect(rect:Rect):
+    g.draw.rect(win, HIGHLIGHTORANGE, rect, 5)
     g.display.update()
 
-def highlight_circle(Rect):
-    g.draw.circle(win, HIGHLIGHTORANGE, (Rect.x + RADIUS_RESOURCES, Rect.y + RADIUS_RESOURCES), RADIUS_RESOURCES, 5)
+def highlight_circle(rect:Rect):
+    g.draw.circle(win, HIGHLIGHTORANGE, rect.center, RADIUS_RESOURCES, 5)
     g.display.update()
 
 def draw():
@@ -99,12 +103,12 @@ def draw():
     #Draw board
     #-------------------------------
     #draw carddeck
-    for card in lst_cards:
-        card.draw(win)
+    for c in lst_cards:
+        c.draw(win)
 
     # draw bonus cards (available)
-    for bcard in lst_bcards:
-        bcard.draw(win)
+    for bc in lst_bcards:
+        bc.draw(win)
 
     # draw ressource stack
     ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=START_Y_RS, r=RADIUS_RESOURCES, padding=PADDING_H)
@@ -112,7 +116,7 @@ def draw():
     #draw active player
     active_player.draw_name_points(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER, (RECTWIDTH_CARDDECK + PADDING_H)*4)
     active_player.draw_crds_count(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER_CARDS, RECTSQUARE_PLAYER_CARDS, PADDING_H)
-    active_player.draw_ressources_stack(win, LETTER_FONT, START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
+    active_player.draw_Resources_stack(win, LETTER_FONT, START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
 
     g.display.update()
 
@@ -153,7 +157,7 @@ for _ in range(3):
 
 #game counter, to track actions done by active player.
 cntr_pck_crd = 0
-cntr_pck_res_as_dict = Ressources()
+cntr_pck_res_as_dict = Resources()
 
 in_menu = True
 run = True
@@ -192,10 +196,9 @@ while in_menu:
 #in-gamebuttons
 help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
 help_button.colour = BLACK
-       
+
 exit_button = Button(LETTER_FONT, WIDTH - 3*INGAME_BUTTON + PADDING_H, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15  , "Exit")
-exit_button.colour = BLACK  
-    
+exit_button.colour = BLACK
 
 #Players and active_player / id:
 lst_player = []
@@ -203,7 +206,7 @@ for player in lst_player_names:
     lst_player.append(Player(str(player), 1))
 active_player_id = 0
 
-ressource_stack = RessourceStack(len(lst_player))
+ressource_stack = Resourcestack(len(lst_player))
 
 #game_loop
 while run:
@@ -217,10 +220,10 @@ while run:
         if event.type == QUIT:
             run = False
         if event.type == MOUSEBUTTONDOWN:
-            #player clicks help button:
-            if help_button.handle_event(event): 
+            #TODO player clicks help button:
+            if help_button.handle_event(event):
                 pass
-            #player clicks exit button:
+            #TODO player clicks exit button:
             if exit_button.handle_event(event):
                 pass
             #player clicks on card
@@ -229,17 +232,18 @@ while run:
                     highlight_rect(card.rect)
                     if 1 in cntr_pck_res_as_dict.values():
                         display_game_notification("That won't work!", "You took already a ressource.")
-                        continue
+                        continue # TODO: Delete or Reactivate
                     else:
-                        # check if player can take card and if so replace it. TODO: refactor i one function - one task
+                        # check if player can take card and if so replace it.
+                        # TODO: refactor i one function - one task
                         success = active_player.pick_crd(card, ressource_stack)
                     if success:
-                            cntr_pck_crd += 1
-                            if card.points > 0:
-                                display_game_notification(f"{card.points} points are added to your points!")
-                            card.replace_card(card_id, lst_cards)
+                        cntr_pck_crd += 1
+                        if card.points > 0:
+                            display_game_notification(f"{card.points} points are added to your points!")
+                        card.replace_card(card_id, lst_cards)
                     else:
-                        display_game_notification("Not enough Ressources")
+                        display_game_notification("Not enough Resources")
                     for bcard in lst_bcards:
                         if active_player.check_if_qualified_for_bonus(bcard):
                             active_player.points += 3
@@ -247,7 +251,7 @@ while run:
                             lst_bcards.remove(bcard)
                             display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
                             break
-            #player klicks on ressources
+            #player klicks on Resources
             for ress, ressource_rect in ressource_stack.lst_rects:
                 if event.type == MOUSEBUTTONDOWN:
                     if ressource_rect.collidepoint(event.pos):
@@ -255,7 +259,7 @@ while run:
                         if cntr_pck_res_as_dict[ress] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[ress] == 0:
                             success = active_player.take_res(ress, ressource_stack)
                             if success:
-                                display_game_notification(f"1 of the {ress} ressources added to your stack")
+                                display_game_notification(f"1 of the {ress} Resources added to your stack")
                                 cntr_pck_res_as_dict[ress] += 1
                                 break
                             else:
@@ -282,12 +286,14 @@ while run:
     if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) >= 3:
         if active_player_id < len(lst_player) - 1 :
             active_player_id += 1
-            cntr_pck_res_as_dict = Ressources()
+            cntr_pck_res_as_dict = Resources()
             cntr_pck_crd = 0
         else:
             active_player_id = 0
-            cntr_pck_res_as_dict = Ressources()
+            cntr_pck_res_as_dict = Resources()
             cntr_pck_crd = 0
         display_game_notification(f"It's {lst_player[active_player_id].name}'s turn :)")
 
+g.display.quit()
 g.quit()
+sys.exit()

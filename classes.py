@@ -3,7 +3,9 @@
 import random
 import pygame as g
 
-from colours import *
+from colours import (WHITE, BLACK, BLUE, RED, GREEN, ORANGE, LIGHTBLUE, 
+LIGHTBLACK, LIGHTRED, LIGHTGREEN, DARKWHITE)
+
 
 g.init()
 
@@ -99,11 +101,11 @@ class Card():
         self.clicked = LIGHTBLUE
         self.level = level
         self.rect = g.Rect(x, y, w, h)
-        self.ressources = Ressources()
+        self.Resources = Resources()
         need = self.res_need(level)
         i = 0
-        for k in self.ressources:
-            self.ressources[k] = need[i]
+        for k in self.Resources:
+            self.Resources[k] = need[i]
             i += 1
 
         self.points = self.detPoints(level)
@@ -111,20 +113,20 @@ class Card():
         self.text_surface = self.font.render(str(self.points), 1, BLACK)
 
     def __str__(self):
-        string = [f"Colour: {self.colour}, Points: {self.points} \n" , self.ressources.__str__()]
+        string = [f"Colour: {self.colour}, Points: {self.points} \n" , self.Resources.__str__()]
         return "".join(string)
 
     def max_need(self):
         max_lst = []
-        for k in self.ressources:
-            max_lst.append(self.ressources[k])
+        for k in self.Resources:
+            max_lst.append(self.Resources[k])
         max_value = max(max_lst)
         return max_value
 
     def min_need(self):
         min_lst = []
-        for k in self.ressources:
-            min_lst.append(self.ressources[k])
+        for k in self.Resources:
+            min_lst.append(self.Resources[k])
         min_value = min(min_lst)
         return min_value
 
@@ -176,12 +178,12 @@ class Card():
         g.draw.rect(screen, self.colour, self.rect, 0)
         # Blit the text
         screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
-        # Blit Ressources
+        # Blit Resources
         rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
         colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
         order_res =("blck", "blue", "red", "green", "white")
         for ress, colour_text in zip(order_res, colours_text):
-            text = self.font.render(str(self.ressources[ress]), 1, colour_text)
+            text = self.font.render(str(self.Resources[ress]), 1, colour_text)
             screen.blit(text, (rx , ry))
             ry += int(self.rect.h / 6)
 
@@ -209,14 +211,14 @@ class BonusC():
         res =([3,3,3,0,0], [4,4,0,0,0])
         res = random.choice(res)
         random.shuffle(res)
-        self.ressources = Ressources()
+        self.Resources = Resources()
         i = 0
-        for k in self.ressources:
-            self.ressources[k] = res[i]
+        for k in self.Resources:
+            self.Resources[k] = res[i]
             i += 1
 
     def __str__(self):
-        return (f"Points: {self.points} \n"  + self.ressources.__str__())
+        return (f"Points: {self.points} \n"  + self.Resources.__str__())
 
     def draw(self, screen):
         if self.visible:
@@ -224,21 +226,21 @@ class BonusC():
             g.draw.rect(screen, self.colour, self.rect, 0)
             # Blit the text
             screen.blit(self.text_surface, (self.rect.x+5, self.rect.y+5))
-            # Blit Ressources
+            # Blit Resources
             rx , ry = int(self.rect.x + self.rect.w / 2 - 5) , int(self.rect.y + self.rect.h / 10)
             colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
             order_res =("blck", "blue", "red", "green", "white")
             for ress, colour_text in zip(order_res, colours_text):
-                if self.ressources[ress] != 0:
-                    text = self.font.render(str(self.ressources[ress]), 1, colour_text)
+                if self.Resources[ress] != 0:
+                    text = self.font.render(str(self.Resources[ress]), 1, colour_text)
                     screen.blit(text, (rx , ry))
                     ry += int(self.rect.h / 6)
 
-class Ressources(dict):
-    '''subclass to implement everywhere, where the 4 ressources are needed'''
+class Resources(dict):
+    '''subclass to implement everywhere, where the 4 Resources are needed'''
 
     def __init__(self):
-        super(Ressources, self).__init__()
+        super(Resources, self).__init__()
         self["green"] = 0
         self["blue"] = 0
         self["red"] = 0
@@ -268,16 +270,16 @@ class Ressources(dict):
     def __str__(self):
         return f"Green: {self['green']}\nRed: {self['red']}\nBlue: {self['blue']}\nBlack: {self['blck']}\nWhite: {self['white']}"
 
-class RessourceStack():
-    '''depending on nb players (n) the available ressources are determined.'''
+class Resourcestack():
+    '''depending on nb players (n) the available Resources are determined.'''
 
     def __init__(self, n:int):
-        self.ressources = Ressources()
-        self.ressources.set_all(n+3)
+        self.Resources = Resources()
+        self.Resources.set_all(n+3)
         self.lst_rects =[]
 
     def __str__(self):
-        return self.ressources.__str__()
+        return self.Resources.__str__()
 
     def draw(self, screen, font, x=0, y=0, r=0, padding=0):
         i = 0
@@ -286,7 +288,7 @@ class RessourceStack():
         for ress, colour_bg in zip(order_res, colours_bg):
             ynext = y + i * (r * 2 + padding)
             res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r , 0)
-            text = font.render(str(self.ressources[ress]), 1, WHITE)
+            text = font.render(str(self.Resources[ress]), 1, WHITE)
             screen.blit(text, (x - text.get_width() / 2 , ynext - text.get_height() / 2))
             self.lst_rects.append((ress, res_rect))
             i += 1
@@ -301,20 +303,20 @@ class Player():
             self.state = "human"
         else:
             self.state = "computer"
-        self.ressources = Ressources()
-        self.crds_count = Ressources()
+        self.Resources = Resources()
+        self.crds_count = Resources()
 
     def __str__(self):
-        string = [f"{self.name}:", self.ressources.__str__(), f"Points: {self.points}"]
+        string = [f"{self.name}:", self.Resources.__str__(), f"Points: {self.points}"]
         return "\n".join(string)
 
-    def take_res(self, key:str, rs:RessourceStack):
+    def take_res(self, key:str, rs:Resourcestack):
         '''take a ressource with the key from the rs,
         and add it to the player's ressource stack'''
 
-        if rs.ressources[key] > 0:
-            self.ressources[key] += 1
-            rs.ressources[key] -= 1
+        if rs.Resources[key] > 0:
+            self.Resources[key] += 1
+            rs.Resources[key] -= 1
             return True
         else:
             return False
@@ -331,31 +333,31 @@ class Player():
             if c.colour == DARKWHITE:
                 self.crds_count["white"] = self.crds_count.get("white", 0) + 1
 
-    def combine_ressources_with_collected_cards(self):
-        total_res = {k: self.ressources[k] + self.crds_count[k] for k in self.ressources}
+    def combine_Resources_with_collected_cards(self):
+        total_res = {k: self.Resources[k] + self.crds_count[k] for k in self.Resources}
         return total_res
 
     def check_if_card_affordable(self, c:Card):
-        owned_res = self.combine_ressources_with_collected_cards()
+        owned_res = self.combine_Resources_with_collected_cards()
         for r in owned_res:
-            if owned_res[r] < c.ressources[r]:
+            if owned_res[r] < c.Resources[r]:
                 return False
         else:
             return True
 
-    def add_and_deduct_real_costs(self, c:Card, stack:RessourceStack):
+    def add_and_deduct_real_costs(self, c:Card, stack:Resourcestack):
 
-        for k in self.ressources:
-            if self.crds_count[k] > c.ressources[k]:
+        for k in self.Resources:
+            if self.crds_count[k] > c.Resources[k]:
                 pass
             else:
-                self.ressources[k] -= c.ressources[k] - self.crds_count[k]
-                stack.ressources[k] += c.ressources[k] - self.crds_count[k]
+                self.Resources[k] -= c.Resources[k] - self.crds_count[k]
+                stack.Resources[k] += c.Resources[k] - self.crds_count[k]
 
-    def pick_crd(self, c:Card, stack:RessourceStack):
+    def pick_crd(self, c:Card, stack:Resourcestack):
         '''param el: index of card that is to be taken from the OpenBoard
         param ob: the board
-        param stack: Ressourcestack obj - to refill wit the paid res.'''
+        param stack: Resourcestack obj - to refill wit the paid res.'''
         sufficient_res = self.check_if_card_affordable(c)
         if sufficient_res:
             self.add_and_deduct_real_costs(c, stack)
@@ -373,8 +375,8 @@ class Player():
         condition is always True.'''
 
         checker = 0
-        for res in bc.ressources:
-            if bc.ressources[res] <= self.crds_count[res]:
+        for res in bc.Resources:
+            if bc.Resources[res] <= self.crds_count[res]:
                 checker += 1
         if checker >= 4:
             return True
@@ -383,7 +385,7 @@ class Player():
     def draw_name_points(self, screen, font, x=0, y=0, dist=0):
         ''' Draw name and points of the active player in the lower part of display.
         To render underneath: count of the cards he owns and 4 circles with
-        the count of Ressources
+        the count of Resources
         '''
         p_name = self.name
         drw_name = font.render(p_name, 1, BLACK)
@@ -404,7 +406,7 @@ class Player():
             screen.blit(drw_nbcrds, (int(xnext + w / 2 - 5), y + int(w / 2)))
             i += 1
 
-    def draw_ressources_stack(self, screen, font, x=0, y=0, r=0, padding=0):
+    def draw_Resources_stack(self, screen, font, x=0, y=0, r=0, padding=0):
         i = 0
         colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
         colours_text= (BLACK, BLUE, RED, GREEN, WHITE)
@@ -412,6 +414,6 @@ class Player():
         for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
             xnext = x + i * (r * 2 + padding)
             g.draw.circle(screen, colour_bg, (xnext, y), r , 0)
-            text = font.render(str(self.ressources[ress]), 1, colour_text)
+            text = font.render(str(self.Resources[ress]), 1, colour_text)
             screen.blit(text, (xnext - text.get_width() / 2 , y - text.get_height() / 2))
             i += 1
