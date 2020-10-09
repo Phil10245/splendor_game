@@ -65,7 +65,7 @@ def display_game_notification(message1, message2=""):
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) == 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (win.get_width() / 2, win.get_height() / 2 ))
+        win.blit(text2, (int(win.get_width() / 2), int(win.get_height() / 2 )))
     win.blit(text, (int(win.get_width() / 2), int(win.get_height() / 2)))
     g.display.update()
     g.time.delay(1_500)
@@ -103,8 +103,8 @@ def draw():
     #Draw board
     #-------------------------------
     #draw carddeck
-    for c in lst_cards:
-        c.draw(win)
+    for card_ind in lst_cards:
+        card_ind.draw(win)
 
     # draw bonus cards (available)
     for bc in lst_bcards:
@@ -188,7 +188,7 @@ while in_menu:
             run = in_menu = False
             number_player_b.active = False
         if number_player_b.handle_event(event):
-            i = number_player_b.increase_num(4, win)
+            i = number_player_b.increase_num(4)
             for box in input_name_boxes[:i]:
                 box.visible = True
             for box in input_name_boxes[i:]:
@@ -197,7 +197,7 @@ while in_menu:
 help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
 help_button.colour = BLACK
 
-exit_button = Button(LETTER_FONT, WIDTH - 3*INGAME_BUTTON + PADDING_H, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15  , "Exit")
+exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15  , "Exit")
 exit_button.colour = BLACK
 
 #Players and active_player / id:
@@ -223,27 +223,25 @@ while run:
             #TODO player clicks help button:
             if help_button.handle_event(event):
                 pass
-            #TODO player clicks exit button:
+            #player clicks exit button:
             if exit_button.handle_event(event):
-                pass
+                run = False
             #player clicks on card
             for card_id, card in enumerate(lst_cards):
                 if card.handle_event(event):
                     highlight_rect(card.rect)
                     if 1 in cntr_pck_res_as_dict.values():
                         display_game_notification("That won't work!", "You took already a ressource.")
-                        continue # TODO: Delete or Reactivate
+                        continue #without this continue, the algorithm doesn't work as expected.
                     else:
-                        # check if player can take card and if so replace it.
-                        # TODO: refactor i one function - one task
-                        success = active_player.pick_crd(card, ressource_stack)
-                    if success:
-                        cntr_pck_crd += 1
-                        if card.points > 0:
-                            display_game_notification(f"{card.points} points are added to your points!")
-                        card.replace_card(card_id, lst_cards)
-                    else:
-                        display_game_notification("Not enough Resources")
+                        if active_player.check_if_card_affordable(card):
+                            active_player.pick_crd(card, ressource_stack)
+                            cntr_pck_crd += 1
+                            if card.points > 0:
+                                display_game_notification(f"{card.points} points are added to your points!")
+                            card.replace_card(card_id, lst_cards)
+                        else:
+                            display_game_notification("Not enough Resources")
                     for bcard in lst_bcards:
                         if active_player.check_if_qualified_for_bonus(bcard):
                             active_player.points += 3
@@ -269,11 +267,11 @@ while run:
                             display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
                             break
 
-    g.time.wait(500)
+    g.time.wait(300)
 
     draw()
 
-    g.time.wait(500)
+    g.time.wait(200)
 
     if active_player_id == 0:
         for player in lst_player:

@@ -1,9 +1,9 @@
-# pylint: disable=no-member
+'''module that holds all classes and their associated methods of the game'''
 
 import random
 import pygame as g
 
-from colours import (WHITE, BLACK, BLUE, RED, GREEN, ORANGE, LIGHTBLUE, 
+from colours import (WHITE, BLACK, BLUE, RED, GREEN, ORANGE, LIGHTBLUE,
 LIGHTBLACK, LIGHTRED, LIGHTGREEN, DARKWHITE)
 
 
@@ -34,7 +34,7 @@ class Button():
         screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2, self.rect.centery - self.text_surface.get_height() / 2))
         g.draw.rect(screen, self.colour, self.rect, 2)
 
-    def increase_num(self, limit, screen):
+    def increase_num(self, limit):
         try:
             start = int(self.text)
         except:
@@ -169,7 +169,7 @@ class Card():
             r1st, r2nd, r3rd, r4th, r5th = random.choice(((3,3,3,5,0), (0,0,0,0,7), (0,0,0,3,7)))
         lst = [r1st, r2nd, r3rd, r4th, r5th]
         random.shuffle(lst)
-        return (lst)
+        return lst
 
     def draw(self, screen):
         # Blit the text
@@ -218,7 +218,7 @@ class BonusC():
             i += 1
 
     def __str__(self):
-        return (f"Points: {self.points} \n"  + self.Resources.__str__())
+        return f"Points: {self.points} \n"  + self.Resources.__str__()
 
     def draw(self, screen):
         if self.visible:
@@ -293,7 +293,8 @@ class Resourcestack():
             self.lst_rects.append((ress, res_rect))
             i += 1
 
-class Player(): 
+class Player():
+    '''Player class. Methods to interact with cards and resources'''
 
     points = 0
 
@@ -322,16 +323,16 @@ class Player():
             return False
 
     def get_and_accum_card_colour(self, c:Card):
-            if c.colour == LIGHTGREEN:
-                self.crds_count["green"] = self.crds_count.get("green", 0) + 1
-            if c.colour == LIGHTBLUE:
-                self.crds_count["blue"] = self.crds_count.get("blue", 0) + 1
-            if c.colour == LIGHTRED:
-                self.crds_count["red"] = self.crds_count.get("red", 0) + 1
-            if c.colour == LIGHTBLACK:
-                self.crds_count["blck"] = self.crds_count.get("blck", 0) + 1
-            if c.colour == DARKWHITE:
-                self.crds_count["white"] = self.crds_count.get("white", 0) + 1
+        if c.colour == LIGHTGREEN:
+            self.crds_count["green"] = self.crds_count.get("green", 0) + 1
+        if c.colour == LIGHTBLUE:
+            self.crds_count["blue"] = self.crds_count.get("blue", 0) + 1
+        if c.colour == LIGHTRED:
+            self.crds_count["red"] = self.crds_count.get("red", 0) + 1
+        if c.colour == LIGHTBLACK:
+            self.crds_count["blck"] = self.crds_count.get("blck", 0) + 1
+        if c.colour == DARKWHITE:
+            self.crds_count["white"] = self.crds_count.get("white", 0) + 1
 
     def combine_Resources_with_collected_cards(self):
         total_res = {k: self.Resources[k] + self.crds_count[k] for k in self.Resources}
@@ -339,14 +340,15 @@ class Player():
 
     def check_if_card_affordable(self, c:Card):
         owned_res = self.combine_Resources_with_collected_cards()
+        checker = 0
         for r in owned_res:
-            if owned_res[r] < c.Resources[r]:
-                return False
-        else:
+            if owned_res[r] >= c.Resources[r]:
+                checker += 1
+        if checker == 5:
             return True
+        return False
 
     def add_and_deduct_real_costs(self, c:Card, stack:Resourcestack):
-
         for k in self.Resources:
             if self.crds_count[k] > c.Resources[k]:
                 pass
@@ -355,22 +357,14 @@ class Player():
                 stack.Resources[k] += c.Resources[k] - self.crds_count[k]
 
     def pick_crd(self, c:Card, stack:Resourcestack):
-        '''param el: index of card that is to be taken from the OpenBoard
-        param ob: the board
-        param stack: Resourcestack obj - to refill wit the paid res.'''
-        sufficient_res = self.check_if_card_affordable(c)
-        if sufficient_res:
-            self.add_and_deduct_real_costs(c, stack)
-            #adding points to player
-            self.points += c.points
-            # moving the card  from board to player
-            self.get_and_accum_card_colour(c)
-            return True
-        else:
-            return False
-
+        self.add_and_deduct_real_costs(c, stack)
+        #adding points to player
+        self.points += c.points
+        # moving the card  from board to player
+        self.get_and_accum_card_colour(c)
+        
     def check_if_qualified_for_bonus(self, bc:BonusC):
-        '''pattern bonus card: 3,3,3,0 - pl must have the corresponding cards.
+        '''pattern bonus card: 3,3,3,0 or 4,4,0,0- pl must have the corresponding cards.
         if that is the case, checker will amount to 4, as for the 0 ressource, the
         condition is always True.'''
 
