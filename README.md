@@ -1,6 +1,6 @@
 # Splendor Game
 
-##a minimalist approach to the famous boardgame.
+## A minimalist approach to the famous boardgame.
 
 For up to 4 Players on the same computer. 
 No Network Multiplayer.
@@ -10,7 +10,7 @@ No rights for publishing.
 
 Code Reviews welcome, and if you are a fan of the game, you're more than welcome to contribute :) There is still a lot to do. 
 
-###Quick rules
+### Quick rules
 player collects resources by clicking on the different coloured circles. 
 with his resources he can purchase a card from the deck. 
 Some cards give points, all cards are a permanent resource and are used to buy more cards. 
