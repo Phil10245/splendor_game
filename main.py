@@ -63,10 +63,10 @@ def draw_menu_page(screen):
 
 def display_game_notification(message1, message2=""):
     text = WORD_FONT.render(message1, 1, BLUE)
-    if len(message2) == 0:
+    if len(message2) != 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (int(win.get_width() / 2), int(win.get_height() / 2 )))
-    win.blit(text, (int(win.get_width() / 2), int(win.get_height() / 2)))
+        win.blit(text2, (int(win.get_width() / 2) - text2.get_width() // 2, int(win.get_height() / 2 )))
+    win.blit(text, (int(win.get_width() / 2) - text.get_width() // 2, int(win.get_height() / 2) - text.get_height()))
     g.display.update()
     g.time.delay(1_500)
 
@@ -266,8 +266,6 @@ while run:
                         else:
                             display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
                             break
-
-    g.time.wait(300)
 
     draw()
 
