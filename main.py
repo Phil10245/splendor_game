@@ -5,9 +5,9 @@ the pre-game-menu-loop and the game loop
 '''
 
 import sys
+from copy import deepcopy
 import pygame as g
 from pygame.locals import *
-from copy import deepcopy
 from classes import Button, InputBox, Card, BonusC, Resources, Resourcestack, Player
 from colours import WHITE, BLACK, BLUE, LIGHTBLUE, DARKYELLOW, HIGHLIGHTORANGE
 
@@ -20,7 +20,7 @@ LOSE_FONT = g.font.SysFont("comicsans", 120)
 TITLE_FONT = g.font.SysFont("comicsans", 50)
 
 #setup display
-WIDTH, HEIGHT = 1300, 1000
+WIDTH, HEIGHT = 1580, 950
 win = g.display.set_mode((WIDTH, HEIGHT))
 g.display.set_caption("Splendor 0.9")
 
@@ -55,19 +55,25 @@ def draw_sidebar():
     ''' creates a sidebar sowing info on the non active players'''
     all_players = deepcopy(lst_player)
     all_players.pop(active_player_id)
-    shrinking_f = 3/5
-    x = SIDEBAR_WIDTH // 4
-    y = SIDEBAR_WIDTH // (len(all_players) + 2)
-    for player in all_players:
+    shrnk_fa = 3/5
+    x_side = SIDEBAR_WIDTH // 4
+    y_side = SIDEBAR_WIDTH // (len(all_players) + 2)
+    for player_side in all_players:
         #draw name and points
-        player.draw_name_points(win, LETTER_FONT, x, y, int((RECTWIDTH_CARDDECK + PADDING_H)*3*shrinking_f))
-        y += PADDING_V + LETTER_FONT.get_height()
+        player_side.draw_name_points(win, LETTER_FONT, x_side, y_side,
+        int((RECTWIDTH_CARDDECK + PADDING_H)*3*shrnk_fa))
+
+        y_side += PADDING_V + LETTER_FONT.get_height()
         #draw cards
-        player.draw_crds_count(win, LETTER_FONT, x, y, int(RECTSQUARE_PLAYER_CARDS*shrinking_f), int(PADDING_H*shrinking_f))
-        y += int(RECTSQUARE_PLAYER_CARDS*shrinking_f) + int(PADDING_V*2*shrinking_f + RADIUS_PLAYER_RS*shrinking_f)
+        player_side.draw_crds_count(win, LETTER_FONT, x_side, y_side,
+        int(RECTSQUARE_PLAYER_CARDS*shrnk_fa), int(PADDING_H*shrnk_fa))
+
+        y_side += (int(RECTSQUARE_PLAYER_CARDS*shrnk_fa) +
+        int(PADDING_V*2*shrnk_fa + RADIUS_PLAYER_RS*shrnk_fa))
         #draw ressources
-        player.draw_resources_stack(win, LETTER_FONT, x + int(RADIUS_PLAYER_RS*shrinking_f), y, int(RADIUS_PLAYER_RS*shrinking_f), int(PADDING_H*shrinking_f))
-        y += 2*(RADIUS_PLAYER_RS + PADDING_V)
+        player_side.draw_resources_stack(win, LETTER_FONT, x_side + int(RADIUS_PLAYER_RS*shrnk_fa),
+        y_side, int(RADIUS_PLAYER_RS*shrnk_fa), int(PADDING_H*shrnk_fa))
+        y_side += 2*(RADIUS_PLAYER_RS + PADDING_V)
 
 def draw_menu_page(screen):
     win.fill(DARKYELLOW)
@@ -83,8 +89,10 @@ def display_game_notification(message1, message2=""):
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) != 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
-        win.blit(text2, (int(win.get_width() / 2) - text2.get_width() // 2, int(win.get_height() / 2 )))
-    win.blit(text, (int(win.get_width() / 2) - text.get_width() // 2, int(win.get_height() / 2) - text.get_height()))
+        win.blit(text2, (int(win.get_width() / 2) - text2.get_width() // 2,
+        int(win.get_height() / 2 )))
+    win.blit(text, (int(win.get_width() / 2) - text.get_width() // 2,
+    int(win.get_height() / 2) - text.get_height()))
     g.display.update()
     g.time.delay(1_500)
 
@@ -117,6 +125,8 @@ def draw():
     #draw Buttons
     help_button.draw(win)
     exit_button.draw(win)
+    #TODO resize_button.rect.w = resize_button.text_surface.get_width() + 10
+    #resize_button.draw(win)
 
     #Draw board
     #-------------------------------
@@ -129,13 +139,17 @@ def draw():
         bc.draw(win)
 
     # draw ressource stack
-    ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=START_Y_RS, r=RADIUS_RESOURCES, padding=PADDING_H)
+    ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=START_Y_RS,
+    r=RADIUS_RESOURCES, padding=PADDING_H)
 
     #draw active player
-    active_player.draw_name_points(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER, (RECTWIDTH_CARDDECK + PADDING_H)*4)
-    active_player.draw_crds_count(win, LETTER_FONT, START_X_PLAYER, START_Y_PLAYER_CARDS, RECTSQUARE_PLAYER_CARDS, PADDING_H)
-    active_player.draw_resources_stack(win, LETTER_FONT, START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
-    
+    active_player.draw_name_points(win, LETTER_FONT, START_X_PLAYER,
+    START_Y_PLAYER, (RECTWIDTH_CARDDECK + PADDING_H)*4)
+    active_player.draw_crds_count(win, LETTER_FONT,
+    START_X_PLAYER, START_Y_PLAYER_CARDS, RECTSQUARE_PLAYER_CARDS, PADDING_H)
+    active_player.draw_resources_stack(win, LETTER_FONT,
+    START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
+
     # draw sidebar
     draw_sidebar()
 
@@ -178,7 +192,7 @@ for _ in range(3):
 
 #game counter, to track actions done by active player.
 cntr_pck_crd = 0
-cntr_pck_res_as_dict = Resources()
+count_res_picked = Resources()
 
 in_menu = True
 run = True
@@ -215,11 +229,17 @@ while in_menu:
             for box in input_name_boxes[i:]:
                 box.visible = False
 #in-gamebuttons
-help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
+help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
 help_button.colour = BLACK
 
-exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20, INGAME_BUTTON, LETTER_FONT.get_height() + 15  , "Exit")
+exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
 exit_button.colour = BLACK
+
+resize_button = Button(LETTER_FONT, WIDTH - 6*INGAME_BUTTON + PADDING_H, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15, "/".join([str(WIDTH), str(HEIGHT)]))
+resize_button.colour = BLACK
 
 #Players and active_player / id:
 lst_player = []
@@ -247,11 +267,18 @@ while run:
             #player clicks exit button:
             if exit_button.handle_event(event):
                 run = False
+            if resize_button.handle_event(event):
+                if WIDTH == 1000:
+                    WIDTH, HEIGHT = (1300,1000)
+                if WIDTH == 1300:
+                    WIDTH, HEIGHT = (1920,1080)
+                else:
+                    WIDTH, HEIGHT = (1000,800)
             #player clicks on card
             for card_id, card in enumerate(lst_cards):
                 if card.handle_event(event):
                     highlight_rect(card.rect)
-                    if 1 in cntr_pck_res_as_dict.values():
+                    if 1 in count_res_picked.values():
                         display_game_notification("That won't work!", "You took already a ressource.")
                         continue #without this continue, the algorithm doesn't work as expected.
                     else:
@@ -270,18 +297,19 @@ while run:
                             active_player.points += 3
                             bcard.visible = False
                             lst_bcards.remove(bcard)
-                            display_game_notification("Awesome!!! You just earned a bonus", f"{bonus.points} are added to your points.")
+                            display_game_notification("Awesome!!! You just earned a bonus",
+                            f"{bonus.points} are added to your points.")
                             break
             #player klicks on Resources
             for ress, ressource_rect in ressource_stack.lst_rects:
                 if event.type == MOUSEBUTTONDOWN:
                     if ressource_rect.collidepoint(event.pos):
                         highlight_circle(ressource_rect)
-                        if cntr_pck_res_as_dict[ress] == 0 or sum(cntr_pck_res_as_dict.values()) - cntr_pck_res_as_dict[ress] == 0:
+                        if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
                             success = active_player.take_res(ress, ressource_stack)
                             if success:
                                 display_game_notification(f"1 of the {ress} Resources added to your stack")
-                                cntr_pck_res_as_dict[ress] += 1
+                                count_res_picked[ress] += 1
                                 break
                             else:
                                 display_game_notification("You can't take this, sweetie.")
@@ -302,18 +330,16 @@ while run:
                 "You won! Well done. You're amazing and sexy!!!")
                 g.quit()
 
-    if cntr_pck_crd == 1 or 2 in cntr_pck_res_as_dict.values() or sum(cntr_pck_res_as_dict.values()) >= 3:
+    if cntr_pck_crd == 1 or 2 in count_res_picked.values() or sum(count_res_picked.values()) >= 3:
         if active_player_id < len(lst_player) - 1 :
             active_player_id += 1
-            cntr_pck_res_as_dict = Resources()
+            count_res_picked = Resources()
             cntr_pck_crd = 0
         else:
             active_player_id = 0
-            cntr_pck_res_as_dict = Resources()
+            count_res_picked = Resources()
             cntr_pck_crd = 0
         display_game_notification(f"It's {lst_player[active_player_id].name}'s turn :)")
 
-g.display.quit()
 g.quit()
-sys.exit()
-exit()
+sys.exit(0)

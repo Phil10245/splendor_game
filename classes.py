@@ -31,7 +31,8 @@ class Button():
                 self.active = False
 
     def draw(self, screen):
-        screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2, self.rect.centery - self.text_surface.get_height() / 2))
+        screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2,
+        self.rect.centery - self.text_surface.get_height() / 2))
         g.draw.rect(screen, self.colour, self.rect, 2)
 
     def increase_num(self, limit):
@@ -47,7 +48,9 @@ class Button():
         return int(self.text)
 
 class InputBox():
-    '''inspired by https://stackoverflow.com/questions/46390231/how-to-create-a-text-input-box-with-pygame'''
+    '''inspired by
+    https://stackoverflow.com/questions/46390231/how-to-create-a-text-input-box-with-pygame'''
+
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
     def __init__(self, x, y, w, h, font, text=''):
@@ -88,7 +91,8 @@ class InputBox():
 
     def draw(self, screen):
         # Blit the text.
-        screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2, self.rect.centery - self.text_surface.get_height() / 2))
+        screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2,
+        self.rect.centery - self.text_surface.get_height() / 2))
         # Blit the rect.
         g.draw.rect(screen, self.colour, self.rect, 2)
 
@@ -157,7 +161,8 @@ class Card():
         '''func to make random ressource need distribution
         has a total res as a limit but it should itself vary a bit
         to be closer to the game, that has not all possible combinations,
-        im working with hardcoded combinations, from which random.choice picks, according to difficult level'''
+        im working with hardcoded combinations, from which random.choice picks,
+        according to difficult level'''
 
         if level == 0:
             r1st, r2nd, r3rd, r4th, r5th = (random.choice(((0,0,0,0,4),(0,1,1,1,2),(0,0,0,2,2),
@@ -193,7 +198,8 @@ class Card():
                 return True
 
     def replace_card(self, el, cardlist):
-        replacement = Card(self.level, self.rect.x, self.rect.y, self.rect.w, self.rect.h, self.font)
+        replacement = Card(self.level, self.rect.x, self.rect.y,
+        self.rect.w, self.rect.h, self.font)
         cardlist.pop(el)
         cardlist.insert(el,replacement)
 
@@ -268,7 +274,9 @@ class Resources(dict):
         self["white"] = value
 
     def __str__(self):
-        return f"Green: {self['green']}\nRed: {self['red']}\nBlue: {self['blue']}\nBlack: {self['blck']}\nWhite: {self['white']}"
+        part_a = f"Green: {self['green']}\nRed: {self['red']}\nBlue: {self['blue']}\n"
+        part_b = f"Black: {self['blck']}"
+        return part_a + part_b
 
 class Resourcestack():
     '''depending on nb players (n) the available Resources are determined.'''
@@ -362,7 +370,7 @@ class Player():
         self.points += c.points
         # moving the card  from board to player
         self.get_and_accum_card_colour(c)
-        
+
     def check_if_qualified_for_bonus(self, bc:BonusC):
         '''pattern bonus card: 3,3,3,0 or 4,4,0,0- pl must have the corresponding cards.
         if that is the case, checker will amount to 4, as for the 0 ressource, the
