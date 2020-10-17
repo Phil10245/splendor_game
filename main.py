@@ -115,7 +115,7 @@ def highlight_circle(rect:Rect):
     g.display.update()
 
 def draw():
-
+    '''Wraps function calls to set up the screen and all objects that need to be drawn.'''
     win.fill(DARKYELLOW)
 
     #draw Title
@@ -155,6 +155,27 @@ def draw():
 
     g.display.update()
 
+def initiate_carddeck():
+    ''''initiate the 12 cards of the carddeck.'''
+    lst_cards = []
+    for difficulty_level in range(3):
+        y = 100 + difficulty_level*(PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
+        for __ in range(4):   #instance the 4 card
+            x = START_X_CARDS + __*(PADDING_H + RECTWIDTH_CARDDECK)# determining the x coordinate
+            c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
+            lst_cards.append(c)
+    return lst_cards
+
+def initiate_bonus_carddeck():
+    '''initiate the 3 bonus cards.'''
+    lst_bcards = []
+    for _ in range(3):
+        y = 100 + _ * (RECTHEIGHTBONI + PADDING_V)
+        x = START_X_BONI
+        bonus = BonusC(x, y, RECTWIDTHBONI, RECTHEIGHTBONI, LETTER_FONT)
+        lst_bcards.append(bonus)
+    return lst_bcards
+
 #setup game loop
 FPS = 60
 clock = g.time.Clock()
@@ -173,30 +194,17 @@ for input_box in input_name_boxes:
     input_box.rect.move_ip(0, int(HEIGHT/2)+ y)
     y += 100
 
-#initiate the 12 cards of the carddeck.
-lst_cards = []
-for difficulty_level in range(3):
-    y = 100 + difficulty_level*(PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
-    for __ in range(4):   #instance the 4 card
-        x = START_X_CARDS + __*(PADDING_H + RECTWIDTH_CARDDECK)# determining the x coordinate
-        c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
-        lst_cards.append(c)
-
-#initiate the 3 bonus cards.
-lst_bcards = []
-for _ in range(3):
-    y = 100 + _ * (RECTHEIGHTBONI + PADDING_V)
-    x = START_X_BONI
-    bonus = BonusC(x, y, RECTWIDTHBONI, RECTHEIGHTBONI, LETTER_FONT)
-    lst_bcards.append(bonus)
+lst_cards = initiate_carddeck()
+lst_bcards = initiate_bonus_carddeck()
 
 #game counter, to track actions done by active player.
 cntr_pck_crd = 0
 count_res_picked = Resources()
+i = 0
 
+#game loop variables
 in_menu = True
 run = True
-i = 0
 
 #menu and start_screen
 lst_player_names = []
@@ -204,7 +212,6 @@ while in_menu:
     clock.tick(FPS)
     win.fill(WHITE)
     draw_menu_page(win)
-
 
     for event in g.event.get():
         if event.type == QUIT:
@@ -236,7 +243,7 @@ help_button.colour = BLACK
 exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
 INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
 exit_button.colour = BLACK
-
+#TODO: Figure pout how toimplment his or remoe it!
 resize_button = Button(LETTER_FONT, WIDTH - 6*INGAME_BUTTON + PADDING_H, 20,
 INGAME_BUTTON, LETTER_FONT.get_height() + 15, "/".join([str(WIDTH), str(HEIGHT)]))
 resize_button.colour = BLACK
@@ -267,6 +274,7 @@ while run:
             #player clicks exit button:
             if exit_button.handle_event(event):
                 run = False
+            #player clcks resize-button.:
             if resize_button.handle_event(event):
                 if WIDTH == 1000:
                     WIDTH, HEIGHT = (1300,1000)

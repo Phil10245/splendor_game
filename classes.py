@@ -10,7 +10,7 @@ LIGHTBLACK, LIGHTRED, LIGHTGREEN, DARKWHITE)
 g.init()
 
 class Button():
-    '''creates a clickable button'''
+    '''A clickable button. '''
 
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
@@ -36,6 +36,13 @@ class Button():
         g.draw.rect(screen, self.colour, self.rect, 2)
 
     def increase_num(self, limit):
+        ''' (Button obj, int) -> int
+
+        Increases the number in self.text between 1 and limit.
+
+        Catches if self.text is NOT an int.
+        '''
+
         try:
             start = int(self.text)
         except:
@@ -48,8 +55,11 @@ class Button():
         return int(self.text)
 
 class InputBox():
-    '''inspired by
-    https://stackoverflow.com/questions/46390231/how-to-create-a-text-input-box-with-pygame'''
+    '''A input box class.
+
+    inspired by
+    https://stackoverflow.com/questions/46390231/how-to-create-a-text-input-box-with-pygame
+    '''
 
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
@@ -85,11 +95,13 @@ class InputBox():
                 self.text_surface = self.font.render(self.text, True, self.colour)
 
     def update(self):
-        # Resize the box if the text is too long.
+        '''Resize the box if the text is too long.'''
+
         width = max(200, self.text_surface.get_width()+10)
         self.rect.w = width
 
     def draw(self, screen):
+        ''' Draw the box.'''
         # Blit the text.
         screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2,
         self.rect.centery - self.text_surface.get_height() / 2))
@@ -97,8 +109,8 @@ class InputBox():
         g.draw.rect(screen, self.colour, self.rect, 2)
 
 class Card():
-    ''' card object - points, colour, ressource need, coordinates and all mainly
-    card related functions'''
+    ''' card class has points, colour, ressource need, coordinates attributes
+    and all mainly card related functions.'''
 
     def __init__ (self, level, x: int, y: int, w: int, h: int, font):
         self.colour = random.choice([LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE])
@@ -121,6 +133,7 @@ class Card():
         return "".join(string)
 
     def max_need(self):
+        '''Determine the highest amount of ressources needed of all ressources.'''
         max_lst = []
         for k in self.Resources:
             max_lst.append(self.Resources[k])
@@ -128,6 +141,7 @@ class Card():
         return max_value
 
     def min_need(self):
+        '''Determine the minimum amount of ressources needed of all ressources.'''
         min_lst = []
         for k in self.Resources:
             min_lst.append(self.Resources[k])
@@ -135,7 +149,9 @@ class Card():
         return min_value
 
     def detPoints(self, level):
-        ''' func to calculate point value of cards. '''
+        ''' (self, int) -> int
+
+        Calculate point value of cards. '''
 
         if level == 0:
             if self.max_need() ==  4:
@@ -158,8 +174,11 @@ class Card():
                 return 4
 
     def res_need(self, level):
-        '''func to make random ressource need distribution
-        has a total res as a limit but it should itself vary a bit
+        '''(self, int) -> list of int
+
+        Calculate random ressource need distribution.
+
+        Has a "total res" as a limit but it should itself vary a bit
         to be closer to the game, that has not all possible combinations,
         im working with hardcoded combinations, from which random.choice picks,
         according to difficult level'''
@@ -198,13 +217,20 @@ class Card():
                 return True
 
     def replace_card(self, el, cardlist):
+        ''' (self, int, list of Card-Objs) -> None
+
+        Removes self from cardlist and inserts a new Card at index el.
+
+        Transfers level and coordinate values to the new Card'''
         replacement = Card(self.level, self.rect.x, self.rect.y,
         self.rect.w, self.rect.h, self.font)
         cardlist.pop(el)
         cardlist.insert(el,replacement)
 
 class BonusC():
-    '''a bonuscard is worth 3P and is awarded when a player own the right pattern of cards'''
+    '''Bonus Card class.
+
+    A bonuscard is worth 3P and is awarded when a player own the right pattern of cards'''
 
     points = 3
     colour = ORANGE
