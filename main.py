@@ -20,9 +20,9 @@ LOSE_FONT = g.font.SysFont("comicsans", 120)
 TITLE_FONT = g.font.SysFont("comicsans", 50)
 
 #setup display
-WIDTH, HEIGHT = 1580, 950
-win = g.display.set_mode((WIDTH, HEIGHT))
-g.display.set_caption("Splendor 0.9")
+win = g.display.set_mode((0, 0), g.FULLSCREEN)
+g.display.set_caption("Splendor 0.95")
+WIDTH, HEIGHT = win.get_width(), win.get_height()
 
 #setup gui
 SIDEBAR_WIDTH = int(WIDTH / 4)
@@ -31,18 +31,18 @@ BUTTON_WIDTH = int(REDUCED_WIDTH / 3)
 INGAME_BUTTON = int(REDUCED_WIDTH / 12)
 RECTWIDTH_CARDDECK = int(REDUCED_WIDTH / 10)
 RECTHEIGHT_CARDDECK = int(HEIGHT / 8)
-RECTSQUARE_PLAYER_CARDS = int(REDUCED_WIDTH / 10)
+RECTSQUARE_PLAYER_CARDS = int(REDUCED_WIDTH / 11)
 PADDING_V = int(WIDTH / 100)
 PADDING_H = int(REDUCED_WIDTH / 100)
 RECTWIDTHBONI = int(REDUCED_WIDTH / 10)
 RECTHEIGHTBONI = int(HEIGHT / 8)
-RADIUS_PLAYER_RS = int(RECTSQUARE_PLAYER_CARDS/2)
+RADIUS_PLAYER_RS = int(RECTSQUARE_PLAYER_CARDS/2.4)
 RADIUS_RESOURCES = int(REDUCED_WIDTH / 24)
 
 START_X_CARDS = SIDEBAR_WIDTH + int(WIDTH / 2.5) - (RECTWIDTH_CARDDECK + PADDING_H)*2
 START_Y_CARDS = TITLE_FONT.get_height() + 2*PADDING_V
 START_X_PLAYER = START_X_CARDS
-START_Y_PLAYER = START_Y_CARDS + 7*PADDING_V + 10*RADIUS_RESOURCES
+START_Y_PLAYER = START_Y_CARDS + 7*PADDING_V + 7*RADIUS_RESOURCES
 START_Y_PLAYER_CARDS = START_Y_PLAYER + PADDING_V + LETTER_FONT.get_height()
 START_X_PLAYER_RS = START_X_CARDS + int(RECTSQUARE_PLAYER_CARDS/ 2)
 START_Y_PLAYER_RS = START_Y_PLAYER_CARDS + RECTSQUARE_PLAYER_CARDS + PADDING_V*2 + RADIUS_PLAYER_RS
@@ -52,7 +52,7 @@ START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2
 START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES
 
 def draw_sidebar():
-    ''' creates a sidebar sowing info on the non active players'''
+    ''' creates a sidebar showing info on the non active players'''
     all_players = deepcopy(lst_player)
     all_players.pop(active_player_id)
     shrnk_fa = 3/5
@@ -60,19 +60,37 @@ def draw_sidebar():
     y_side = SIDEBAR_WIDTH // (len(all_players) + 2)
     for player_side in all_players:
         #draw name and points
-        player_side.draw_name_points(win, LETTER_FONT, x_side, y_side,
-        int((RECTWIDTH_CARDDECK + PADDING_H)*3*shrnk_fa))
+        player_side.draw_name_points(
+        win,
+        LETTER_FONT,
+        x_side,
+        y_side,
+        int((RECTWIDTH_CARDDECK + PADDING_H)*3*shrnk_fa)
+        )
 
         y_side += PADDING_V + LETTER_FONT.get_height()
         #draw cards
-        player_side.draw_crds_count(win, LETTER_FONT, x_side, y_side,
-        int(RECTSQUARE_PLAYER_CARDS*shrnk_fa), int(PADDING_H*shrnk_fa))
+        player_side.draw_crds_count(
+        win,
+        LETTER_FONT,
+        x_side,
+        y_side,
+        int(RECTSQUARE_PLAYER_CARDS*shrnk_fa),
+        int(PADDING_H*shrnk_fa)
+        )
 
         y_side += (int(RECTSQUARE_PLAYER_CARDS*shrnk_fa) +
         int(PADDING_V*2*shrnk_fa + RADIUS_PLAYER_RS*shrnk_fa))
         #draw ressources
-        player_side.draw_resources_stack(win, LETTER_FONT, x_side + int(RADIUS_PLAYER_RS*shrnk_fa),
-        y_side, int(RADIUS_PLAYER_RS*shrnk_fa), int(PADDING_H*shrnk_fa))
+        player_side.draw_resources_stack(
+        win,
+        LETTER_FONT,
+        x_side + int(RECTSQUARE_PLAYER_CARDS*shrnk_fa/2),
+        y_side,
+        int(RADIUS_PLAYER_RS*shrnk_fa),
+        int(2.5*PADDING_H*shrnk_fa)
+        )
+
         y_side += 2*(RADIUS_PLAYER_RS + PADDING_V)
 
 def draw_menu_page(screen):
@@ -114,6 +132,53 @@ def highlight_circle(rect:Rect):
     g.draw.circle(win, HIGHLIGHTORANGE, rect.center, RADIUS_RESOURCES, 5)
     g.display.update()
 
+def draw_resources_stack():
+    '''Wrapper around Resourcestack.draw()'''
+    ressource_stack.draw(
+    win,
+    LETTER_FONT,
+    x=START_X_RS,
+    y=START_Y_RS,
+    r=RADIUS_RESOURCES,
+    padding=PADDING_H
+    )
+
+def draw_active_player():
+    '''Wrapper around Player.draw()'''
+    active_player.draw_name_points(
+    win,
+    LETTER_FONT,
+    START_X_PLAYER,
+    START_Y_PLAYER,
+    (RECTWIDTH_CARDDECK + PADDING_H)*3.5
+    )
+    active_player.draw_crds_count(
+    win,
+    LETTER_FONT,
+    START_X_PLAYER,
+    START_Y_PLAYER_CARDS,
+    RECTSQUARE_PLAYER_CARDS,
+    PADDING_H
+    )
+    active_player.draw_resources_stack(
+    win,
+    LETTER_FONT,
+    START_X_PLAYER_RS,
+    START_Y_PLAYER_RS,
+    int(RECTSQUARE_PLAYER_CARDS/2),
+    PADDING_H
+    )
+
+def draw_boni():
+    '''loops through boni_card_lst and draws them'''
+    for bc in lst_bcards:
+        bc.draw(win)
+
+def draw_cards():
+    '''Loops through the card_list and draws each one.'''
+    for card_ind in lst_cards:
+        card_ind.draw(win)
+
 def draw():
     '''Wraps function calls to set up the screen and all objects that need to be drawn.'''
     win.fill(DARKYELLOW)
@@ -129,30 +194,11 @@ def draw():
     #resize_button.draw(win)
 
     #Draw board
-    #-------------------------------
-    #draw carddeck
-    for card_ind in lst_cards:
-        card_ind.draw(win)
-
-    # draw bonus cards (available)
-    for bc in lst_bcards:
-        bc.draw(win)
-
-    # draw ressource stack
-    ressource_stack.draw(win, LETTER_FONT, x=START_X_RS , y=START_Y_RS,
-    r=RADIUS_RESOURCES, padding=PADDING_H)
-
-    #draw active player
-    active_player.draw_name_points(win, LETTER_FONT, START_X_PLAYER,
-    START_Y_PLAYER, (RECTWIDTH_CARDDECK + PADDING_H)*4)
-    active_player.draw_crds_count(win, LETTER_FONT,
-    START_X_PLAYER, START_Y_PLAYER_CARDS, RECTSQUARE_PLAYER_CARDS, PADDING_H)
-    active_player.draw_resources_stack(win, LETTER_FONT,
-    START_X_PLAYER_RS, START_Y_PLAYER_RS, int(RECTSQUARE_PLAYER_CARDS/2), PADDING_H)
-
-    # draw sidebar
+    draw_cards()
+    draw_boni()
+    draw_resources_stack()
+    draw_active_player()
     draw_sidebar()
-
     g.display.update()
 
 def initiate_carddeck():
