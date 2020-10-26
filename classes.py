@@ -27,8 +27,8 @@ class Button():
             if self.rect.collidepoint(event.pos):
                 self.active = True
                 return True
-            else:
-                self.active = False
+            self.active = False
+            return False
 
     def draw(self, screen):
         screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2,
@@ -156,22 +156,18 @@ class Card():
         if level == 0:
             if self.max_need() ==  4:
                 return 1
-            else:
-                return 0
-        elif level == 1:
+            return 0
+        if level == 1:
             if self.max_need() ==  6:
                 return 3
-            elif self.max_need() == 3:
+            if self.max_need() == 3:
                 return 1
-            else:
-                return 2
-        else:
-            if self.max_need() == 7 and self.min_need() == 3:
-                return 5
-            if self.max_need() == 5:
-                return 3
-            else:
-                return 4
+            return 2
+        if self.max_need() == 7 and self.min_need() == 3:
+            return 5
+        if self.max_need() == 5:
+            return 3
+        return 4
 
     def res_need(self, level):
         '''(self, int) -> list of int
@@ -215,6 +211,7 @@ class Card():
         if event.type == g.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 return True
+            return False
 
     def replace_card(self, el, cardlist):
         ''' (self, int, list of Card-Objs) -> None
@@ -353,8 +350,7 @@ class Player():
             self.Resources[key] += 1
             rs.Resources[key] -= 1
             return True
-        else:
-            return False
+        return False
 
     def get_and_accum_card_colour(self, c:Card):
         if c.colour == LIGHTGREEN:

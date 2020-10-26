@@ -4,6 +4,7 @@ The module contains four parts: Constants and function definitions,
 the pre-game-menu-loop and the game loop
 '''
 
+import os
 import sys
 from copy import deepcopy
 import pygame as g
@@ -316,7 +317,8 @@ while run:
         if event.type == MOUSEBUTTONDOWN:
             #TODO player clicks help button:
             if help_button.handle_event(event):
-                pass
+                g.display.iconify()
+                os.system(os.path.join("RuleBook", "rb.pdf"))
             #player clicks exit button:
             if exit_button.handle_event(event):
                 run = False
