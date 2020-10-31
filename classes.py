@@ -318,7 +318,7 @@ class Resourcestack():
         order_res =("blck", "blue", "red", "green", "white")
         for ress, colour_bg in zip(order_res, colours_bg):
             ynext = y + i * (r * 2 + padding)
-            res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r , 0)
+            res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r, 1)
             text = font.render(str(self.Resources[ress]), 1, WHITE)
             screen.blit(text, (x - text.get_width() / 2 , ynext - text.get_height() / 2))
             self.lst_rects.append((ress, res_rect))
@@ -437,7 +437,7 @@ class Player():
         order_res =("blck", "blue", "red", "green", "white")
         for ress, colour_bg, colour_text in zip(order_res, colours_bg, colours_text):
             xnext = x + i * (r * 2 + padding)
-            g.draw.circle(screen, colour_bg, (xnext, y), r , 0)
+            g.draw.circle(screen, colour_bg, (xnext, y), r , 1)
             text = font.render(str(self.Resources[ress]), 1, colour_text)
             screen.blit(text, (xnext - text.get_width() / 2 , y - text.get_height() / 2))
             i += 1

@@ -25,6 +25,10 @@ win = g.display.set_mode((0, 0), g.FULLSCREEN)
 g.display.set_caption("Splendor 0.95")
 WIDTH, HEIGHT = win.get_width(), win.get_height()
 
+#load graphics
+background = g.image.load(os.path.join('Graphics', 'board08merge3_opa.png'))
+background.convert()
+
 #setup gui
 SIDEBAR_WIDTH = int(WIDTH / 4)
 REDUCED_WIDTH = WIDTH - SIDEBAR_WIDTH
@@ -182,17 +186,16 @@ def draw_cards():
 
 def draw():
     '''Wraps function calls to set up the screen and all objects that need to be drawn.'''
-    win.fill(DARKYELLOW)
+    win.blit(background, (0,0))
 
     #draw Title
-    text = TITLE_FONT.render("Splendor", 1, BLUE)
-    win.blit(text, (int(WIDTH/2 - text.get_width()/2), 20))
+    #text = TITLE_FONT.render("Splendor", 1, BLUE)
+    #win.blit(text, (int(WIDTH/2 - text.get_width()/2), 20))
+    #Title is part of the background picture.
 
     #draw Buttons
     help_button.draw(win)
     exit_button.draw(win)
-    #TODO resize_button.rect.w = resize_button.text_surface.get_width() + 10
-    #resize_button.draw(win)
 
     #Draw board
     draw_cards()
