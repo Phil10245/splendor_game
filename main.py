@@ -26,7 +26,7 @@ g.display.set_caption("Splendor 0.95")
 WIDTH, HEIGHT = win.get_width(), win.get_height()
 
 #load graphics
-background = g.image.load(os.path.join('Graphics', 'board08merge3_opa.png'))
+background = g.image.load(os.path.join('Graphics', 'board08merge3_opa.jpg'))
 background.convert()
 
 #setup gui
