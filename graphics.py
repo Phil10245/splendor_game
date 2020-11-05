@@ -31,3 +31,6 @@ BLACKTOKEN.convert()
 name = "Whitetoken.png"
 WHITETOKEN = g.image.load(os.path.join(path, name))
 WHITETOKEN.convert()
+
+
+g.time.wait(5000)

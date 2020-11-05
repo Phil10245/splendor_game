@@ -11,6 +11,7 @@ import pygame as g
 from pygame.locals import *
 from classes import Button, InputBox, Card, BonusC, Resources, Resourcestack, Player
 from colours import WHITE, BLACK, BLUE, LIGHTBLUE, DARKYELLOW, HIGHLIGHTORANGE
+from graphics import BACKGROUND
 
 g.init()
 
@@ -25,9 +26,8 @@ win = g.display.set_mode((0, 0), g.FULLSCREEN)
 g.display.set_caption("Splendor 0.95")
 WIDTH, HEIGHT = win.get_width(), win.get_height()
 
-#load graphics
-background = g.image.load(os.path.join('Graphics/Board', 'background_board.jpg'))
-background.convert()
+# load and assign graphic elements
+background = BACKGROUND
 
 #setup gui
 SIDEBAR_WIDTH = int(WIDTH / 4)
