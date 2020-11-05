@@ -19,6 +19,8 @@ path = "Graphics/Tokens/"
 name = "Redtoken.png"
 REDTOKEN = g.image.load(os.path.join(path, name))
 REDTOKEN.convert()
+red_token_rect = REDTOKEN.get_rect()
+g.draw.rect(DISPLAY, 255, red_token_rect)
 name = "Greentoken.png"
 GREENTOKEN = g.image.load(os.path.join(path, name))
 GREENTOKEN.convert()
@@ -31,6 +33,3 @@ BLACKTOKEN.convert()
 name = "Whitetoken.png"
 WHITETOKEN = g.image.load(os.path.join(path, name))
 WHITETOKEN.convert()
-
-
-g.time.wait(5000)

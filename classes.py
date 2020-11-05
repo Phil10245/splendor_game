@@ -5,7 +5,7 @@ import pygame as g
 
 from colours import (WHITE, BLACK, BLUE, RED, GREEN, ORANGE, LIGHTBLUE,
 LIGHTBLACK, LIGHTRED, LIGHTGREEN, DARKWHITE)
-
+from graphics import REDTOKEN, BLACKTOKEN, GREENTOKEN, BLUETOKEN, WHITETOKEN
 
 g.init()
 
@@ -314,13 +314,23 @@ class Resourcestack():
 
     def draw(self, screen, font, x=0, y=0, r=0, padding=0):
         i = 0
+        tokens = (BLACKTOKEN, BLUETOKEN, REDTOKEN, GREENTOKEN, WHITETOKEN)
         colours_bg = (LIGHTBLACK, LIGHTBLUE, LIGHTRED, LIGHTGREEN, DARKWHITE)
         order_res =("blck", "blue", "red", "green", "white")
-        for ress, colour_bg in zip(order_res, colours_bg):
+        for ress, colour_bg, token in zip(order_res, colours_bg, tokens):
             ynext = y + i * (r * 2 + padding)
             res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r, 1)
+            print("DEBUG: ResourceStack.Rects", res_rect)
+            # render the loaded token pictures
+            token_small = g.transform.scale(token, (res_rect.width, res_rect.height))
+            screen.blit(token_small, res_rect)
+            #remove, when al is set up nicely
+            g.draw.circle(screen, BLUE, (x, ynext), 5)
+
+            # render the amount of resource available
             text = font.render(str(self.Resources[ress]), 1, WHITE)
             screen.blit(text, (x - text.get_width() / 2 , ynext - text.get_height() / 2))
+
             self.lst_rects.append((ress, res_rect))
             i += 1
 

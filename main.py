@@ -11,7 +11,7 @@ import pygame as g
 from pygame.locals import *
 from classes import Button, InputBox, Card, BonusC, Resources, Resourcestack, Player
 from colours import WHITE, BLACK, BLUE, LIGHTBLUE, DARKYELLOW, HIGHLIGHTORANGE
-from graphics import BACKGROUND
+from graphics import BACKGROUND, REDTOKEN
 
 g.init()
 
@@ -86,7 +86,7 @@ def draw_sidebar():
 
         y_side += (int(RECTSQUARE_PLAYER_CARDS*shrnk_fa) +
         int(PADDING_V*2*shrnk_fa + RADIUS_PLAYER_RS*shrnk_fa))
-        #draw ressources
+        #draw resources
         player_side.draw_resources_stack(
         win,
         LETTER_FONT,
@@ -139,7 +139,7 @@ def highlight_circle(rect:Rect):
 
 def draw_resources_stack():
     '''Wrapper around Resourcestack.draw()'''
-    ressource_stack.draw(
+    resource_stack.draw(
     win,
     LETTER_FONT,
     x=START_X_RS,
@@ -293,10 +293,6 @@ help_button.colour = BLACK
 exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
 INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
 exit_button.colour = BLACK
-#TODO: Figure pout how toimplment his or remoe it!
-resize_button = Button(LETTER_FONT, WIDTH - 6*INGAME_BUTTON + PADDING_H, 20,
-INGAME_BUTTON, LETTER_FONT.get_height() + 15, "/".join([str(WIDTH), str(HEIGHT)]))
-resize_button.colour = BLACK
 
 #Players and active_player / id:
 lst_player = []
@@ -304,7 +300,7 @@ for player in lst_player_names:
     lst_player.append(Player(str(player), 1))
 active_player_id = 0
 
-ressource_stack = Resourcestack(len(lst_player))
+resource_stack = Resourcestack(len(lst_player))
 
 #game_loop
 while run:
@@ -325,24 +321,16 @@ while run:
             #player clicks exit button:
             if exit_button.handle_event(event):
                 run = False
-            #player clcks resize-button.:
-            if resize_button.handle_event(event):
-                if WIDTH == 1000:
-                    WIDTH, HEIGHT = (1300,1000)
-                if WIDTH == 1300:
-                    WIDTH, HEIGHT = (1920,1080)
-                else:
-                    WIDTH, HEIGHT = (1000,800)
             #player clicks on card
             for card_id, card in enumerate(lst_cards):
                 if card.handle_event(event):
                     highlight_rect(card.rect)
                     if 1 in count_res_picked.values():
-                        display_game_notification("That won't work!", "You took already a ressource.")
+                        display_game_notification("That won't work!", "You took already a resource.")
                         continue #without this continue, the algorithm doesn't work as expected.
                     else:
                         if active_player.check_if_card_affordable(card):
-                            active_player.pick_crd(card, ressource_stack)
+                            active_player.pick_crd(card, resource_stack)
                             cntr_pck_crd += 1
                             if card.points == 1:
                                 display_game_notification("1 point is added to your points!")
@@ -360,12 +348,12 @@ while run:
                             f"{bonus.points} are added to your points.")
                             break
             #player klicks on Resources
-            for ress, ressource_rect in ressource_stack.lst_rects:
+            for ress, resource_rect in resource_stack.lst_rects:
                 if event.type == MOUSEBUTTONDOWN:
-                    if ressource_rect.collidepoint(event.pos):
-                        highlight_circle(ressource_rect)
+                    if resource_rect.collidepoint(event.pos):
+                        highlight_circle(resource_rect)
                         if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
-                            success = active_player.take_res(ress, ressource_stack)
+                            success = active_player.take_res(ress, resource_stack)
                             if success:
                                 display_game_notification(f"1 of the {ress} Resources added to your stack")
                                 count_res_picked[ress] += 1
