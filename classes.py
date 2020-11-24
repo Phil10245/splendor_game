@@ -320,7 +320,6 @@ class Resourcestack():
         for ress, colour_bg, token in zip(order_res, colours_bg, tokens):
             ynext = y + i * (r * 2 + padding)
             res_rect = g.draw.circle(screen, colour_bg, (x, ynext), r, 1)
-            print("DEBUG: ResourceStack.Rects", res_rect)
             # render the loaded token pictures
             token_small = g.transform.scale(token, (res_rect.width, res_rect.height))
             screen.blit(token_small, res_rect)
