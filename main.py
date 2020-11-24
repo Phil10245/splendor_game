@@ -56,10 +56,12 @@ START_Y_BONI = START_Y_CARDS
 START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2) + (int(REDUCED_WIDTH / 10) - int(REDUCED_WIDTH / 11))
 START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES
 
-def draw_sidebar():
-    ''' creates a sidebar showing info on the non active players'''
+def draw_sidebar(lst_player, id):
+    '''(lst of Player Obj, int) -> None
+
+    Creates a sidebar showing info on the non active players.'''
     all_players = deepcopy(lst_player)
-    all_players.pop(active_player_id)
+    all_players.pop(id)
     shrnk_fa = 3/5
     x_side = SIDEBAR_WIDTH // 4
     y_side = SIDEBAR_WIDTH // (len(all_players) + 2)
@@ -148,16 +150,16 @@ def draw_resources_stack():
     padding=PADDING_H
     )
 
-def draw_active_player():
+def draw_active_player(player):
     '''Wrapper around Player.draw()'''
-    active_player.draw_name_points(
+    player.draw_name_points(
     win,
     LETTER_FONT,
     START_X_PLAYER,
     START_Y_PLAYER,
     (RECTWIDTH_CARDDECK + PADDING_H)*3.5
     )
-    active_player.draw_crds_count(
+    player.draw_crds_count(
     win,
     LETTER_FONT,
     START_X_PLAYER,
@@ -165,7 +167,7 @@ def draw_active_player():
     RECTSQUARE_PLAYER_CARDS,
     PADDING_H
     )
-    active_player.draw_resources_stack(
+    player.draw_resources_stack(
     win,
     LETTER_FONT,
     START_X_PLAYER_RS,
@@ -184,14 +186,9 @@ def draw_cards():
     for card_ind in lst_cards:
         card_ind.draw(win)
 
-def draw():
+def draw(lst_players, active_player_id):
     '''Wraps function calls to set up the screen and all objects that need to be drawn.'''
     win.blit(background, (0,0))
-
-    #draw Title
-    #text = TITLE_FONT.render("Splendor", 1, BLUE)
-    #win.blit(text, (int(WIDTH/2 - text.get_width()/2), 20))
-    #Title is part of the background picture.
 
     #draw Buttons
     help_button.draw(win)
@@ -201,8 +198,8 @@ def draw():
     draw_cards()
     draw_boni()
     draw_resources_stack()
-    draw_active_player()
-    draw_sidebar()
+    draw_active_player(lst_players[active_player_id])
+    draw_sidebar(lst_players, active_player_id)
     g.display.update()
 
 def initiate_carddeck():
@@ -247,44 +244,7 @@ for input_box in input_name_boxes:
 lst_cards = initiate_carddeck()
 lst_bcards = initiate_bonus_carddeck()
 
-#game counter, to track actions done by active player.
-cntr_pck_crd = 0
-count_res_picked = Resources()
-i = 0
 
-#game loop variables
-in_menu = True
-run = True
-
-#menu and start_screen
-lst_player_names = []
-while in_menu:
-    clock.tick(FPS)
-    win.fill(WHITE)
-    draw_menu_page(win)
-
-    for event in g.event.get():
-        if event.type == QUIT:
-            run = in_menu = False
-        for box in input_name_boxes:
-            box.handle_event(event)
-            number_player_b.active = False
-        if start_b.handle_event(event):
-            number_player_b.active = False
-            for box in input_name_boxes:
-                if box.visible:
-                    lst_player_names.append(box.text)
-            if len(lst_player_names) >= 1:
-                in_menu = False
-        if exit_b.handle_event(event):
-            run = in_menu = False
-            number_player_b.active = False
-        if number_player_b.handle_event(event):
-            i = number_player_b.increase_num(4)
-            for box in input_name_boxes[:i]:
-                box.visible = True
-            for box in input_name_boxes[i:]:
-                box.visible = False
 #in-gamebuttons
 help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20,
 INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
@@ -294,103 +254,161 @@ exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
 INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
 exit_button.colour = BLACK
 
-#Players and active_player / id:
-lst_player = []
-for player in lst_player_names:
-    lst_player.append(Player(str(player), 1))
-active_player_id = 0
+def startmenu_loop():
+    '''(None) -> list
+    The menu part of the game.
 
-resource_stack = Resourcestack(len(lst_player))
+    Set player names and number of players. '''
 
-#game_loop
-while run:
-    clock.tick(FPS)
+    lst_player_names = []
+    in_menu = True
+    while in_menu:
+        clock.tick(FPS)
+        win.fill(WHITE)
+        draw_menu_page(win)
 
-    active_player = lst_player[active_player_id]
+        for event in g.event.get():
+            if event.type == QUIT:
+                in_menu = False
+            for box in input_name_boxes:
+                box.handle_event(event)
+                number_player_b.active = False
+            if start_b.handle_event(event):
+                number_player_b.active = False
+                for box in input_name_boxes:
+                    if box.visible:
+                        lst_player_names.append(box.text)
+                if len(lst_player_names) >= 1:
+                    in_menu = False
+            if exit_b.handle_event(event):
+                run = in_menu = False
+                number_player_b.active = False
+            if number_player_b.handle_event(event):
+                i = number_player_b.increase_num(4)
+                for box in input_name_boxes[:i]:
+                    box.visible = True
+                for box in input_name_boxes[i:]:
+                    box.visible = False
+    return lst_player_names
 
-    draw()
+def create_players(lst_names):
+    '''(lst of strings) -> list of Player Objects
 
-    for event in g.event.get():
-        if event.type == QUIT:
-            run = False
-        if event.type == MOUSEBUTTONDOWN:
-            #TODO player clicks help button:
-            if help_button.handle_event(event):
-                g.display.iconify()
-                os.system(os.path.join("RuleBook", "rb.pdf"))
-            #player clicks exit button:
-            if exit_button.handle_event(event):
+    Create player objects from the list of names.
+    Returns list of players.'''
+    lst_player = []
+    for player in lst_names:
+        lst_player.append(Player(str(player), 1))
+    return lst_player
+
+def set_up_game(lst_names):
+    '''(list of str) -> (list of Player Objs, ResourceStack)
+
+    Prepare inputs for the main loop.
+
+    Player objects and resource stack'''
+    lst_players = create_players(lst_names)
+    resource_stack = Resourcestack(len(lst_players))
+    return (lst_players, resource_stack)
+
+def game(lst_player, resource_stack):
+    #game counter, to track actions done by active player.
+    cntr_pck_crd = 0
+    count_res_picked = Resources()
+    i = 0
+    active_player_id = 0
+    run = True
+    #game_loop
+    while run:
+        clock.tick(FPS)
+
+        active_player = lst_player[active_player_id]
+
+        draw(lst_player, active_player_id)
+
+        for event in g.event.get():
+            if event.type == QUIT:
                 run = False
-            #player clicks on card
-            for card_id, card in enumerate(lst_cards):
-                if card.handle_event(event):
-                    highlight_rect(card.rect)
-                    if 1 in count_res_picked.values():
-                        display_game_notification("That won't work!", "You took already a resource.")
-                        continue #without this continue, the algorithm doesn't work as expected.
-                    else:
-                        if active_player.check_if_card_affordable(card):
-                            active_player.pick_crd(card, resource_stack)
-                            cntr_pck_crd += 1
-                            if card.points == 1:
-                                display_game_notification("1 point is added to your points!")
-                            elif card.points > 1:
-                                display_game_notification(f"{card.points} points are added to your points!")
-                            card.replace_card(card_id, lst_cards)
+            if event.type == MOUSEBUTTONDOWN:
+                #TODO player clicks help button:
+                if help_button.handle_event(event):
+                    g.display.iconify()
+                    os.system(os.path.join("RuleBook", "rb.pdf"))
+                #player clicks exit button:
+                if exit_button.handle_event(event):
+                    run = False
+                #player clicks on card
+                for card_id, card in enumerate(lst_cards):
+                    if card.handle_event(event):
+                        highlight_rect(card.rect)
+                        if 1 in count_res_picked.values():
+                            display_game_notification("That won't work!", "You took already a resource.")
+                            continue #without this continue, the algorithm doesn't work as expected.
                         else:
-                            display_game_notification("Not enough Resources")
-                    for bcard in lst_bcards:
-                        if active_player.check_if_qualified_for_bonus(bcard):
-                            active_player.points += 3
-                            bcard.visible = False
-                            lst_bcards.remove(bcard)
-                            display_game_notification("Awesome!!! You just earned a bonus",
-                            f"{bonus.points} are added to your points.")
-                            break
-            #player klicks on Resources
-            for ress, resource_rect in resource_stack.lst_rects:
-                if event.type == MOUSEBUTTONDOWN:
-                    if resource_rect.collidepoint(event.pos):
-                        highlight_circle(resource_rect)
-                        if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
-                            success = active_player.take_res(ress, resource_stack)
-                            if success:
-                                display_game_notification(f"1 of the {ress} Resources added to your stack")
-                                count_res_picked[ress] += 1
-                                break
+                            if active_player.check_if_card_affordable(card):
+                                active_player.pick_crd(card, resource_stack)
+                                cntr_pck_crd += 1
+                                if card.points == 1:
+                                    display_game_notification("1 point is added to your points!")
+                                elif card.points > 1:
+                                    display_game_notification(f"{card.points} points are added to your points!")
+                                card.replace_card(card_id, lst_cards)
                             else:
-                                display_game_notification("You can't take this, sweetie.")
+                                display_game_notification("Not enough Resources")
+                        for bcard in lst_bcards:
+                            if active_player.check_if_qualified_for_bonus(bcard):
+                                active_player.points += 3
+                                bcard.visible = False
+                                lst_bcards.remove(bcard)
+                                display_game_notification("Awesome!!! You just earned a bonus",
+                                f"{bcard.points} are added to your points.")
                                 break
-                        else:
-                            display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
-                            break
-    g.event.clear()
-    draw()
+                #player klicks on Resources
+                for ress, resource_rect in resource_stack.lst_rects:
+                    if event.type == MOUSEBUTTONDOWN:
+                        if resource_rect.collidepoint(event.pos):
+                            highlight_circle(resource_rect)
+                            if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
+                                success = active_player.take_res(ress, resource_stack)
+                                if success:
+                                    display_game_notification(f"1 of the {ress} Resources added to your stack")
+                                    count_res_picked[ress] += 1
+                                    break
+                                else:
+                                    display_game_notification("You can't take this, sweetie.")
+                                    break
+                            else:
+                                display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
+                                break
+        g.event.clear()
+        draw(lst_player, active_player_id)
 
-    g.time.wait(500)
+        g.time.wait(500)
 
-    if active_player_id == 0:
-        for player in lst_player:
-            if player.points >= 15:
-                run = False
-                display_message(f"Gratulations!!!\n {active_player.name}",
-                "You won! Well done. You're amazing and sexy!!!")
-                g.quit()
+        if active_player_id == 0:
+            for player in lst_player:
+                if player.points >= 15:
+                    run = False
+                    display_message(f"Gratulations!!!\n {active_player.name}",
+                    "You won! Well done. You're amazing and sexy!!!")
+                    g.quit()
 
-    if cntr_pck_crd == 1 or 2 in count_res_picked.values() or sum(count_res_picked.values()) >= 3:
-        if active_player_id < len(lst_player) - 1 :
-            active_player_id += 1
-            count_res_picked = Resources()
-            cntr_pck_crd = 0
-        else:
-            active_player_id = 0
-            count_res_picked = Resources()
-            cntr_pck_crd = 0
-        display_game_notification(f"It's {lst_player[active_player_id].name}'s turn :)")
+        if cntr_pck_crd == 1 or 2 in count_res_picked.values() or sum(count_res_picked.values()) >= 3:
+            if active_player_id < len(lst_player) - 1 :
+                active_player_id += 1
+                count_res_picked = Resources()
+                cntr_pck_crd = 0
+            else:
+                active_player_id = 0
+                count_res_picked = Resources()
+                cntr_pck_crd = 0
+            display_game_notification(f"It's {lst_player[active_player_id].name}'s turn :)")
 
-g.quit()
-sys.exit(0)
+    g.quit()
+    sys.exit(0)
 
 
 if __name__ == '__main__':
-    game()
+    lst_names = startmenu_loop()
+    lst_players, resource_stack = set_up_game(lst_names)
+    game(lst_players, resource_stack)
