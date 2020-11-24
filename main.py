@@ -292,14 +292,15 @@ def startmenu_loop():
     return lst_player_names
 
 def set_up_game(lst_names):
-        '''(list of str) -> (list of Player Objs, ResourceStack)
 
-        Prepare inputs for the main loop.
+    '''(list of str) -> (list of Player Objs, ResourceStack)
 
-        Player objects and resource stack'''
-        lst_players = create_players(lst_names)
-        resource_stack = Resourcestack(len(lst_players))
-        return (lst_players, resource_stack)
+    Prepare inputs for the main loop.
+
+    Player objects and resource stack'''
+    lst_players = create_players(lst_names)
+    resource_stack = Resourcestack(len(lst_players))
+    return (lst_players, resource_stack)
 
 def create_players(lst_names):
     '''(lst of strings) -> list of Player Objects
@@ -315,7 +316,6 @@ def game(lst_player, resource_stack):
     #game counter, to track actions done by active player.
     cntr_pck_crd = 0
     count_res_picked = Resources()
-    i = 0
     active_player_id = 0
     run = True
     #game_loop
@@ -362,7 +362,6 @@ def game(lst_player, resource_stack):
                                 lst_bcards.remove(bcard)
                                 display_game_notification("Awesome!!! You just earned a bonus",
                                 f"{bcard.points} are added to your points.")
-                                bonus_taken = True
                                 print("DEBUG: Bonus Card Taken!")
                                 break
                 #player klicks on Resources
