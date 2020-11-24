@@ -56,6 +56,34 @@ START_Y_BONI = START_Y_CARDS
 START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2) + (int(REDUCED_WIDTH / 10) - int(REDUCED_WIDTH / 11))
 START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES
 
+#in-gamebuttons
+help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
+help_button.colour = BLACK
+
+exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
+exit_button.colour = BLACK
+
+#setup game loop
+FPS = 60
+clock = g.time.Clock()
+
+#setting up start menu:
+start_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, "START")
+exit_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, text="END")
+number_player_b = Button(LETTER_FONT, WIDTH / 2 - 70, HEIGHT / 2 - 200, 50, 50, "4")
+name_player1 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, "Player1")
+name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player2")
+name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
+name_player4 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player4")
+input_name_boxes = [name_player1, name_player2, name_player3, name_player4]
+y = -200
+for input_box in input_name_boxes:
+    input_box.rect.move_ip(0, int(HEIGHT/2)+ y)
+    y += 100
+
+
 def draw_sidebar(lst_player, id):
     '''(lst of Player Obj, int) -> None
 
@@ -117,9 +145,9 @@ def display_game_notification(message1, message2=""):
         win.blit(text2, (int(win.get_width() / 2) - text2.get_width() // 2,
         int(win.get_height() / 2 )))
     win.blit(text, (int(win.get_width() / 2) - text.get_width() // 2,
-    int(win.get_height() / 2) - text.get_height()))
+    int(win.get_height() / 2) - 3*text.get_height()))
     g.display.update()
-    g.time.delay(1_500)
+    g.time.delay(2_000)
 
 def display_message (message1, message2):
     g.time.delay(1_000)
@@ -223,36 +251,8 @@ def initiate_bonus_carddeck():
         lst_bcards.append(bonus)
     return lst_bcards
 
-#setup game loop
-FPS = 60
-clock = g.time.Clock()
-
-#setting up start menu:
-start_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, "START")
-exit_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, text="END")
-number_player_b = Button(LETTER_FONT, WIDTH / 2 - 70, HEIGHT / 2 - 200, 50, 50, "4")
-name_player1 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, "Player1")
-name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player2")
-name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
-name_player4 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player4")
-input_name_boxes = [name_player1, name_player2, name_player3, name_player4]
-y = -200
-for input_box in input_name_boxes:
-    input_box.rect.move_ip(0, int(HEIGHT/2)+ y)
-    y += 100
-
 lst_cards = initiate_carddeck()
 lst_bcards = initiate_bonus_carddeck()
-
-
-#in-gamebuttons
-help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20,
-INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
-help_button.colour = BLACK
-
-exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
-INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
-exit_button.colour = BLACK
 
 def startmenu_loop():
     '''(None) -> list
@@ -291,6 +291,16 @@ def startmenu_loop():
                     box.visible = False
     return lst_player_names
 
+def set_up_game(lst_names):
+        '''(list of str) -> (list of Player Objs, ResourceStack)
+
+        Prepare inputs for the main loop.
+
+        Player objects and resource stack'''
+        lst_players = create_players(lst_names)
+        resource_stack = Resourcestack(len(lst_players))
+        return (lst_players, resource_stack)
+
 def create_players(lst_names):
     '''(lst of strings) -> list of Player Objects
 
@@ -300,16 +310,6 @@ def create_players(lst_names):
     for player in lst_names:
         lst_player.append(Player(str(player), 1))
     return lst_player
-
-def set_up_game(lst_names):
-    '''(list of str) -> (list of Player Objs, ResourceStack)
-
-    Prepare inputs for the main loop.
-
-    Player objects and resource stack'''
-    lst_players = create_players(lst_names)
-    resource_stack = Resourcestack(len(lst_players))
-    return (lst_players, resource_stack)
 
 def game(lst_player, resource_stack):
     #game counter, to track actions done by active player.
@@ -342,7 +342,7 @@ def game(lst_player, resource_stack):
                     if card.handle_event(event):
                         highlight_rect(card.rect)
                         if 1 in count_res_picked.values():
-                            display_game_notification("That won't work!", "You took already a resource.")
+                            display_game_notification("That won't work!", "You took a resource already.")
                             continue #without this continue, the algorithm doesn't work as expected.
                         else:
                             if active_player.check_if_card_affordable(card):
@@ -358,10 +358,12 @@ def game(lst_player, resource_stack):
                         for bcard in lst_bcards:
                             if active_player.check_if_qualified_for_bonus(bcard):
                                 active_player.points += 3
-                                bcard.visible = False
+                                #TODO check if this code is needed: bcard.visible = False
                                 lst_bcards.remove(bcard)
                                 display_game_notification("Awesome!!! You just earned a bonus",
                                 f"{bcard.points} are added to your points.")
+                                bonus_taken = True
+                                print("DEBUG: Bonus Card Taken!")
                                 break
                 #player klicks on Resources
                 for ress, resource_rect in resource_stack.lst_rects:
