@@ -364,7 +364,7 @@ while run:
                         else:
                             display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
                             break
-    print(g.event.get())
+    g.event.clear()
     draw()
 
     g.time.wait(500)
@@ -390,3 +390,7 @@ while run:
 
 g.quit()
 sys.exit(0)
+
+
+if __name__ == '__main__':
+    game()
