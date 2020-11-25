@@ -14,8 +14,8 @@ class Button():
 
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
-    def __init__(self, font, x, y, w, h, text=""):
-        self.rect = g.Rect(x, y, w, h)
+    def __init__(self, font, rect, text=""):
+        self.rect = rect
         self.colour = self.active_inactive_colours[1]
         self.active = False
         self.text = text
@@ -23,14 +23,20 @@ class Button():
         self.text_surface = self.font.render(self.text, 1, self.colour)
 
     def handle_event(self, event):
+        '''(self, event) -> Boolean
+
+        Returns True if Mousbutton is clicked in the Rect of the Button'''
         if event.type == g.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.active = True
                 return True
             self.active = False
-            return False
+        return False
 
     def draw(self, screen):
+        '''(self, surface) -> None
+
+        Draws the Button on the given surface.'''
         screen.blit(self.text_surface, (self.rect.centerx - self.text_surface.get_width() / 2,
         self.rect.centery - self.text_surface.get_height() / 2))
         g.draw.rect(screen, self.colour, self.rect, 2)
@@ -45,8 +51,8 @@ class Button():
 
         try:
             start = int(self.text)
-        except:
-            return
+        except ValueError:
+            return "Bad Function Call. Nan"
         if start == limit:
             self.text = "1"
         else:
@@ -63,8 +69,8 @@ class InputBox():
 
     active_inactive_colours = ((g.Color('lightskyblue3')), (g.Color('dodgerblue2')))
 
-    def __init__(self, x, y, w, h, font, text=''):
-        self.rect = g.Rect(x, y, w, h)
+    def __init__(self, rect, font, text=''):
+        self.rect = rect
         self.colour = self.active_inactive_colours[1]
         self.text = text
         self.font = font
@@ -73,6 +79,10 @@ class InputBox():
         self.visible = True
 
     def handle_event(self, event):
+        '''(self, event) -> None
+
+        If button is activated via mouseclick, the following keystrokes are captured and stored in the
+        self.text.'''
         if event.type == g.MOUSEBUTTONDOWN:
             # If the user clicked on the input_box rect.
             if self.rect.collidepoint(event.pos):

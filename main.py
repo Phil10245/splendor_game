@@ -57,12 +57,12 @@ START_X_RS = START_X_BONI + RECTWIDTHBONI + 4*PADDING_H + int(RADIUS_RESOURCES/2
 START_Y_RS = START_Y_CARDS + 2*RADIUS_RESOURCES
 
 #in-gamebuttons
-help_button = Button(LETTER_FONT, WIDTH - 2*INGAME_BUTTON, 20,
-INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Help")
+help_button = Button(LETTER_FONT, g.Rect(WIDTH - 2*INGAME_BUTTON, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15), "Help")
 help_button.colour = BLACK
 
-exit_button = Button(LETTER_FONT, WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
-INGAME_BUTTON, LETTER_FONT.get_height() + 15, "Exit")
+exit_button = Button(LETTER_FONT, g.Rect(WIDTH - 4*INGAME_BUTTON + PADDING_H, 20,
+INGAME_BUTTON, LETTER_FONT.get_height() + 15), "Exit")
 exit_button.colour = BLACK
 
 #setup game loop
@@ -70,13 +70,13 @@ FPS = 60
 clock = g.time.Clock()
 
 #setting up start menu:
-start_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 - 300, BUTTON_WIDTH, 50, "START")
-exit_b = Button(LETTER_FONT, WIDTH / 2, HEIGHT / 2 + 200, BUTTON_WIDTH, 50, text="END")
-number_player_b = Button(LETTER_FONT, WIDTH / 2 - 70, HEIGHT / 2 - 200, 50, 50, "4")
-name_player1 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, "Player1")
-name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player2")
-name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
-name_player4 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player4")
+start_b = Button(LETTER_FONT, g.Rect(int(WIDTH / 2), int(HEIGHT / 2 - 300), BUTTON_WIDTH, 50), "START")
+exit_b = Button(LETTER_FONT, g.Rect(int(WIDTH / 2), int(HEIGHT / 2 + 200), BUTTON_WIDTH, 50), text="END")
+number_player_b = Button(LETTER_FONT, g.Rect(int(WIDTH / 2 - 70), int(HEIGHT / 2 - 200), 50, 50), "4")
+name_player1 = InputBox(g.Rect(int(WIDTH / 2) , 0, BUTTON_WIDTH, 50), LETTER_FONT, "Player1")
+name_player2 = InputBox(g.Rect(int(WIDTH / 2) , 0, BUTTON_WIDTH, 50), LETTER_FONT, text="Player2")
+name_player3 = InputBox(g.Rect(int(WIDTH / 2) , 0, BUTTON_WIDTH, 50), LETTER_FONT, text="Player3")
+name_player4 = InputBox(g.Rect(int(WIDTH / 2) , 0, BUTTON_WIDTH, 50), LETTER_FONT, text="Player4")
 input_name_boxes = [name_player1, name_player2, name_player3, name_player4]
 y_coor = -200
 for input_box in input_name_boxes:
