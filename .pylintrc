@@ -62,7 +62,7 @@ confidence=
 # --disable=W".
 disable=C0103,
         E1101,
-        C0301
+        C0301,
         print-statement,
         parameter-unpacking,
         unpacking-in-except,
