@@ -11,7 +11,7 @@ import pygame as g
 from pygame.locals import *
 from classes import Button, InputBox, Card, BonusC, Resources, Resourcestack, Player
 from colours import WHITE, BLACK, BLUE, LIGHTBLUE, DARKYELLOW, HIGHLIGHTORANGE
-from graphics import BACKGROUND, REDTOKEN
+from graphics import BACKGROUND
 
 g.init()
 
@@ -84,12 +84,12 @@ for input_box in input_name_boxes:
     y += 100
 
 
-def draw_sidebar(lst_player, id):
+def draw_sidebar(lst_player, id_player):
     '''(lst of Player Obj, int) -> None
 
     Creates a sidebar showing info on the non active players.'''
     all_players = deepcopy(lst_player)
-    all_players.pop(id)
+    all_players.pop(id_player)
     shrnk_fa = 3/5
     x_side = SIDEBAR_WIDTH // 4
     y_side = SIDEBAR_WIDTH // (len(all_players) + 2)
@@ -129,6 +129,9 @@ def draw_sidebar(lst_player, id):
         y_side += 2*(RADIUS_PLAYER_RS + PADDING_V)
 
 def draw_menu_page(screen):
+    '''(surface obj) -> None
+
+    Draws the Pre-Game-Menu'''
     win.fill(DARKYELLOW)
     start_b.draw(screen)
     number_player_b.draw(screen)
@@ -139,6 +142,9 @@ def draw_menu_page(screen):
     g.display.update()
 
 def display_game_notification(message1, message2=""):
+    '''(str, str) -> None
+
+    Blits a notification on the surface cosisting of msg1 and optional msg2'''
     text = WORD_FONT.render(message1, 1, BLUE)
     if len(message2) != 0:
         text2 = WORD_FONT.render(message2, 1, LIGHTBLUE)
@@ -150,6 +156,9 @@ def display_game_notification(message1, message2=""):
     g.time.delay(2_000)
 
 def display_message (message1, message2):
+    '''(str, str) -> None
+
+    Blits the end of game msg on the surface cosisting of msg1 and msg2'''
     g.time.delay(1_000)
     text = LOSE_FONT.render(message1, 1, BLUE)
     text2 = TITLE_FONT.render(message2, 1, LIGHTBLUE)
@@ -159,12 +168,12 @@ def display_message (message1, message2):
     g.display.update()
     g.time.delay(10_000)
 
-def highlight_rect(rect:Rect):
-    g.draw.rect(win, HIGHLIGHTORANGE, rect, 5)
+def highlight_rect(rect:Rect, color):
+    g.draw.rect(win, color, rect, 5)
     g.display.update()
 
-def highlight_circle(rect:Rect):
-    g.draw.circle(win, HIGHLIGHTORANGE, rect.center, RADIUS_RESOURCES, 5)
+def highlight_circle(rect:Rect, color):
+    g.draw.circle(win, color, rect.center, int(rect.width/2), 5)
     g.display.update()
 
 def draw_resources_stack():
@@ -329,58 +338,57 @@ def game(lst_player, resource_stack):
         for event in g.event.get():
             if event.type == QUIT:
                 run = False
-            if event.type == MOUSEBUTTONDOWN:
-                #TODO player clicks help button:
-                if help_button.handle_event(event):
-                    g.display.iconify()
-                    os.system(os.path.join("RuleBook", "rb.pdf"))
-                #player clicks exit button:
-                if exit_button.handle_event(event):
-                    run = False
-                #player clicks on card
-                for card_id, card in enumerate(lst_cards):
-                    if card.handle_event(event):
-                        highlight_rect(card.rect)
-                        if 1 in count_res_picked.values():
-                            display_game_notification("That won't work!", "You took a resource already.")
-                            continue #without this continue, the algorithm doesn't work as expected.
+            if help_button.handle_event(event):
+                g.display.iconify()
+                os.system(os.path.join("RuleBook", "rb.pdf"))
+            #player clicks exit button:
+            if exit_button.handle_event(event):
+                run = False
+            #player clicks on card
+            for card_id, card in enumerate(lst_cards):
+                if card.handle_event(event):
+                    highlight_rect(card.rect, HIGHLIGHTORANGE)
+                    if 1 in count_res_picked.values():
+                        display_game_notification("That won't work!", "You took a resource already.")
+                        continue #without this continue, the algorithm doesn't work as expected.
+                    else:
+                        if active_player.check_if_card_affordable(card):
+                            g.time.wait(400)
+                            active_player.pick_crd(card, resource_stack)
+                            cntr_pck_crd += 1
+                            if card.points == 1:
+                                display_game_notification("1 point is added to your points!")
+                            elif card.points > 1:
+                                display_game_notification(f"{card.points} points are added to your points!")
+                            card.replace_card(card_id, lst_cards)
                         else:
-                            if active_player.check_if_card_affordable(card):
-                                active_player.pick_crd(card, resource_stack)
-                                cntr_pck_crd += 1
-                                if card.points == 1:
-                                    display_game_notification("1 point is added to your points!")
-                                elif card.points > 1:
-                                    display_game_notification(f"{card.points} points are added to your points!")
-                                card.replace_card(card_id, lst_cards)
-                            else:
-                                display_game_notification("Not enough Resources")
-                        for bcard in lst_bcards:
-                            if active_player.check_if_qualified_for_bonus(bcard):
-                                active_player.points += 3
-                                #TODO check if this code is needed: bcard.visible = False
-                                lst_bcards.remove(bcard)
-                                display_game_notification("Awesome!!! You just earned a bonus",
-                                f"{bcard.points} are added to your points.")
-                                print("DEBUG: Bonus Card Taken!")
+                            display_game_notification("Not enough Resources")
+                    for bcard in lst_bcards:
+                        if active_player.check_if_qualified_for_bonus(bcard):
+                            active_player.points += 3
+                            #TODO check if this code is needed: bcard.visible = False
+                            lst_bcards.remove(bcard)
+                            display_game_notification("Awesome!!! You just earned a bonus",
+                            f"{bcard.points} are added to your points.")
+                            print("DEBUG: Bonus Card Taken!")
+                            break
+            #player klicks on Resources
+            for ress, resource_rect in resource_stack.lst_rects:
+                if event.type == MOUSEBUTTONDOWN:
+                    if resource_rect.collidepoint(event.pos):
+                        highlight_circle(resource_rect, HIGHLIGHTORANGE)
+                        if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
+                            success = active_player.take_res(ress, resource_stack)
+                            if success:
+                                display_game_notification(f"1 of the {ress} Resources added to your stack")
+                                count_res_picked[ress] += 1
                                 break
-                #player klicks on Resources
-                for ress, resource_rect in resource_stack.lst_rects:
-                    if event.type == MOUSEBUTTONDOWN:
-                        if resource_rect.collidepoint(event.pos):
-                            highlight_circle(resource_rect)
-                            if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
-                                success = active_player.take_res(ress, resource_stack)
-                                if success:
-                                    display_game_notification(f"1 of the {ress} Resources added to your stack")
-                                    count_res_picked[ress] += 1
-                                    break
-                                else:
-                                    display_game_notification("You can't take this, sweetie.")
-                                    break
                             else:
-                                display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
+                                display_game_notification("You can't take this, sweetie.")
                                 break
+                        else:
+                            display_game_notification("You can either take 2x the same, or 3 different ones!!! DUCKER!")
+                            break
         g.event.clear()
         draw(lst_player, active_player_id)
 
