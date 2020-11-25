@@ -78,11 +78,10 @@ name_player2 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Play
 name_player3 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player3")
 name_player4 = InputBox(WIDTH / 2 , 0, BUTTON_WIDTH, 50, LETTER_FONT, text="Player4")
 input_name_boxes = [name_player1, name_player2, name_player3, name_player4]
-y = -200
+y_coor = -200
 for input_box in input_name_boxes:
-    input_box.rect.move_ip(0, int(HEIGHT/2)+ y)
-    y += 100
-
+    input_box.rect.move_ip(0, int(HEIGHT/2)+ y_coor)
+    y_coor += 100
 
 def draw_sidebar(lst_player, id_player):
     '''(lst of Player Obj, int) -> None
@@ -168,12 +167,14 @@ def display_message (message1, message2):
     g.display.update()
     g.time.delay(10_000)
 
-def highlight_rect(rect:Rect, color):
-    g.draw.rect(win, color, rect, 5)
+def highlight_rect(rect:Rect, highlightcolor):
+    '''Draw a border in (higlightcolor) around the (rect)'''
+    g.draw.rect(win, highlightcolor, rect, 5)
     g.display.update()
 
-def highlight_circle(rect:Rect, color):
-    g.draw.circle(win, color, rect.center, int(rect.width/2), 5)
+def highlight_circle(rect:Rect, highlightcolor):
+    '''draw a border around a circle shaped (rect) in (highlightcolor)'''
+    g.draw.circle(win, highlightcolor, rect.center, int(rect.width/2), 5)
     g.display.update()
 
 def draw_resources_stack():
@@ -181,8 +182,8 @@ def draw_resources_stack():
     resource_stack.draw(
     win,
     LETTER_FONT,
-    x=START_X_RS,
     y=START_Y_RS,
+    x=START_X_RS,
     r=RADIUS_RESOURCES,
     padding=PADDING_H
     )
@@ -223,7 +224,7 @@ def draw_cards():
     for card_ind in lst_cards:
         card_ind.draw(win)
 
-def draw(lst_players, active_player_id):
+def draw(lst_pl, active_player_id):
     '''Wraps function calls to set up the screen and all objects that need to be drawn.'''
     win.blit(background, (0,0))
 
@@ -235,33 +236,30 @@ def draw(lst_players, active_player_id):
     draw_cards()
     draw_boni()
     draw_resources_stack()
-    draw_active_player(lst_players[active_player_id])
-    draw_sidebar(lst_players, active_player_id)
+    draw_active_player(lst_pl[active_player_id])
+    draw_sidebar(lst_pl, active_player_id)
     g.display.update()
 
 def initiate_carddeck():
     ''''initiate the 12 cards of the carddeck.'''
-    lst_cards = []
+    cards = []
     for difficulty_level in range(3):
         y = 100 + difficulty_level*(PADDING_V + RECTHEIGHT_CARDDECK) # determining the y coordinate
         for __ in range(4):   #instance the 4 card
             x = START_X_CARDS + __*(PADDING_H + RECTWIDTH_CARDDECK)# determining the x coordinate
             c = Card(difficulty_level, x, y, RECTWIDTH_CARDDECK, RECTHEIGHT_CARDDECK, LETTER_FONT)
-            lst_cards.append(c)
-    return lst_cards
+            cards.append(c)
+    return cards
 
 def initiate_bonus_carddeck():
     '''initiate the 3 bonus cards.'''
-    lst_bcards = []
+    bcards = []
     for _ in range(3):
         y = 100 + _ * (RECTHEIGHTBONI + PADDING_V)
         x = START_X_BONI
         bonus = BonusC(x, y, RECTWIDTHBONI, RECTHEIGHTBONI, LETTER_FONT)
-        lst_bcards.append(bonus)
-    return lst_bcards
-
-lst_cards = initiate_carddeck()
-lst_bcards = initiate_bonus_carddeck()
+        bcards.append(bonus)
+    return bcards
 
 def startmenu_loop():
     '''(None) -> list
@@ -290,7 +288,7 @@ def startmenu_loop():
                 if len(lst_player_names) >= 1:
                     in_menu = False
             if exit_b.handle_event(event):
-                run = in_menu = False
+                in_menu = False
                 number_player_b.active = False
             if number_player_b.handle_event(event):
                 i = number_player_b.increase_num(4)
@@ -300,28 +298,31 @@ def startmenu_loop():
                     box.visible = False
     return lst_player_names
 
-def set_up_game(lst_names):
-
+def set_up_game(names):
     '''(list of str) -> (list of Player Objs, ResourceStack)
 
     Prepare inputs for the main loop.
 
     Player objects and resource stack'''
-    lst_players = create_players(lst_names)
-    resource_stack = Resourcestack(len(lst_players))
-    return (lst_players, resource_stack)
+    players = create_players(names)
+    rs = Resourcestack(len(players))
+    return (players, rs)
 
-def create_players(lst_names):
+def create_players(names):
     '''(lst of strings) -> list of Player Objects
 
     Create player objects from the list of names.
     Returns list of players.'''
     lst_player = []
-    for player in lst_names:
-        lst_player.append(Player(str(player), 1))
+    for name in names:
+        lst_player.append(Player(str(name), 1))
     return lst_player
 
-def game(lst_player, resource_stack):
+def game(lst_player, rstack):
+    '''game_loop. set up the display and load the right parameters.
+
+    Plus the game logic'''
+
     #game counter, to track actions done by active player.
     cntr_pck_crd = 0
     count_res_picked = Resources()
@@ -354,7 +355,7 @@ def game(lst_player, resource_stack):
                     else:
                         if active_player.check_if_card_affordable(card):
                             g.time.wait(400)
-                            active_player.pick_crd(card, resource_stack)
+                            active_player.pick_crd(card, rstack)
                             cntr_pck_crd += 1
                             if card.points == 1:
                                 display_game_notification("1 point is added to your points!")
@@ -373,12 +374,12 @@ def game(lst_player, resource_stack):
                             print("DEBUG: Bonus Card Taken!")
                             break
             #player klicks on Resources
-            for ress, resource_rect in resource_stack.lst_rects:
+            for ress, resource_rect in rstack.lst_rects:
                 if event.type == MOUSEBUTTONDOWN:
                     if resource_rect.collidepoint(event.pos):
                         highlight_circle(resource_rect, HIGHLIGHTORANGE)
                         if count_res_picked[ress] == 0 or sum(count_res_picked.values()) - count_res_picked[ress] == 0:
-                            success = active_player.take_res(ress, resource_stack)
+                            success = active_player.take_res(ress, rstack)
                             if success:
                                 display_game_notification(f"1 of the {ress} Resources added to your stack")
                                 count_res_picked[ress] += 1
@@ -416,6 +417,8 @@ def game(lst_player, resource_stack):
     g.quit()
     sys.exit(0)
 
+lst_cards = initiate_carddeck()
+lst_bcards = initiate_bonus_carddeck()
 
 if __name__ == '__main__':
     lst_names = startmenu_loop()
